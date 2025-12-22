@@ -6,7 +6,7 @@ This document provides a high‑level architectural overview of the Azure Hybrid
 
 The solution is built around three core pillars:
 
-1. Azure Landing Zone: the governance and management foundation that defines identity, policy, RBAC, and subscription structure.
+1. Azure Landing Zone (Subscription‑Scoped): the governance and management foundation that defines identity, policy, RBAC, and naming standards within a single Azure subscription.
 2. Platform and Workload Infrastructure: a hub‑and‑spoke network topology hosting shared services in the hub and application workloads in the spoke.
 3. Hybrid Integration: an on‑premises Linux virtual machine onboarded to Azure using Azure Arc, enabling governance and configuration management from the cloud.
 
@@ -16,20 +16,20 @@ Automation is provided through Terraform and GitHub Actions, ensuring consistent
 
 The landing zone establishes the enterprise governance model for the environment. It includes:
 
-- Management group hierarchy (Root, Platform, Landing Zones)
-- Azure Policy assignments for baseline governance
+- Subscription‑level Azure Policy assignments for baseline governance
 - RBAC model for least‑privilege access
-- Subscription structure separating platform services from workloads
 - Naming and tagging standards applied consistently across resources
+- A single subscription hosting both platform and workload resources
 
 This layer provides the control plane for both cloud and hybrid resources.
+A full management‑group hierarchy and subscription vending model will be introduced in a future enterprise‑grade version of the landing zone.
 
 ## 3. Hub Network and Shared Services
 
 The hub virtual network hosts shared services and acts as the central connectivity point for the environment. Key components include:
 
 - Hub virtual network and subnets
-- Log Analytics workspace for monitoring and diagnostics
+- Log Analytics workspace for monitoring and diagnostics (optional or future)
 - Azure Key Vault (Standard tier) for secret management
 - Optional shared services such as Bastion or Automation Account
 - VNet peering to spoke networks
@@ -74,6 +74,9 @@ This ensures deployments are consistent, repeatable, and aligned with modern eng
 
 The architecture is intentionally minimal to control cost while remaining extensible. Potential future improvements include:
 
+- Full management group hierarchy and subscription vending
+- Azure Security Benchmark (ASB) and enterprise policy initiatives
+- Centralised logging and monitoring via Log Analytics workspace
 - Additional spokes for multi‑environment scenarios
 - Azure Firewall or third‑party network virtual appliances
 - Private DNS zones and more advanced name resolution
