@@ -121,3 +121,19 @@ resource "azurerm_policy_assignment" "naming" {
 #   prefix          = var.prefix
 # }
 
+# -------------------------------------------------------------------
+# Reference the governance module
+# -------------------------------------------------------------------
+
+module "governance" {
+  source = "./modules/governance"
+
+  subscription_id              = var.subscription_id
+  location                     = "australiaeast"
+  platform_resource_group_name = "rg-platform"
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+}
