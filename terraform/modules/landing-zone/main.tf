@@ -7,22 +7,6 @@
 # NOTE: This module is currently subscription-scoped for free-tier compatibility.
 # Future enterprise features (MG hierarchy, subscription vending) will be added in a separate project.
 
-terraform {
-  required_version = ">= 1.6.0"
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id
-}
-
 # Resource group added for core platform services since we don't have the 
 # subscriptions and management groups
 
