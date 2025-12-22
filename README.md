@@ -10,14 +10,14 @@ The project showcases practical, real‑world engineering skills across architec
 
 This project implements a fully documented hybrid cloud environment that includes:
 
-- A lightweight Azure landing zone with governance and management groups  
-- Hub‑and‑spoke network architecture  
-- Shared services such as Log Analytics and Key Vault  
-- A simple application workload deployed into the spoke  
-- Hybrid integration using Azure Arc for an on‑premises Linux VM  
-- Terraform‑based infrastructure‑as‑code  
-- GitHub Actions CI/CD pipeline using secure OIDC authentication  
-- Clear, professional documentation suitable for portfolio presentation  
+- A lightweight Azure landing zone with subscription‑scoped governance (Azure Policy, RBAC, naming/tagging)
+- Hub‑and‑spoke network architecture
+- Shared services such as Key Vault and optional Log Analytics
+- A simple application workload deployed into the spoke
+- Hybrid integration using Azure Arc for an on‑premises Linux VM
+- Terraform‑based infrastructure‑as‑code
+- GitHub Actions CI/CD pipeline using secure OIDC authentication
+- Clear, professional documentation suitable for portfolio presentation
 
 The design emphasises clarity, governance, and automation over complexity.
 
@@ -63,25 +63,25 @@ This structure mirrors real enterprise engineering repositories and keeps archit
 
 ## Key Features
 
-### **Hybrid Cloud Integration**
+### Hybrid Cloud Integration
 A local Linux VM is onboarded into Azure using Azure Arc, demonstrating governance, monitoring, and configuration management for non‑Azure resources.
 
-### **Landing Zone Architecture**
-A minimal but realistic landing zone with management groups, policy, RBAC, and subscription separation.
+### Landing Zone Architecture
+A minimal but realistic landing zone with subscription‑scoped governance (policy, RBAC, naming/tagging) implemented within a single Azure subscription.
 
-### **Hub‑and‑Spoke Networking**
+### Hub‑and‑Spoke Networking
 A clean network topology with a platform hub and workload spoke, connected via VNet peering.
 
-### **Shared Services**
-Centralised Log Analytics workspace, Key Vault, and diagnostic settings.
+### Shared Services
+Key Vault and optional Log Analytics workspace, with diagnostic settings enabled when monitoring is configured.
 
-### **Application Workload**
+### Application Workload
 A simple App Service + Storage workload deployed into the spoke network.
 
-### **Terraform IaC**
+### Terraform IaC
 Modular Terraform structure aligned with the architecture documents.
 
-### **GitHub Actions CI/CD**
+### GitHub Actions CI/CD
 Secure, automated deployment pipeline using OIDC authentication and manual approvals.
 
 ---
@@ -90,9 +90,9 @@ Secure, automated deployment pipeline using OIDC authentication and manual appro
 
 All documentation is located in the `docs/` folder and is grouped into:
 
-- **Architecture** — design documents explaining the environment  
-- **Planning** — project plan and delivery structure  
-- **Reference** — implementation details such as naming standards and Terraform layout  
+- Architecture — design documents explaining the environment
+- Planning — project plan and delivery structure
+- Reference — implementation details such as naming standards and Terraform layout
 
 Start with:
 
@@ -104,11 +104,11 @@ Start with:
 
 To deploy or work with this project, you will need:
 
-- Azure subscription  
-- Azure CLI  
-- Terraform  
-- GitHub account (for CI/CD)  
-- Local virtualisation platform (e.g., KVM) for the Azure Arc demo VM  
+- Azure subscription
+- Azure CLI
+- Terraform
+- GitHub account (for CI/CD)
+- Local virtualisation platform (e.g., KVM) for the Azure Arc demo VM
 
 ---
 
@@ -116,15 +116,15 @@ To deploy or work with this project, you will need:
 
 Deployment is performed through:
 
-- Terraform (root module)  
-- GitHub Actions CI/CD pipeline  
+- Terraform (root module)
+- GitHub Actions CI/CD pipeline
 
 The pipeline handles:
 
-- Formatting and validation  
-- Planning  
-- Manual approval  
-- Apply  
+- Formatting and validation
+- Planning
+- Manual approval
+- Apply
 
 Authentication uses secure, short‑lived OIDC tokens.
 
@@ -134,25 +134,27 @@ Authentication uses secure, short‑lived OIDC tokens.
 
 Potential future improvements include:
 
-- Additional spokes (dev/test/prod)  
-- Private DNS zones  
-- Defender for Cloud integration  
-- Azure Firewall or third‑party NVAs  
-- Arc‑enabled Kubernetes or SQL Server  
-- Multi‑region expansion  
+- Full management group hierarchy and subscription vending
+- Azure Security Benchmark (ASB) and enterprise policy initiatives
+- Additional spokes (dev/test/prod)
+- Private DNS zones
+- Defender for Cloud integration
+- Azure Firewall or third‑party NVAs
+- Arc‑enabled Kubernetes or SQL Server
+- Multi‑region expansion
 
 ---
 
 ## Purpose of This Project
 
-This project is designed as a **portfolio‑ready demonstration** of:
+This project is designed as a portfolio‑ready demonstration of:
 
-- Cloud architecture  
-- Hybrid cloud integration  
-- Infrastructure‑as‑code  
-- DevOps automation  
-- Governance and policy  
-- Documentation quality  
+- Cloud architecture
+- Hybrid cloud integration
+- Infrastructure‑as‑code
+- DevOps automation
+- Governance and policy
+- Documentation quality
 
 It reflects real‑world engineering patterns while remaining accessible and cost‑efficient.
 
@@ -161,4 +163,3 @@ It reflects real‑world engineering patterns while remaining accessible and cos
 ## License
 
 See the LICENSE file in the root of this project
-
