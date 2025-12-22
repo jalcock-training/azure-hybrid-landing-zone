@@ -6,10 +6,10 @@ This document describes the network architecture used in the Azure Hybrid Landin
 
 The network is organised into two primary virtual networks:
 
-- **Hub Virtual Network**  
+- Hub Virtual Network
   Hosts shared services and centralised management components.
 
-- **Spoke Virtual Network**  
+- Spoke Virtual Network
   Hosts the application workload and any workload‑specific resources.
 
 The hub and spoke networks are connected using VNet peering, allowing controlled communication while maintaining isolation between workloads.
@@ -20,17 +20,17 @@ The hub network represents the platform layer of the environment. It provides sh
 
 ### Key Components
 
-- **Hub Virtual Network**  
-  A central VNet that acts as the connectivity and services core.
+- Hub Virtual Network
+  - A central VNet that acts as the connectivity and services core.
 
-- **Subnets**  
-  - Shared Services subnet  
-  - Optional Azure Bastion subnet  
+- Subnets
+  - Shared Services subnet
+  - Optional Azure Bastion subnet
   - Optional Azure Firewall subnet (not deployed in this project to minimise cost)
 
-- **Shared Services**  
-  - Log Analytics workspace for centralised monitoring  
-  - Azure Key Vault (Standard tier) for secret management  
+- Shared Services
+  - Log Analytics workspace for centralised monitoring (optional or future)
+  - Azure Key Vault (Standard tier) for secret management
   - Optional Automation Account or other platform services
 
 ### Design Considerations
@@ -38,6 +38,7 @@ The hub network represents the platform layer of the environment. It provides sh
 - The hub is intentionally lightweight to keep the environment cost‑effective.
 - Shared services are deployed once and consumed by all spokes.
 - No user‑defined routes or network virtual appliances are required at this stage.
+- All hub resources reside within the same subscription as the spoke to maintain free‑tier compatibility.
 
 ## 3. Spoke Virtual Network
 
@@ -45,31 +46,31 @@ The spoke network hosts the example application workload. It is isolated from ot
 
 ### Key Components
 
-- **Spoke Virtual Network**  
-  A workload‑specific VNet that contains application resources.
+- Spoke Virtual Network
+  - A workload‑specific VNet that contains application resources.
 
-- **Subnets**  
-  - Application subnet  
+- Subnets
+  - Application subnet
   - Optional Private Endpoint subnet
 
-- **Application Resources**  
-  - Azure App Service (Free tier)  
-  - Storage account for application assets or logs  
+- Application Resources
+  - Azure App Service (Free tier)
+  - Storage account for application assets or logs
   - Optional private endpoints for secure access to platform services
 
 ### Design Considerations
 
 - The spoke is isolated from other workloads and from the hub except where explicitly allowed.
 - The application does not require inbound public access; App Service handles external access.
-- Diagnostic settings forward logs to the shared Log Analytics workspace.
+- Diagnostic settings forward logs to the shared Log Analytics workspace when enabled.
 
 ## 4. Connectivity Between Hub and Spoke
 
-Hub and spoke networks are connected using **VNet peering**, which provides:
+Hub and spoke networks are connected using VNet peering, which provides:
 
-- Low‑latency, high‑bandwidth communication  
-- No need for gateways or VPNs  
-- Separate control planes for each VNet  
+- Low‑latency, high‑bandwidth communication
+- No need for gateways or VPNs
+- Separate control planes for each VNet
 - Clear separation of platform and workload responsibilities
 
 Peering is configured as non‑transitive, meaning spokes cannot communicate with each other unless explicitly peered.
@@ -82,14 +83,15 @@ The network design supports strong isolation between platform and workload layer
 - No inbound public access is required for the hub or spoke VNets.
 - Private endpoints can be added later to enhance security without redesigning the network.
 - Azure Firewall is intentionally excluded to avoid unnecessary cost but can be added as a future enhancement.
+- Security controls are applied at the subscription and resource‑group level rather than through management‑group inheritance.
 
 ## 6. Integration with Hybrid Resources
 
 Azure Arc–enabled servers do not connect directly to the hub or spoke networks. Instead, they integrate through:
 
-- Azure Resource Manager  
-- Azure Policy  
-- Optional monitoring via Log Analytics  
+- Azure Resource Manager
+- Azure Policy
+- Optional monitoring via Log Analytics
 
 This allows hybrid resources to participate in governance and monitoring without requiring network connectivity to Azure VNets.
 
@@ -97,11 +99,11 @@ This allows hybrid resources to participate in governance and monitoring without
 
 The hub‑and‑spoke topology is designed to scale as the project grows. Future enhancements may include:
 
-- Additional spokes for multi‑environment scenarios  
-- Azure Firewall or third‑party network virtual appliances  
-- Private DNS zones for centralised name resolution  
-- ExpressRoute or VPN gateways for enterprise connectivity  
-- Service endpoints or private endpoints for more secure service access  
+- Additional spokes for multi‑environment scenarios
+- Azure Firewall or third‑party network virtual appliances
+- Private DNS zones for centralised name resolution
+- ExpressRoute or VPN gateways for enterprise connectivity
+- Service endpoints or private endpoints for more secure service access
 
 The current implementation provides a minimal, cost‑efficient foundation while remaining aligned with enterprise best practices.
 
