@@ -1,40 +1,70 @@
-# Create the platform resource group
+# ------------------------------------------------------------
+# Platform Resource Group
+# ------------------------------------------------------------
+
 resource "azurerm_resource_group" "platform" {
   name     = var.platform_resource_group_name
   location = var.location
   tags     = var.tags
 }
 
-# Apply subscription-level tags
-resource "azurerm_subscription_tag" "subscription_tags" {
-  subscription_id = var.subscription_id
-  tags            = var.tags
-}
+# ------------------------------------------------------------
+# Subscription‑level Tags
+# ------------------------------------------------------------
 
-# Allowed locations policy
-resource "azurerm_policy_assignment" "allowed_locations" {
-  name                 = "allowed-locations"
-  display_name         = "Allowed Locations"
-  scope                = "/subscriptions/${var.subscription_id}"
-  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c"
+resource "azapi_resource" "subscription_tags" {
+  type      = "Microsoft.Resources/tags@2021-04-01"
+  name      = "default"
+  parent_id = "/subscriptions/${var.subscription_id}"
 
-  parameters = jsonencode({
-    listOfAllowedLocations = {
-      value = [var.location]
+  body = jsonencode({
+    properties = {
+      tags = var.tags
     }
   })
 }
 
-# Required tags policy
-resource "azurerm_policy_assignment" "required_tags" {
-  name                 = "required-tags"
-  display_name         = "Required Tags"
-  scope                = "/subscriptions/${var.subscription_id}"
-  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/4f9f7b9b-0d1c-4d1d-8f3c-3b8f1e3c5f5a"
+# ------------------------------------------------------------
+# Allowed Locations Policy Assignment
+# ------------------------------------------------------------
 
-  parameters = jsonencode({
-    tagName = {
-      value = "Owner"
+resource "azapi_resource" "allowed_locations" {
+  type      = "Microsoft.Authorization/policyAssignments@2021-06-01"
+  name      = "allowed-locations"
+  parent_id = "/subscriptions/${var.subscription_id}"
+
+  body = jsonencode({
+    properties = {
+      displayName        = "Allowed Locations"
+      policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c"
+      parameters = {
+        listOfAllowedLocations = {
+          value = [var.location]
+        }
+      }
     }
   })
 }
+
+# ------------------------------------------------------------
+# Required Tags Policy Assignment
+# ------------------------------------------------------------
+
+resource "azapi_resource" "required_tags" {
+  type      = "Microsoft.Authorization/policyAssignments@2021-06-01"
+  name      = "required-tags"
+  parent_id = "/subscriptions/${var.subscription_id}"
+
+  body = jsonencode({
+    properties = {
+      displayName        = "Enforce Required Tags"
+      policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/4f9f7b9b-0d1c-4d1d-8f3c-3b8f1e3c5f5a"
+      parameters = {
+        tagName = {
+          value = "Owner"
+        }
+      }
+    }
+  })
+}
+
