@@ -1,6 +1,6 @@
 # Shared Services
 
-This document describes the shared services that support the Azure Hybrid Landing Zone project. These services are deployed in the platform (hub) subscription and provide centralised capabilities used by both cloud and hybrid resources. The design focuses on essential services that enable governance, monitoring, and secure operations while keeping cost and complexity low.
+This document describes the shared services that support the Azure Hybrid Landing Zone project. These services are deployed in the hub resource group within a single subscription and provide centralised capabilities used by both cloud and hybrid resources. The design focuses on essential services that enable governance, monitoring, and secure operations while keeping cost and complexity low.
 
 ## 1. Purpose of Shared Services
 
@@ -16,7 +16,7 @@ The shared services layer is intentionally minimal for this project but reflects
 
 ## 2. Log Analytics Workspace
 
-The Log Analytics workspace is the central monitoring and diagnostics store for the environment. It receives logs and metrics from:
+The Log Analytics workspace is an optional shared monitoring component for the environment. It receives logs and metrics from:
 
 - Hub and spoke network resources
 - Application services
@@ -25,12 +25,12 @@ The Log Analytics workspace is the central monitoring and diagnostics store for 
 
 ### Key Characteristics
 
-- Deployed once in the platform subscription
+- Deployed once within the same subscription as hub and spoke resources (optional or future)
 - Acts as the central monitoring point for the environment
 - Supports Azure Monitor, alerts, and policy compliance
 - Configured with minimal retention to control cost
 
-The workspace enables unified visibility across cloud and hybrid assets.
+The workspace enables unified visibility across cloud and hybrid assets when enabled.
 
 ## 3. Azure Key Vault
 
@@ -47,7 +47,8 @@ Key Vault ensures that sensitive information is managed securely and consistentl
 
 ## 4. Diagnostic Settings
 
-Diagnostic settings are configured to forward logs and metrics from supported resources to the Log Analytics workspace. This includes:
+Diagnostic settings are configured to forward logs and metrics from supported resources to the Log Analytics workspace. This is optional in the current phase and enabled only when a workspace is deployed. 
+This includes:
 
 - Virtual networks
 - Subnets (where applicable)
@@ -89,5 +90,3 @@ The shared services layer is designed to scale as the project evolves. Future en
 - Additional automation and configuration management services
 
 The current implementation provides a minimal but realistic foundation for enterprise shared services.
-
-
