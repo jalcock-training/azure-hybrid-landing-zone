@@ -75,6 +75,9 @@ resource "azapi_resource" "required_tags" {
         tagName = {
           value = "Owner"
         }
+        tagValue = {
+          value = "James"
+        }
       }
     }
   })
