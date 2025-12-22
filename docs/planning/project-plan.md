@@ -2,6 +2,8 @@
 
 This document outlines the project plan for the Azure Hybrid Landing Zone. It defines the phases, deliverables, and sequencing required to build a minimal, cost‑efficient, and enterprise‑aligned hybrid cloud environment using Azure, Azure Arc, Terraform, and GitHub Actions. The plan is structured to allow incremental progress while maintaining a clear architectural direction.
 
+This project represents Phase 1 of a broader landing zone evolution, with the architecture intentionally structured to support future enterprise‑grade governance.
+
 ## 1. Project Objectives
 
 The primary objectives of the project are to:
