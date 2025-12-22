@@ -70,7 +70,7 @@ resource "azapi_resource" "required_tags" {
   body = jsonencode({
     properties = {
       displayName        = "Enforce Required Tags"
-      policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/4f9f7b9b-0d1c-4d1d-8f3c-3b8f1e3c5f5a"
+      policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/1e30110a-5ceb-460c-a204-c1c3969c6d62"
       parameters = {
         tagName = {
           value = "Owner"
