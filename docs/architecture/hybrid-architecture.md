@@ -8,7 +8,7 @@ The hybrid architecture enables Azure to manage resources that run outside the c
 
 - Centralised governance through Azure Policy
 - Inventory and metadata visibility in Azure Resource Manager
-- Optional monitoring through Log Analytics
+- Optional monitoring through a Log Analytics workspace (if deployed)
 - Consistent automation and configuration management
 - A unified operational model for cloud and on‑premises assets
 
@@ -20,13 +20,13 @@ The on‑premises environment consists of a lightweight virtual machine hosted o
 
 ### Key Components
 
-- **KVM Hypervisor**  
+- KVM Hypervisor
   Provides the local virtualisation platform.
 
-- **Linux Virtual Machine**  
+- Linux Virtual Machine
   Runs a supported distribution such as Ubuntu or Rocky Linux.
 
-- **NGINX Web Server**  
+- NGINX Web Server
   Used as a simple workload to demonstrate configuration and management.
 
 This environment is not connected to Azure via VPN or ExpressRoute; instead, it integrates through Azure Arc.
@@ -37,19 +37,19 @@ Azure Arc enables the on‑premises VM to appear in Azure as a first‑class res
 
 ### Capabilities Enabled
 
-- **Azure Resource Manager Integration**  
+- Azure Resource Manager Integration
   The VM is represented as a Connected Machine resource.
 
-- **Policy and Governance**  
+- Policy and Governance
   Azure Policy can audit or enforce configurations on the VM.
 
-- **Access Control**  
+- Access Control
   RBAC applies through Azure Resource Manager, not local accounts.
 
-- **Optional Monitoring**  
-  The VM can forward logs and metrics to the shared Log Analytics workspace.
+- Optional Monitoring
+  The VM can forward logs and metrics to a Log Analytics workspace when one is deployed.
 
-- **Configuration Management**  
+- Configuration Management
   GitHub Actions or other automation tools can apply updates or manage configuration.
 
 Azure Arc provides a consistent operational model without requiring network‑level connectivity to Azure VNets.
@@ -58,12 +58,12 @@ Azure Arc provides a consistent operational model without requiring network‑le
 
 Hybrid resources are governed through the same landing zone structure as cloud resources. This includes:
 
-- Policy assignments at the management group or subscription level
+- Policy assignments at the subscription level (subscription‑scoped governance)
 - Required tagging for classification and cost management
 - Baseline security and configuration policies
 - Optional guest configuration policies
 
-This ensures hybrid assets follow the same governance standards as Azure‑native workloads.
+This ensures hybrid assets follow the same governance standards as Azure‑native workloads within the subscription‑scoped landing zone.
 
 ## 5. Monitoring and Diagnostics
 
