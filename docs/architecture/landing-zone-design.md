@@ -9,25 +9,22 @@ The landing zone provides the foundational control plane for the environment. It
 - Consistent identity and access management
 - Centralised policy enforcement
 - Standardised naming and tagging
-- Separation of platform and workload responsibilities
-- A structure that can scale to multiple environments or teams
+- Clear separation of platform and workload responsibilities within a single subscription
+- A structure that can scale to multiple environments or teams in future phases
 
-The landing zone is intentionally minimal for this project, focusing on the core elements required to demonstrate enterprise‑grade governance without incurring unnecessary cost.
+The landing zone is intentionally minimal for this project, focusing on subscription‑scoped governance to maintain free‑tier compatibility while still demonstrating enterprise‑aligned patterns.
 
-## 2. Management Group Hierarchy
+## 2. Governance Scope
 
-A lightweight management group hierarchy is used to organise governance boundaries:
+In this phase, governance is applied at the subscription level rather than through a full management‑group hierarchy. This maintains alignment with Azure landing zone principles while avoiding features that require tenant‑root permissions.
 
-- **Root Management Group**  
-  The top‑level container for all governance assignments.
+Key elements include:
+- Subscription‑level Azure Policy assignments
+- RBAC applied at subscription and resource‑group scopes
+- Naming and tagging standards
+- A single subscription hosting both platform and workload resources
 
-- **Platform Management Group**  
-  Contains the subscription hosting shared services and the hub network.
-
-- **Landing Zones Management Group**  
-  Contains workload subscriptions, including the spoke network and application resources.
-
-This structure allows policies and RBAC to be applied at the appropriate scope while keeping the environment simple and cost‑efficient.
+A full management‑group hierarchy and subscription vending model will be introduced in a future enterprise‑grade version of the landing zone.
 
 ## 3. Identity and Access Management
 
@@ -45,23 +42,24 @@ This ensures consistent access control across cloud and hybrid assets.
 Azure Policy is used to enforce baseline governance across the environment. Initial policy assignments include:
 
 - Required tagging for cost management and resource classification
-- Enforced diagnostic settings for supported resources
 - Allowed locations to prevent accidental deployment outside the intended region
 - Baseline security configurations for Azure Arc–enabled servers
+- Optional diagnostic settings for supported resources
 
-Policies are applied at the management group level to ensure consistent governance across all subscriptions.
+Policies are applied at the subscription scope in this phase.
+In a future version, these policies will be moved to the management‑group level to support multi‑subscription governance.
 
 ## 5. Subscription Design
 
-The environment uses a two‑subscription model:
+The environment uses a single‑subscription model for this phase of the project.
 
-- **Platform Subscription**  
-  Hosts the hub network, shared services (Log Analytics, Key Vault), and any future platform components.
+This subscription hosts:
+- The hub network and shared services
+- The spoke network and application workloads
+- Azure Arc–enabled hybrid resources
 
-- **Landing Zone Subscription**  
-  Hosts the spoke network and application workloads.
-
-This separation reflects common enterprise patterns and supports clear boundaries between platform and workload responsibilities.
+This simplified structure supports free‑tier compatibility while still reflecting common enterprise patterns.
+A multi‑subscription model will be introduced in a future iteration.
 
 ## 6. Naming and Tagging Standards
 
@@ -94,6 +92,8 @@ This ensures hybrid resources participate fully in the governance model.
 
 The landing zone is designed to be minimal yet extensible. Future enhancements may include:
 
+- Full management‑group hierarchy for environment separation (e.g., dev/test/prod)
+- Subscription vending and multi‑subscription architecture
 - Additional management groups for environment separation (e.g., dev/test/prod)
 - More advanced policy initiatives
 - Integration with Defender for Cloud
