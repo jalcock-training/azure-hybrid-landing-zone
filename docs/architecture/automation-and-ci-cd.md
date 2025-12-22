@@ -19,7 +19,7 @@ The automation approach reflects modern engineering practices and aligns with en
 
 Terraform is used to define and manage all infrastructure components, including:
 
-- Management groups and policy assignments
+- Subscription‑level governance (Azure Policy, RBAC, naming/tagging)
 - Hub and spoke networks
 - Shared services such as Log Analytics and Key Vault
 - Application workloads
@@ -31,7 +31,7 @@ The project uses a modular structure to promote clarity and reusability:
 
 - Root module for orchestration
 - Child modules for:
-  - Landing zone governance
+  - Subscription‑scoped governance
   - Hub network
   - Spoke network
   - Shared services
@@ -97,7 +97,7 @@ This can be achieved through:
 - Additional Terraform workspaces
 - Separate GitHub environments
 - Branch‑based workflows
-- Additional subscriptions or management groups
+- Additional subscriptions or management groups in a future enterprise version
 
 The current implementation provides a foundation for these patterns without introducing unnecessary complexity.
 
@@ -123,5 +123,3 @@ The automation and CI/CD pipeline can be extended to support:
 - Multi‑region or multi‑environment deployments
 
 The current implementation focuses on core functionality while leaving room for future enhancements.
-
-
