@@ -6,7 +6,7 @@ This document outlines the project plan for the Azure Hybrid Landing Zone. It de
 
 The primary objectives of the project are to:
 
-- Build a minimal but realistic Azure landing zone aligned with enterprise governance patterns
+- Build a minimal but realistic Azure landing zone aligned with enterprise governance patterns, implemented at the subscription scope for free‑tier compatibility.
 - Deploy a hub‑and‑spoke network topology with shared services
 - Demonstrate hybrid cloud integration using Azure Arc
 - Implement infrastructure‑as‑code using Terraform
@@ -19,10 +19,10 @@ The project emphasises clarity, governance, and automation over complexity.
 
 The scope includes:
 
-- Management group hierarchy and governance baseline
-- Platform and workload subscriptions
-- Hub and spoke virtual networks
-- Shared services (Log Analytics, Key Vault)
+- Subscription‑scoped governance baseline (Azure Policy, RBAC, naming/tagging)
+- Single subscription hosting platform and workload resources
+- Hub and spoke virtual networks (within one subscription)
+- Shared services (Key Vault; Log Analytics optional or future)
 - Application workload (App Service and Storage)
 - Azure Arc onboarding for an on‑premises VM
 - Terraform modules and root configuration
@@ -31,6 +31,7 @@ The scope includes:
 
 The following items are explicitly out of scope for the initial implementation:
 
+- Management groups and subscription vending (future enterprise version)
 - Multi‑region deployments
 - Azure Firewall or advanced network appliances
 - Private DNS zones
@@ -45,11 +46,11 @@ The project is divided into sequential phases to support incremental delivery.
 
 ### Phase 1: Foundations and Governance
 
-- Create management group hierarchy
-- Configure baseline Azure Policy assignments
+- Configure subscription‑level Azure Policy assignments
 - Establish naming and tagging standards
-- Create platform and workload subscriptions
-- Document the landing zone design
+- Create platform resource group
+- Configure Terraform backend
+- Document the landing zone design (subscription‑scoped)
 
 ### Phase 2: Hub Network and Shared Services
 
@@ -93,7 +94,7 @@ The project is divided into sequential phases to support incremental delivery.
 
 Each phase produces clear deliverables:
 
-- Management group and policy configuration
+- Subscription‑level governance configuration
 - Hub and spoke networks
 - Shared services deployment
 - Application workload deployment
@@ -129,6 +130,8 @@ These tools reflect modern cloud engineering practices.
 
 The project is designed to minimise cost and complexity. Key constraints include:
 
+- Limited governance features due to subscription‑scoped deployment
+- No management group–level policy inheritance in Phase 1
 - Use of free or low‑cost Azure services
 - No advanced networking or security appliances
 - Single‑region deployment
@@ -144,8 +147,18 @@ These risks are low and manageable.
 
 ## 7. Future Enhancements
 
-The project is designed to be extensible. Potential enhancements include:
+The project is designed to be extensible. The following enhancements represent the enterprise‑grade capabilities that will be introduced in a future, tenant‑root version of the landing zone:
 
+Management & Governance Enhancements
+- Full management group hierarchy (Platform, Landing Zones, Sandbox)
+- Tenant‑root RBAC and role delegation
+- Subscription vending and automated subscription onboarding
+- Azure Security Benchmark (ASB) at the management group level
+- Custom policy definitions and enterprise policy initiatives
+- Centralised logging and monitoring via Log Analytics workspace
+- Enterprise‑grade governance pipeline (policy CI/CD)
+
+Other Enhancements
 - Additional spokes for multi‑environment scenarios
 - Azure Firewall or third‑party NVAs
 - Private DNS zones and centralised name resolution
