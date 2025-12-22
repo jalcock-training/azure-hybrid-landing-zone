@@ -7,7 +7,7 @@ This document describes the application workload used in the Azure Hybrid Landin
 The application workload provides a practical example of how real workloads fit into the landing zone. Its goals are to:
 
 - Demonstrate deployment into a spoke network
-- Show how workloads consume shared services such as Log Analytics and Key Vault
+- Show how workloads consume shared services such as Key Vault and (optionally) Log Analytics
 - Provide a simple, low‑cost application for testing and validation
 - Illustrate how governance and automation apply to workload resources
 - Establish a pattern that can be extended to more complex applications
@@ -25,7 +25,7 @@ The App Service hosts a simple web application. Key characteristics include:
 - Free tier to minimise cost
 - Public endpoint managed by Azure (no inbound VNet access required)
 - Optional VNet integration for future enhancements
-- Diagnostic settings forwarding logs to the shared Log Analytics workspace
+- Diagnostic settings can forward logs to the shared Log Analytics workspace when enabled
 - Integration with Terraform and CI/CD pipeline
 
 The App Service demonstrates how platform‑managed compute fits into the landing zone.
@@ -36,14 +36,14 @@ A general‑purpose storage account supports the application by providing:
 
 - Static content hosting (optional)
 - Application logs or artifacts
-- Diagnostic settings for monitoring
+- Diagnostic settings for monitoring (optional if Log Analytics is not deployed)
 - Optional private endpoint for secure access
 
 The storage account represents a common supporting service for cloud applications.
 
 ## 3. Network Placement
 
-The application workload is deployed into the **spoke virtual network**, which provides:
+The application workload is deployed into the spoke virtual network, which provides:
 
 - Isolation from the hub and other workloads
 - Controlled connectivity through VNet peering
@@ -56,13 +56,13 @@ The App Service itself does not require inbound VNet access, but the spoke netwo
 
 The workload consumes shared services deployed in the hub, including:
 
-- **Log Analytics Workspace**  
-  Diagnostic settings forward logs and metrics for centralised monitoring.
+- Log Analytics Workspace
+  Diagnostic settings can forward logs and metrics for centralised monitoring when a workspace is deployed.
 
-- **Azure Key Vault**  
+- Azure Key Vault
   Can be used for application secrets if required in future iterations.
 
-- **Azure Policy**  
+- Azure Policy
   Ensures compliance with tagging, diagnostics, and security baselines.
 
 This integration demonstrates how workloads benefit from centralised platform capabilities.
@@ -74,7 +74,7 @@ The workload is governed through the same landing zone structure as other resour
 - Required tags for classification and cost management
 - Policy‑driven diagnostic settings
 - Allowed locations and resource types
-- RBAC applied at the subscription or resource group level
+- RBAC applied at the subscription or resource‑group level (subscription‑scoped governance)
 
 This ensures the workload adheres to enterprise governance standards.
 
@@ -101,5 +101,3 @@ The workload architecture is intentionally minimal but can be expanded to suppor
 - Integration with CI/CD pipelines for application code
 
 The current implementation provides a simple but realistic foundation for cloud application deployment.
-
-
