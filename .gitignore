@@ -1,0 +1,3 @@
+# Terraform local state and provider plugins
+terraform/.terraform/
+terraform/.terraform.lock.hcl
