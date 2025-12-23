@@ -11,33 +11,54 @@ resource "azurerm_network_security_group" "nsg" {
 }
 
 ###############################################
-# Create NSG rules for each NSG
+# Create NSG rules for each subnet
 ###############################################
+
+locals {
+  nsg_rule_matrix = {
+    for subnet_name, subnet_id in var.subnet_map :
+    subnet_name => [
+      for rule in var.nsg_rules :
+      {
+        subnet_name = subnet_name
+        rule        = rule
+      }
+    ]
+  }
+
+  nsg_rule_flat = flatten([
+    for subnet_name, rules in local.nsg_rule_matrix :
+    [
+      for r in rules :
+      {
+        key          = "${r.subnet_name}-${r.rule.name}"
+        subnet_name  = r.subnet_name
+        rule         = r.rule
+      }
+    ]
+  ])
+}
 
 resource "azurerm_network_security_rule" "rules" {
   for_each = {
-    for subnet_name, subnet_id in var.subnet_map :
-    subnet_name => {
-      subnet_name = subnet_name
-      subnet_id   = subnet_id
-    }
+    for item in local.nsg_rule_flat :
+    item.key => item
   }
 
-  count = length(var.nsg_rules)
+  name                        = each.value.rule.name
+  priority                    = each.value.rule.priority
+  direction                   = each.value.rule.direction
+  access                      = each.value.rule.access
+  protocol                    = each.value.rule.protocol
+  source_port_range           = each.value.rule.source_port_range
+  destination_port_range      = each.value.rule.destination_port_range
+  source_address_prefix       = each.value.rule.source_address_prefix
+  destination_address_prefix  = each.value.rule.destination_address_prefix
 
-  name                        = "${var.nsg_rules[count.index].name}-${each.key}"
-  priority                    = var.nsg_rules[count.index].priority
-  direction                   = var.nsg_rules[count.index].direction
-  access                      = var.nsg_rules[count.index].access
-  protocol                    = var.nsg_rules[count.index].protocol
-  source_port_range           = var.nsg_rules[count.index].source_port_range
-  destination_port_range      = var.nsg_rules[count.index].destination_port_range
-  source_address_prefix       = var.nsg_rules[count.index].source_address_prefix
-  destination_address_prefix  = var.nsg_rules[count.index].destination_address_prefix
-
-  network_security_group_name = azurerm_network_security_group.nsg[each.key].name
+  network_security_group_name = azurerm_network_security_group.nsg[each.value.subnet_name].name
   resource_group_name         = var.resource_group_name
 }
+
 
 ###############################################
 # Associate NSGs with subnets
@@ -63,25 +84,45 @@ resource "azurerm_route_table" "rt" {
 }
 
 ###############################################
-# Create routes for each route table
+# Create routes for each subnet
 ###############################################
+
+locals {
+  route_matrix = {
+    for subnet_name, subnet_id in var.subnet_map :
+    subnet_name => [
+      for route in var.routes :
+      {
+        subnet_name = subnet_name
+        route       = route
+      }
+    ]
+  }
+
+  route_flat = flatten([
+    for subnet_name, routes in local.route_matrix :
+    [
+      for r in routes :
+      {
+        key          = "${r.subnet_name}-${r.route.name}"
+        subnet_name  = r.subnet_name
+        route        = r.route
+      }
+    ]
+  ])
+}
 
 resource "azurerm_route" "routes" {
   for_each = {
-    for subnet_name, subnet_id in var.subnet_map :
-    subnet_name => {
-      subnet_name = subnet_name
-      subnet_id   = subnet_id
-    }
+    for item in local.route_flat :
+    item.key => item
   }
 
-  count = length(var.routes)
-
-  name                   = "${var.routes[count.index].name}-${each.key}"
-  address_prefix         = var.routes[count.index].address_prefix
-  next_hop_type          = var.routes[count.index].next_hop_type
-  route_table_name       = azurerm_route_table.rt[each.key].name
-  resource_group_name    = var.resource_group_name
+  name                = each.value.route.name
+  address_prefix      = each.value.route.address_prefix
+  next_hop_type       = each.value.route.next_hop_type
+  route_table_name    = azurerm_route_table.rt[each.value.subnet_name].name
+  resource_group_name = var.resource_group_name
 }
 
 ###############################################
