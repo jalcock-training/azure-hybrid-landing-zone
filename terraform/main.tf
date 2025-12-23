@@ -57,7 +57,7 @@ module "hub_network" {
   hub_vnet_address_space       = ["10.0.0.0/16"]
 
   subnet_gateway_prefix        = "10.0.0.0/27"
-  subnet_firewall_prefix       = "10.0.0.32/26"
+  subnet_firewall_prefix       = "10.0.0.64/26"
   subnet_shared_services_prefix = "10.0.1.0/24"
 
   tags = {
@@ -66,4 +66,3 @@ module "hub_network" {
     Project     = "AzureHybridLandingZone"
   }
 }
-
