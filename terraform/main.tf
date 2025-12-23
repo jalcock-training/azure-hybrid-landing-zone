@@ -66,3 +66,31 @@ module "hub_network" {
     Project     = "AzureHybridLandingZone"
   }
 }
+
+# -------------------------------------------------------------------
+# Reference the spoke_network module
+# -------------------------------------------------------------------
+
+module "spoke_network" {
+  source = "./modules/spoke-network"
+
+  resource_group_name = module.governance.platform_resource_group_name
+  location            = var.location
+
+  spoke_vnet_name          = "vnet-spoke-01"
+  spoke_vnet_address_space = ["10.1.0.0/16"]
+
+  subnet_app_prefix               = "10.1.0.0/24"
+  subnet_data_prefix              = "10.1.1.0/24"
+  subnet_private_endpoints_prefix = "10.1.2.0/24"
+
+  # Hub details for peering
+  hub_vnet_id   = module.hub_network.hub_vnet_id
+  hub_vnet_name = module.hub_network.hub_vnet_name
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+}
