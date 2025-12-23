@@ -103,8 +103,10 @@ module "hub_network_security" {
 
   subnet_map = {
     shared_services = module.hub_network.subnet_ids["shared_services"]
-    gateway         = module.hub_network.subnet_ids["gateway"]
-    firewall        = module.hub_network.subnet_ids["firewall"]
+    # GatewaySubnet and AzureFirewallSubnet are excluded because Azure
+    # does not allow NSGs or route tables on these platform-managed subnets.
+    #gateway         = module.hub_network.subnet_ids["gateway"]
+    #firewall        = module.hub_network.subnet_ids["firewall"]
   }
 
   # Basic NSG rules (free-tier friendly)
