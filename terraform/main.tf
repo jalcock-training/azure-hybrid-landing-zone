@@ -94,3 +94,58 @@ module "spoke_network" {
     Project     = "AzureHybridLandingZone"
   }
 }
+
+module "hub_network_security" {
+  source = "./modules/network-security"
+
+  location            = var.location
+  resource_group_name = module.governance.platform_resource_group_name
+
+  subnet_map = {
+    shared_services = module.hub_network.subnet_ids["shared_services"]
+    gateway         = module.hub_network.subnet_ids["gateway"]
+    firewall        = module.hub_network.subnet_ids["firewall"]
+  }
+
+  # Basic NSG rules (free-tier friendly)
+  nsg_rules = [
+    {
+      name                       = "allow-vnet-inbound"
+      priority                   = 100
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "VirtualNetwork"
+      destination_address_prefix = "VirtualNetwork"
+    },
+    {
+      name                       = "allow-azure-lb"
+      priority                   = 200
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "AzureLoadBalancer"
+      destination_address_prefix = "*"
+    }
+  ]
+
+  # Hub routes (simple, future‑proof)
+  routes = [
+    {
+      name           = "route-to-spoke"
+      address_prefix = "10.1.0.0/16"
+      next_hop_type  = "VirtualNetwork"
+    }
+  ]
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+}
+

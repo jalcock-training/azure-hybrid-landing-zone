@@ -43,3 +43,15 @@ variable "hub_vnet_id" {
   description = "The ID of the hub virtual network for peering."
   type        = string
 }
+
+# Hub VNet name (needed for peering)
+variable "hub_vnet_name" {
+  description = "The name of the hub virtual network for peering."
+  type        = string
+}
+
+# Tags applied to all spoke resources
+variable "tags" {
+  description = "A map of tags to apply to spoke network resources."
+  type        = map(string)
+}
