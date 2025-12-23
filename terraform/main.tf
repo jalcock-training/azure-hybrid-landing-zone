@@ -138,7 +138,7 @@ module "hub_network_security" {
     {
       name           = "route-to-spoke"
       address_prefix = "10.1.0.0/16"
-      next_hop_type  = "VirtualNetwork"
+      next_hop_type  = "VnetLocal"
     }
   ]
 
