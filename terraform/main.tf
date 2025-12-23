@@ -34,7 +34,7 @@ module "governance" {
   source = "./modules/governance"
 
   subscription_id              = var.subscription_id
-  location                     = "australiaeast"
+  location                     = var.location
   platform_resource_group_name = "rg-platform"
   tags = {
     Environment = "dev"
@@ -50,7 +50,7 @@ module "governance" {
 module "hub_network" {
   source = "./modules/hub-network"
 
-  resource_group_name          = module.governance.platform_rg_name
+  resource_group_name          = module.governance.platform_resource_group_name
   location                     = var.location
 
   hub_vnet_name                = "vnet-hub"
