@@ -72,9 +72,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-noble"
-    sku       = "24_04-lts"
+    publisher = "resf"
+    offer     = "rockylinux-x86_64"
+    sku       = "9-lvm"
     version   = "latest"
   }
 
