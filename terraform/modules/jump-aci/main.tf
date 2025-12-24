@@ -18,11 +18,6 @@ resource "azurerm_container_group" "jump" {
     cpu    = var.cpu_cores
     memory = var.memory_gb
 
-    ports {
-      port     = 0
-      protocol = "TCP"
-    }
-
     commands = ["/bin/sh", "-c", <<EOF
 echo "$ENTRYPOINT_SCRIPT" > /entrypoint.sh
 chmod +x /entrypoint.sh
