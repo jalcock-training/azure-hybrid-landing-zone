@@ -25,7 +25,7 @@ resource "azurerm_container_group" "jump" {
     }
 
     # Keep container alive for exec sessions
-    command = ["/bin/sh", "-c", "sleep infinity"]
+    commands = ["/bin/sh", "-c", "sleep infinity"]
   }
 
   restart_policy = "Never"

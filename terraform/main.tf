@@ -158,7 +158,7 @@ module "jump_aci" {
   source = "./modules/jump-aci"
 
   location            = var.location
-  resource_group_name = module.governance.resource_group_name
+  resource_group_name = module.governance.platform_resource_group_name
   subnet_id           = module.hub_network.subnet_ids["shared_services"]
 
   container_name  = "jump-aci"
@@ -180,7 +180,7 @@ module "jumphost_vm" {
   source = "./modules/jumphost-vm"
 
   location            = var.location
-  resource_group_name = module.governance.resource_group_name
+  resource_group_name = module.governance.platform_resource_group_name
   subnet_id           = module.hub_network.subnet_ids["shared_services"]
 
   admin_username = "azureuser"
