@@ -55,3 +55,7 @@ variable "tags" {
   description = "A map of tags to apply to spoke network resources."
   type        = map(string)
 }
+
+variable "governance_dependencies" {
+  type = list(any)
+}

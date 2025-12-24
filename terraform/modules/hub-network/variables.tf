@@ -45,3 +45,7 @@ variable "tags" {
   description = "A map of tags to apply to hub network resources."
   type        = map(string)
 }
+
+variable "governance_dependencies" {
+  type = list(any)
+}

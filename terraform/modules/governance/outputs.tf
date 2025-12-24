@@ -7,3 +7,7 @@ output "platform_resource_group_id" {
   description = "The ID of the platform resource group."
   value       = azurerm_resource_group.platform.id
 }
+
+output "allowed_locations_id" {
+  value = azapi_resource.allowed_locations.id
+}

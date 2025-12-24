@@ -53,6 +53,10 @@ module "hub_network" {
   resource_group_name          = module.governance.platform_resource_group_name
   location                     = var.location
 
+  governance_dependencies = [
+    module.governance.allowed_locations_id
+  ]
+
   hub_vnet_name                = "vnet-hub"
   hub_vnet_address_space       = ["10.0.0.0/16"]
 
@@ -76,6 +80,10 @@ module "spoke_network" {
 
   resource_group_name = module.governance.platform_resource_group_name
   location            = var.location
+
+  governance_dependencies = [
+    module.governance.allowed_locations_id
+  ]
 
   spoke_vnet_name          = "vnet-spoke-01"
   spoke_vnet_address_space = ["10.1.0.0/16"]
