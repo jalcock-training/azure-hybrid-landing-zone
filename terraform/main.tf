@@ -151,3 +151,46 @@ module "hub_network_security" {
   }
 }
 
+# ------------------------------------------------------------
+# Jump ACI (exec-only container)
+# ------------------------------------------------------------
+module "jump_aci" {
+  source = "./modules/jump-aci"
+
+  location            = var.location
+  resource_group_name = module.governance.resource_group_name
+  subnet_id           = module.hub_network.subnet_ids["shared_services"]
+
+  container_name  = "jump-aci"
+  container_image = "mcr.microsoft.com/azure-cli"
+  cpu_cores       = 1
+  memory_gb       = 1
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+}
+
+# ------------------------------------------------------------
+# Jumphost VM (Ubuntu 24.04 LTS)
+# ------------------------------------------------------------
+module "jumphost_vm" {
+  source = "./modules/jumphost-vm"
+
+  location            = var.location
+  resource_group_name = module.governance.resource_group_name
+  subnet_id           = module.hub_network.subnet_ids["shared_services"]
+
+  admin_username = "azureuser"
+  ssh_public_key = file("~/.ssh/id_rsa.pub")
+  vm_size        = "Standard_B1s"
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+}
+
