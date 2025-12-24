@@ -42,3 +42,8 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "private_key_pem" {
+  description = "The private SSH key used by the ACI container to access the jumphost VM."
+  type        = string
+}
