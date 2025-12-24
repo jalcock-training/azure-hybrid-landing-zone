@@ -175,6 +175,7 @@ module "jump_aci" {
 
   # Pass private key securely into ACI
   private_key_pem = tls_private_key.jump.private_key_pem
+  vm_name         = module.jumphost_vm.vm_name
 
   tags = {
     Environment = "dev"

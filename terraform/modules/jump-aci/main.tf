@@ -18,14 +18,24 @@ resource "azurerm_container_group" "jump" {
     cpu    = var.cpu_cores
     memory = var.memory_gb
 
-    # No ports exposed — access only via `az container exec`
     ports {
       port     = 0
       protocol = "TCP"
     }
 
-    # Keep container alive for exec sessions
-    commands = ["/bin/sh", "-c", "sleep infinity"]
+    commands = ["/bin/sh", "-c", <<EOF
+echo "$ENTRYPOINT_SCRIPT" > /entrypoint.sh
+chmod +x /entrypoint.sh
+/bin/sh /entrypoint.sh
+EOF
+  ]
+
+    secure_environment_variables = {
+      SSH_PRIVATE_KEY    = var.private_key_pem
+      VM_NAME            = var.vm_name
+      RESOURCE_GROUP     = var.resource_group_name
+      ENTRYPOINT_SCRIPT  = file("${path.module}/entrypoint.sh")
+    }
   }
 
   restart_policy = "Never"
