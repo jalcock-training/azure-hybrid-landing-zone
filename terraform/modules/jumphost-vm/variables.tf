@@ -33,7 +33,7 @@ variable "ssh_public_key" {
 variable "vm_size" {
   description = "Size of the jumphost VM."
   type        = string
-  default     = "Standard_B1s"
+  default     = "Standard_A1_v2"
 }
 
 # Tags applied to all resources

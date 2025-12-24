@@ -12,6 +12,15 @@ resource "azurerm_container_group" "jump" {
     var.subnet_id
   ]
 
+  ip_address {
+    type = "Private"
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+  }
+
   container {
     name   = var.container_name
     image  = var.container_image
