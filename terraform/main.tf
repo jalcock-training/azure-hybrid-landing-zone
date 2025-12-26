@@ -104,6 +104,10 @@ module "spoke_network" {
   }
 }
 
+# -------------------------------------------------------------------
+# Reference the hub_network_security module
+# -------------------------------------------------------------------
+
 module "hub_network_security" {
   source = "./modules/network-security"
 
@@ -112,6 +116,8 @@ module "hub_network_security" {
 
   subnet_map = {
     shared_services = module.hub_network.subnet_ids["shared_services"]
+    aci             = module.hub_network.subnet_ids["aci"]
+
     # GatewaySubnet and AzureFirewallSubnet are excluded because Azure
     # does not allow NSGs or route tables on these platform-managed subnets.
     #gateway         = module.hub_network.subnet_ids["gateway"]
@@ -152,6 +158,55 @@ module "hub_network_security" {
       next_hop_type  = "VnetLocal"
     }
   ]
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+}
+
+# -------------------------------------------------------------------
+# Reference the spoke_network_security module
+# -------------------------------------------------------------------
+module "spoke_network_security" {
+  source = "./modules/network-security"
+
+  location            = var.location
+  resource_group_name = module.governance.platform_resource_group_name
+
+  subnet_map = {
+    app               = module.spoke_network.subnet_ids["app"]
+    data              = module.spoke_network.subnet_ids["data"]
+    private_endpoints = module.spoke_network.subnet_ids["private_endpoints"]
+  }
+
+  nsg_rules = [
+    {
+      name                       = "allow-vnet-inbound"
+      priority                   = 100
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "VirtualNetwork"
+      destination_address_prefix = "VirtualNetwork"
+    },
+    {
+      name                       = "deny-all-inbound"
+      priority                   = 4096
+      direction                  = "Inbound"
+      access                     = "Deny"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    }
+  ]
+
+  routes = []
 
   tags = {
     Environment = "dev"
