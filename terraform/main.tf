@@ -309,4 +309,6 @@ module "shared_services" {
   ]
 
   key_vault_private_endpoint_subnet_id = module.hub_network.subnet_ids["shared_services"]
+
+  hub_vnet_id = module.hub_network.hub_vnet_id
 }

@@ -75,3 +75,8 @@ variable "key_vault_private_endpoint_subnet_id" {
   type        = string
   default     = ""
 }
+
+variable "hub_vnet_id" {
+  description = "Hub VNet ID for DNS zone linking."
+  type        = string
+}

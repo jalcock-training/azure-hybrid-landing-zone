@@ -27,7 +27,7 @@ resource "azurerm_log_analytics_workspace" "this" {
 }
 
 ###############################################
-# Optional Azure Key Vault (secure by default)
+# Azure Key Vault
 ###############################################
 
 resource "azurerm_key_vault" "this" {
@@ -61,7 +61,7 @@ resource "azurerm_key_vault" "this" {
 }
 
 ###############################################
-# Optional Private Endpoint for Key Vault
+# Private Endpoint for Key Vault
 ###############################################
 
 resource "azurerm_private_endpoint" "key_vault" {
@@ -81,3 +81,32 @@ resource "azurerm_private_endpoint" "key_vault" {
 
   tags = var.tags
 }
+
+###############################################
+# Private DNS Zone for Key Vault
+###############################################
+
+resource "azurerm_private_dns_zone" "private_dns_zone_key_vault" {
+  count = var.enable_key_vault_private_endpoint ? 1 : 0
+
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = var.resource_group_name
+
+  tags = var.tags
+}
+
+###############################################
+# Link DNS Zone to Hub VNet
+###############################################
+
+resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_key_vault_link" {
+  count = var.enable_key_vault_private_endpoint ? 1 : 0
+
+  name                  = "${var.prefix}-kv-dns-link"
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.kv[0].name
+  virtual_network_id    = var.hub_vnet_id
+
+  registration_enabled = false
+}
+
