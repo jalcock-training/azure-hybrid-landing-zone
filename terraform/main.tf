@@ -281,3 +281,32 @@ module "jumphost_vm" {
   }
 }
 
+# -------------------------------------------------------------------
+# Shared Services
+# -------------------------------------------------------------------
+
+module "shared_services" {
+  source = "./modules/shared-services"
+
+  location            = var.location
+  resource_group_name = module.governance.platform_resource_group_name
+  prefix              = "ahlz-dev"
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
+
+  # Enable only Key Vault for now
+  enable_log_analytics              = false
+  enable_key_vault                  = true
+  enable_key_vault_private_endpoint = true
+
+  # Key Vault network configuration
+  key_vault_allowed_subnet_ids = [
+    module.hub_network.subnet_ids["shared_services"]
+  ]
+
+  key_vault_private_endpoint_subnet_id = module.hub_network.subnet_ids["shared_services"]
+}
