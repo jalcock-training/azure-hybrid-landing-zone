@@ -26,36 +26,66 @@ The design emphasises clarity, governance, and automation over complexity.
 ## Repository Structure
 
 .
-├── docs/
-│   ├── architecture/
-│   │   ├── architectural-overview.md
-│   │   ├── landing-zone-design.md
-│   │   ├── hub-and-spoke-network.md
-│   │   ├── hybrid-architecture.md
-│   │   ├── shared-services.md
-│   │   ├── automation-and-ci-cd.md
-│   │   └── application-workload.md
-│   │
-│   ├── planning/
-│   │   └── project-plan.md
-│   │
-│   └── reference/
-│       ├── terraform-structure.md
-│       └── naming-and-tagging-standards.md
-│
-└── terraform/
+├── diagrams
+│   ├── access-pattern.png
+│   ├── architecture-overview-future-enterprise.png
+│   └── architecture-overview.png
+├── docs
+│   ├── access
+│   │   └── README.md
+│   ├── architecture
+│   │   ├── application-workload.md
+│   │   ├── architectural-overview.md
+│   │   ├── automation-and-ci-cd.md
+│   │   ├── governance-and-policy.md
+│   │   ├── hub-and-spoke-network.md
+│   │   ├── hybrid-architecture.md
+│   │   ├── landing-zone-design.md
+│   │   └── shared-services.md
+│   ├── planning
+│   │   └── project-plan.md
+│   └── reference
+│       ├── naming-and-tagging-standards.md
+│       └── terraform-structure.md
+├── LICENSE
+├── README.md
+├── scripts
+│   ├── jump-start.sh
+│   ├── jump-status.sh
+│   ├── jump-stop.sh
+│   └── README.md
+└── terraform
     ├── main.tf
-    ├── variables.tf
+    ├── modules
+    │   ├── governance
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── hub-network
+    │   │   ├── main.tf
+    │   │   ├── output.tf
+    │   │   └── variables.tf
+    │   ├── jump-aci
+    │   │   ├── entrypoint.sh
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   ├── README.md
+    │   │   └── variables.tf
+    │   ├── jumphost-vm
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── network-security
+    │   │   ├── main.tf
+    │   │   ├── output.tf
+    │   │   └── variables.tf
+    │   └── spoke-network
+    │       ├── main.tf
+    │       ├── output.tf
+    │       └── variables.tf
     ├── outputs.tf
     ├── providers.tf
-    └── modules/
-        ├── landing-zone/
-        ├── hub-network/
-        ├── spoke-network/
-        ├── shared-services/
-        ├── application-workload/
-        └── arc-onboarding/
-
+    └── variables.tf
 
 This structure mirrors real enterprise engineering repositories and keeps architecture, planning, and implementation cleanly separated.
 
@@ -83,6 +113,27 @@ Modular Terraform structure aligned with the architecture documents.
 
 ### GitHub Actions CI/CD
 Secure, automated deployment pipeline using OIDC authentication and manual approvals.
+
+---
+
+## Jump Environment Workflow
+
+This landing zone includes an ephemeral jump environment built using Azure
+Container Instances (ACI). The jump‑ACI provides a lightweight, cost‑efficient
+way to access the jumphost VM without keeping long‑running infrastructure online.
+
+The workflow is:
+
+1. Start the jump‑ACI using `./scripts/jump-start.sh`.
+2. Exec into the container and SSH to the jumphost VM.
+3. While an SSH session is active, the container remains running.
+4. When SSH exits, the container becomes idle.
+5. After the configured idle timeout, the container exits.
+6. The container’s `entrypoint.sh` cleanup trap automatically deallocates the VM.
+
+This pattern ensures the jumphost VM only runs when needed and shuts down
+automatically when not in use, keeping the environment predictable and
+cost‑efficient.
 
 ---
 

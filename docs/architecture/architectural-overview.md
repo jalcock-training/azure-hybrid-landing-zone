@@ -2,6 +2,19 @@
 
 This document provides a high‑level architectural overview of the Azure Hybrid Landing Zone project. It describes the major components, their relationships, and the design principles guiding the implementation. The goal is to demonstrate a secure, scalable, and automation‑driven cloud foundation that integrates both native Azure resources and on‑premises infrastructure through Azure Arc.
 
+## Security Posture Overview
+Security is embedded throughout the architecture using a defence‑in‑depth model aligned with the Microsoft Cloud Security Benchmark (MCSB).
+Key security characteristics include:
+- Identity‑first access using MFA, least‑privilege RBAC, and managed identities
+- No public administrative endpoints, with all access routed through an ephemeral jump‑ACI
+- Hub‑and‑spoke network isolation enforced by NSGs and deny‑all inbound rules
+- Private endpoints for Key Vault, Storage, and shared services
+- Diagnostic logging enabled across platform and workload resources
+- Azure Policy enforcing naming, tagging, private access, and baseline governance
+- Automated VM lifecycle management ensuring compute is only active when required
+
+This security posture ensures the environment remains cost‑efficient while demonstrating enterprise‑grade patterns without requiring paid Defender for Cloud features.
+
 ## 1. Architecture Summary
 
 The solution is built around three core pillars:
@@ -32,6 +45,8 @@ The hub virtual network hosts shared services and acts as the central connectivi
 - Log Analytics workspace for monitoring and diagnostics (optional or future)
 - Azure Key Vault (Standard tier) for secret management
 - Optional shared services such as Bastion or Automation Account
+- Private endpoints securing access to Key Vault and Storage
+- NSGs enforcing deny‑all inbound rules on hub subnets
 - VNet peering to spoke networks
 
 The hub is designed to be lightweight and cost‑efficient while still representing enterprise patterns.
@@ -43,7 +58,9 @@ The spoke network hosts the example workload used to demonstrate application dep
 - Spoke virtual network and subnets
 - Azure App Service (Free tier) for the sample web application
 - Storage account for application assets or logs
-- Optional private endpoints for secure service access
+- Optional private endpoints for secure service access (recommended for production)
+- NSGs applied to workload subnets with restricted inbound/outbound rules
+- No public IPs assigned to workload resources
 - Diagnostic settings forwarding logs to the shared Log Analytics workspace
 
 This structure reflects a typical application landing zone within an enterprise environment.
@@ -56,6 +73,8 @@ A small on‑premises Linux virtual machine, hosted on a local KVM hypervisor, i
 - Inventory and metadata visibility in Azure Resource Manager
 - Optional monitoring via Log Analytics
 - Configuration management and updates delivered through GitHub Actions
+
+Azure Arc resources inherit the same governance and policy controls as native Azure resources, ensuring consistent security posture across cloud and on‑premises environments.
 
 The hybrid component demonstrates how Azure can manage resources outside the cloud using the same governance and automation patterns.
 

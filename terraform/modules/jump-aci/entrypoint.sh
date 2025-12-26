@@ -49,9 +49,9 @@ KEEPALIVE_PID=$!
 # -----------------------------------------------------------------------------
 
 while true; do
-  ACTIVE_SESSIONS=$(ps aux | grep -E "bash|sh" | grep -v grep | wc -l)
+  ACTIVE_SESSIONS=$(pgrep ssh | wc -l)
 
-  if [ "$ACTIVE_SESSIONS" -gt 1 ]; then
+  if [ "$ACTIVE_SESSIONS" -gt 0 ]; then
     LAST_ACTIVE=$(date +%s)
   fi
 
