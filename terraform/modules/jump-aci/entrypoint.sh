@@ -23,9 +23,9 @@ echo "Starting jumphost VM..."
 az vm start --resource-group "$RESOURCE_GROUP" --name "$VM_NAME"
 
 echo "Writing private SSH key..."
-mkdir -p /home/azureuser/.ssh
-echo "$SSH_PRIVATE_KEY" > /home/azureuser/.ssh/jumphost
-chmod 600 /home/azureuser/.ssh/jumphost
+mkdir -p /root/.ssh
+echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+chmod 600 /root/.ssh/id_rsa
 
 echo "Jump container ready. Monitoring for idle activity..."
 
