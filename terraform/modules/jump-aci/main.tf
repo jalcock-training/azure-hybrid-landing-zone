@@ -27,6 +27,12 @@ resource "azurerm_container_group" "jump" {
     }
 
     commands = ["/bin/sh", "-c", <<EOF
+az login --identity --allow-no-subscriptions
+apt-get update
+apt-get install -y openssh-client
+mkdir -p /root/.ssh
+echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+chmod 600 /root/.ssh/id_rsa
 echo "$ENTRYPOINT_SCRIPT" > /entrypoint.sh
 chmod +x /entrypoint.sh
 /bin/sh /entrypoint.sh
@@ -44,4 +50,8 @@ EOF
   restart_policy = "Never"
 
   tags = var.tags
+
+  identity {
+    type = "SystemAssigned"
+  }
 }

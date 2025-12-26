@@ -164,7 +164,8 @@ module "hub_network_security" {
 # Generate SSH keypair for ACI → VM access
 # ------------------------------------------------------------
 resource "tls_private_key" "jump" {
-  algorithm = "ED25519"
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
 # ------------------------------------------------------------
@@ -178,7 +179,7 @@ module "jump_aci" {
   subnet_id           = module.hub_network.subnet_ids["aci"]
 
   container_name  = "jump-aci"
-  container_image = "mcr.microsoft.com/azure-cli"
+  container_image = "mcr.microsoft.com/azure-cli:2.52.0"
   cpu_cores       = 1
   memory_gb       = 1
 
@@ -191,6 +192,15 @@ module "jump_aci" {
     Owner       = "James"
     Project     = "AzureHybridLandingZone"
   }
+}
+
+# ------------------------------------------------------------
+# RBAC: Allow ACI to start/stop the VM
+# ------------------------------------------------------------
+resource "azurerm_role_assignment" "aci_vm_control" {
+  scope                = module.jumphost_vm.vm_id
+  role_definition_name = "Virtual Machine Contributor"
+  principal_id         = module.jump_aci.identity_principal_id
 }
 
 # ------------------------------------------------------------

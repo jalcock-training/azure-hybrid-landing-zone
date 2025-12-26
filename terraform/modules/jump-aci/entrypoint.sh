@@ -35,6 +35,19 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# -----------------------------------------------------------------------------
+# Keep container alive for exec sessions
+# -----------------------------------------------------------------------------
+# This runs in the background and ensures the container stays in 'Running'
+# state so 'az container exec' works. The idle loop below still determines
+# when the container should exit.
+tail -f /dev/null &
+KEEPALIVE_PID=$!
+
+# -----------------------------------------------------------------------------
+# Idle monitoring loop
+# -----------------------------------------------------------------------------
+
 while true; do
   ACTIVE_SESSIONS=$(ps aux | grep -E "bash|sh" | grep -v grep | wc -l)
 
@@ -47,6 +60,7 @@ while true; do
 
   if [ "$ELAPSED" -ge "$IDLE_TIMEOUT" ]; then
     echo "Idle timeout reached. Shutting down ACI..."
+    kill $KEEPALIVE_PID 2>/dev/null || true
     exit 0
   fi
 
