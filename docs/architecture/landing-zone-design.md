@@ -2,6 +2,21 @@
 
 This document describes the design of the Azure Landing Zone that underpins the hybrid cloud environment. The landing zone establishes the governance, identity, policy, and subscription structure required to support secure, scalable, and consistent deployments across both Azure-native and Azure Arc–enabled resources.
 
+## Security-by-Design Principles
+The landing zone is built around a defence‑in‑depth model aligned with the Microsoft Cloud Security Benchmark (MCSB).
+Security is embedded into each architectural layer through:
+- Identity-first access using MFA, least‑privilege RBAC, and managed identities
+- No public administrative endpoints, with all access routed through an ephemeral jump‑ACI
+- Network isolation using hub-and-spoke topology, NSGs, and deny‑all inbound rules
+- Private endpoints securing access to Key Vault, Storage, and shared services
+- Azure Policy enforcing naming, tagging, diagnostic settings, and private access
+- Diagnostic logging enabled across platform and workload resources
+- Automated VM lifecycle management ensuring compute is only active when required
+- Removal of public IPs from compute resources to minimise attack surface
+- Consistent enforcement of secure defaults across cloud and hybrid resources
+
+These principles ensure the environment remains cost‑efficient while demonstrating enterprise‑grade security patterns, even without paid Defender for Cloud features.
+
 ## 1. Purpose of the Landing Zone
 
 The landing zone provides the foundational control plane for the environment. Its purpose is to ensure that all resources—cloud or hybrid—are deployed within a governed, compliant, and well‑structured framework. This includes:
@@ -23,6 +38,7 @@ Key elements include:
 - RBAC applied at subscription and resource‑group scopes
 - Naming and tagging standards
 - A single subscription hosting both platform and workload resources
+- Policy enforcement for private endpoints, diagnostic settings, and baseline security configurations
 
 A full management‑group hierarchy and subscription vending model will be introduced in a future enterprise‑grade version of the landing zone.
 
@@ -34,6 +50,8 @@ Identity is centralised through Microsoft Entra ID. Key design elements include:
 - Least‑privilege assignments for administrators and automation identities
 - Use of managed identities or service principals for Terraform and GitHub Actions
 - No local accounts or unmanaged credentials on Azure resources
+- MFA enforced for all administrative access
+- OIDC-based authentication for CI/CD pipelines to eliminate long‑lived credentials
 
 This ensures consistent access control across cloud and hybrid assets.
 
@@ -45,6 +63,8 @@ Azure Policy is used to enforce baseline governance across the environment. Init
 - Allowed locations to prevent accidental deployment outside the intended region
 - Baseline security configurations for Azure Arc–enabled servers
 - Optional diagnostic settings for supported resources
+- Enforcement of private network access for sensitive services such as Key Vault and Storage
+- Policy-driven prevention of public IP assignment to compute resources
 
 Policies are applied at the subscription scope in this phase.
 In a future version, these policies will be moved to the management‑group level to support multi‑subscription governance.
@@ -57,6 +77,7 @@ This subscription hosts:
 - The hub network and shared services
 - The spoke network and application workloads
 - Azure Arc–enabled hybrid resources
+- All platform and workload resources deployed with secure defaults (no public IPs, NSGs, private endpoints)
 
 This simplified structure supports free‑tier compatibility while still reflecting common enterprise patterns.
 A multi‑subscription model will be introduced in a future iteration.
@@ -85,6 +106,7 @@ Azure Arc–enabled servers are governed through the same landing zone structure
 - Policy assignments for configuration and monitoring
 - RBAC applied through Azure Resource Manager
 - Optional diagnostic forwarding to the shared Log Analytics workspace
+- Consistent enforcement of security baselines across cloud and on‑premises resources
 
 This ensures hybrid resources participate fully in the governance model.
 

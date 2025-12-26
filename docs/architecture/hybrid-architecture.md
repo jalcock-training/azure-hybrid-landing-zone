@@ -11,6 +11,7 @@ The hybrid architecture enables Azure to manage resources that run outside the c
 - Optional monitoring through a Log Analytics workspace (if deployed)
 - Consistent automation and configuration management
 - A unified operational model for cloud and on‑premises assets
+- Enforcement of secure configuration baselines across cloud and hybrid resources
 
 The hybrid component is intentionally minimal but provides a foundation for more advanced scenarios.
 
@@ -28,6 +29,7 @@ The on‑premises environment consists of a lightweight virtual machine hosted o
 
 - NGINX Web Server
   Used as a simple workload to demonstrate configuration and management.
+  No inbound ports exposed to Azure; all communication is outbound and agent‑initiated
 
 This environment is not connected to Azure via VPN or ExpressRoute; instead, it integrates through Azure Arc.
 
@@ -51,6 +53,7 @@ Azure Arc enables the on‑premises VM to appear in Azure as a first‑class res
 
 - Configuration Management
   GitHub Actions or other automation tools can apply updates or manage configuration.
+  Secure identity-based access using Azure AD and short‑lived tokens where applicable
 
 Azure Arc provides a consistent operational model without requiring network‑level connectivity to Azure VNets.
 
@@ -62,6 +65,7 @@ Hybrid resources are governed through the same landing zone structure as cloud r
 - Required tagging for classification and cost management
 - Baseline security and configuration policies
 - Optional guest configuration policies
+- Enforcement of secure defaults such as restricted locations, diagnostic settings, and configuration baselines
 
 This ensures hybrid assets follow the same governance standards as Azure‑native workloads within the subscription‑scoped landing zone.
 
@@ -72,6 +76,8 @@ Monitoring for the hybrid VM is optional and intentionally minimal to control co
 - Logs and metrics are forwarded to the shared Log Analytics workspace
 - Diagnostic settings follow the same pattern as cloud resources
 - Monitoring data supports inventory, compliance, and troubleshooting
+- Monitoring is agent‑based and does not require network connectivity to Azure VNets
+- No long‑lived credentials; automation uses identity‑based access and short‑lived tokens
 
 The monitoring relationship is conceptual rather than network‑based and is not shown in the high‑level diagram to maintain clarity.
 
@@ -94,6 +100,8 @@ The hybrid architecture is designed with security in mind:
 - All communication is agent‑initiated and outbound
 - RBAC and policy enforcement occur through Azure Resource Manager
 - Secrets and credentials are managed through Azure Key Vault where applicable
+- Hybrid resources inherit the same policy-driven security posture as cloud resources
+- No reliance on VPNs or exposed management endpoints, reducing attack surface
 
 This model reduces attack surface while maintaining strong governance.
 
@@ -107,5 +115,6 @@ The hybrid architecture can be expanded to support more advanced scenarios, incl
 - Configuration management at scale
 - Integration with Defender for Cloud
 - Edge or branch office deployments
+- Advanced guest configuration and compliance policies for OS‑level hardening
 
 The current implementation provides a minimal but realistic foundation for hybrid cloud operations.

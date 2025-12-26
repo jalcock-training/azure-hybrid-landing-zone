@@ -11,6 +11,7 @@ The application workload provides a practical example of how real workloads fit 
 - Provide a simple, low‑cost application for testing and validation
 - Illustrate how governance and automation apply to workload resources
 - Establish a pattern that can be extended to more complex applications
+- Demonstrate secure-by-default workload deployment using private endpoints, NSGs, and policy enforcement
 
 The workload is not intended to be production‑grade; it is a functional demonstration of architectural principles.
 
@@ -27,6 +28,8 @@ The App Service hosts a simple web application. Key characteristics include:
 - Optional VNet integration for future enhancements
 - Diagnostic settings can forward logs to the shared Log Analytics workspace when enabled
 - Integration with Terraform and CI/CD pipeline
+- No public administrative access; platform-managed endpoints only
+- Can be configured to use managed identities for secure secret retrieval
 
 The App Service demonstrates how platform‑managed compute fits into the landing zone.
 
@@ -38,6 +41,8 @@ A general‑purpose storage account supports the application by providing:
 - Application logs or artifacts
 - Diagnostic settings for monitoring (optional if Log Analytics is not deployed)
 - Optional private endpoint for secure access
+- Public access disabled to enforce secure data access patterns
+- TLS 1.2 enforced for all connections
 
 The storage account represents a common supporting service for cloud applications.
 
@@ -49,6 +54,8 @@ The application workload is deployed into the spoke virtual network, which provi
 - Controlled connectivity through VNet peering
 - Optional private endpoints for secure service access
 - Clear separation of platform and workload responsibilities
+- NSGs applied to workload subnets to restrict inbound and outbound traffic
+- No public IPs assigned to workload resources
 
 The App Service itself does not require inbound VNet access, but the spoke network provides a foundation for future enhancements.
 
@@ -64,6 +71,7 @@ The workload consumes shared services deployed in the hub, including:
 
 - Azure Policy
   Ensures compliance with tagging, diagnostics, and security baselines.
+  Policy enforcement ensures secure defaults such as private endpoints, diagnostic settings, and restricted locations
 
 This integration demonstrates how workloads benefit from centralised platform capabilities.
 
@@ -75,6 +83,7 @@ The workload is governed through the same landing zone structure as other resour
 - Policy‑driven diagnostic settings
 - Allowed locations and resource types
 - RBAC applied at the subscription or resource‑group level (subscription‑scoped governance)
+- Enforcement of secure configuration baselines through Azure Policy initiatives
 
 This ensures the workload adheres to enterprise governance standards.
 
@@ -86,6 +95,8 @@ The workload is deployed and managed through the Terraform root module and GitHu
 - Validation and planning before changes are applied
 - Secure authentication using OIDC
 - Clear separation between infrastructure and application code
+- No long‑lived credentials; all automation uses short‑lived identity tokens
+- Workload resources inherit the same security posture as the rest of the landing zone
 
 This demonstrates modern DevOps practices applied to cloud workloads.
 
@@ -99,5 +110,7 @@ The workload architecture is intentionally minimal but can be expanded to suppor
 - Application secrets stored in Key Vault
 - Multi‑environment deployments (dev/test/prod)
 - Integration with CI/CD pipelines for application code
+- Integration with managed identities for secure secret access
+- Full private networking for App Service using VNet integration and private endpoints
 
 The current implementation provides a simple but realistic foundation for cloud application deployment.

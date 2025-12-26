@@ -4,6 +4,8 @@ This repository contains a complete, minimal, and cost‑efficient Azure Hybrid 
 
 The project showcases practical, real‑world engineering skills across architecture, Terraform, CI/CD, governance, and hybrid cloud operations.
 
+It also demonstrates a security‑by‑design approach using private endpoints, NSGs, least‑privilege identity, and policy‑driven governance.
+
 ---
 
 ## Project Overview
@@ -18,6 +20,7 @@ This project implements a fully documented hybrid cloud environment that include
 - Terraform‑based infrastructure‑as‑code
 - GitHub Actions CI/CD pipeline using secure OIDC authentication
 - Clear, professional documentation suitable for portfolio presentation
+- Security controls such as private endpoints, deny‑all inbound NSGs, no public IPs, and diagnostic logging
 
 The design emphasises clarity, governance, and automation over complexity.
 
@@ -101,18 +104,23 @@ A minimal but realistic landing zone with subscription‑scoped governance (poli
 
 ### Hub‑and‑Spoke Networking
 A clean network topology with a platform hub and workload spoke, connected via VNet peering.
+All traffic remains private; no public ingress is required for platform or workload resources.
 
 ### Shared Services
 Key Vault and optional Log Analytics workspace, with diagnostic settings enabled when monitoring is configured.
+Key Vault is secured with private endpoints, firewall rules, soft delete, and purge protection.
 
 ### Application Workload
 A simple App Service + Storage workload deployed into the spoke network.
+Storage accounts enforce TLS 1.2, disable public access, and support private endpoints.
 
 ### Terraform IaC
 Modular Terraform structure aligned with the architecture documents.
+Modules embed secure defaults such as no public IPs, diagnostic settings, and policy‑driven configuration.
 
 ### GitHub Actions CI/CD
 Secure, automated deployment pipeline using OIDC authentication and manual approvals.
+No long‑lived credentials are stored; all automation uses short‑lived identity tokens.
 
 ---
 
@@ -148,6 +156,10 @@ All documentation is located in the `docs/` folder and is grouped into:
 Start with:
 
 `docs/architecture/architectural-overview.md`
+
+For security details, see: 
+
+`docs/SECURITY.md`
 
 ---
 
@@ -193,6 +205,7 @@ Potential future improvements include:
 - Azure Firewall or third‑party NVAs
 - Arc‑enabled Kubernetes or SQL Server
 - Multi‑region expansion
+- Enterprise security baselines and policy‑as‑code modules
 
 ---
 

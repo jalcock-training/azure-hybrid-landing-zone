@@ -11,6 +11,7 @@ Shared services provide foundational capabilities that are consumed across the e
 - Supporting governance and compliance
 - Reducing duplication across workloads
 - Enabling consistent operational practices
+- Enforcing secure-by-default access patterns through private endpoints and network isolation
 
 The shared services layer is intentionally minimal for this project but reflects common enterprise patterns.
 
@@ -29,6 +30,7 @@ The Log Analytics workspace is an optional shared monitoring component for the e
 - Acts as the central monitoring point for the environment
 - Supports Azure Monitor, alerts, and policy compliance
 - Configured with minimal retention to control cost
+- Receives diagnostic logs from NSGs, Key Vault, Storage, and application services when enabled
 
 The workspace enables unified visibility across cloud and hybrid assets when enabled.
 
@@ -42,6 +44,8 @@ Azure Key Vault provides secure storage for secrets, certificates, and keys used
 - Used for storing automation credentials where required
 - Supports integration with Terraform and GitHub Actions
 - Can be extended to support application secrets in future enhancements
+- Access restricted through private endpoints and firewall rules
+- Soft delete and purge protection enabled to prevent accidental or malicious deletion
 
 Key Vault ensures that sensitive information is managed securely and consistently.
 
@@ -55,6 +59,7 @@ This includes:
 - Application services
 - Storage accounts
 - Key Vault
+- NSG flow logs (v2) for enhanced network visibility
 
 This ensures consistent monitoring and supports governance, troubleshooting, and compliance.
 
@@ -67,6 +72,7 @@ The architecture allows for additional shared services to be added as the enviro
 - Private DNS zones for centralised name resolution
 - Azure Firewall or third‑party network virtual appliances
 - Defender for Cloud for security posture management
+- Microsoft Sentinel or SIEM integration for advanced threat detection (future)
 
 These services are not deployed in the initial implementation to keep the environment lightweight and cost‑efficient.
 
@@ -77,6 +83,7 @@ Hybrid resources onboarded through Azure Arc can consume shared services in the 
 - Forwarding logs to the Log Analytics workspace
 - Using Key Vault for secret retrieval (if configured)
 - Participating in policy‑driven monitoring and compliance
+- Inheriting the same security baselines and policy assignments as Azure-native resources
 
 This ensures hybrid assets follow the same operational model as Azure‑native resources.
 
