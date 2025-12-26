@@ -34,6 +34,12 @@ variable "subnet_shared_services_prefix" {
   type        = string
 }
 
+# Address prefix for the aci subnet
+variable "subnet_aci_prefix" {
+  description = "Address prefix for the aci subnet."
+  type        = string
+}
+
 # Resource group where the hub network will be created
 variable "resource_group_name" {
   description = "Name of the resource group for the hub network."

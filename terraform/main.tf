@@ -63,6 +63,7 @@ module "hub_network" {
   subnet_gateway_prefix        = "10.0.0.0/27"
   subnet_firewall_prefix       = "10.0.0.64/26"
   subnet_shared_services_prefix = "10.0.1.0/24"
+  subnet_aci_prefix            = "10.0.2.0/24"
 
   tags = {
     Environment = "dev"
@@ -174,7 +175,7 @@ module "jump_aci" {
 
   location            = var.location
   resource_group_name = module.governance.platform_resource_group_name
-  subnet_id           = module.hub_network.subnet_ids["shared_services"]
+  subnet_id           = module.hub_network.subnet_ids["aci"]
 
   container_name  = "jump-aci"
   container_image = "mcr.microsoft.com/azure-cli"

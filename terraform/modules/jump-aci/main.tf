@@ -12,20 +12,19 @@ resource "azurerm_container_group" "jump" {
     var.subnet_id
   ]
 
-  ip_address {
-    type = "Private"
-
-    ports {
-      port     = 80
-      protocol = "TCP"
-    }
-  }
+  ip_address_type     = "Private"
+  dns_name_label  = null
 
   container {
     name   = var.container_name
     image  = var.container_image
     cpu    = var.cpu_cores
     memory = var.memory_gb
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
 
     commands = ["/bin/sh", "-c", <<EOF
 echo "$ENTRYPOINT_SCRIPT" > /entrypoint.sh
