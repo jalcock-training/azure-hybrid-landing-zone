@@ -371,3 +371,111 @@ module "log_analytics" {
   }
 }
 
+# -------------------------------------------------------------------
+# Key Vault Diagnostics
+# -------------------------------------------------------------------
+
+module "diagnostics_key_vault" {
+  source = "./modules/diagnostic_settings"
+
+  enable_diagnostics = true
+  prefix             = var.prefix
+
+  target_resource_id         = module.shared_services.key_vault_id
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+
+  log_categories    = ["AuditEvent"]
+  metric_categories = ["AllMetrics"]
+}
+
+# -------------------------------------------------------------------
+# Storage Diagnostics
+# -------------------------------------------------------------------
+
+module "diagnostics_storage" {
+  source = "./modules/diagnostic_settings"
+
+  enable_diagnostics = true
+  prefix             = var.prefix
+
+  target_resource_id         = module.storage.storage_account_id
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+
+  log_categories = [
+    "StorageRead",
+    "StorageWrite",
+    "StorageDelete"
+  ]
+
+  metric_categories = ["AllMetrics"]
+}
+
+# -------------------------------------------------------------------
+# Storage Diagnostics
+# -------------------------------------------------------------------
+
+module "diagnostics_hub_vnet" {
+  source = "./modules/diagnostic_settings"
+
+  enable_diagnostics = true
+  prefix             = var.prefix
+
+  target_resource_id         = module.hub_network.hub_vnet_id
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+
+  log_categories = [
+    "VMProtectionAlerts",
+    "VMProtectionEvents"
+  ]
+
+  metric_categories = ["AllMetrics"]
+}
+
+# -------------------------------------------------------------------
+# NSG Diagnostics
+# -------------------------------------------------------------------
+
+module "diagnostics_nsg_shared_services" {
+  source = "./modules/diagnostic_settings"
+
+  enable_diagnostics = true
+  prefix             = var.prefix
+
+  target_resource_id         = module.hub_network.nsg_ids["shared_services"]
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+
+  log_categories = [
+    "NetworkSecurityGroupEvent",
+    "NetworkSecurityGroupRuleCounter"
+  ]
+
+  metric_categories = ["AllMetrics"]
+}
+
+# -------------------------------------------------------------------
+# Activity Log Diagnostics
+# -------------------------------------------------------------------
+
+module "diagnostics_activity_log" {
+  source = "./modules/diagnostic_settings"
+
+  enable_diagnostics = true
+  prefix             = var.prefix
+
+  target_resource_id         = "/providers/microsoft.insights/activityLogs"
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+
+  log_categories = [
+    "Administrative",
+    "Security",
+    "ServiceHealth",
+    "Alert",
+    "Recommendation",
+    "Policy",
+    "Autoscale",
+    "ResourceHealth"
+  ]
+
+  metric_categories = []
+}
+
