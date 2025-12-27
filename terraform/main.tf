@@ -7,25 +7,6 @@
 # NOTE: This module is currently subscription-scoped for free-tier compatibility.
 # Future enterprise features (MG hierarchy, subscription vending) will be added in a separate project.
 
-# Resource group added for core platform services since we don't have the 
-# subscriptions and management groups
-
-# ---------------------------------------------------------------------------
-# Allowed Locations Policy
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# Required Tags Policy
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# Enforced Naming Convention (Optional but recommended)
-# ---------------------------------------------------------------------------
-
-# -------------------------------------------------------------------
-# Future Platform Resources (Networking, Key Vault, Monitoring, etc.)
-# -------------------------------------------------------------------
-
 # -------------------------------------------------------------------
 # Reference the governance module
 # -------------------------------------------------------------------
@@ -477,5 +458,28 @@ module "diagnostics_activity_log" {
   ]
 
   metric_categories = []
+}
+
+# -------------------------------------------------------------------
+# Diagnostics for NSGs
+# -------------------------------------------------------------------
+
+module "diagnostics_nsg_all" {
+  source = "./modules/diagnostic_settings"
+
+  for_each = module.hub_network.nsg_ids
+
+  enable_diagnostics = true
+  prefix             = "${var.prefix}-${each.key}"
+
+  target_resource_id         = each.value
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+
+  log_categories = [
+    "NetworkSecurityGroupEvent",
+    "NetworkSecurityGroupRuleCounter"
+  ]
+
+  metric_categories = ["AllMetrics"]
 }
 
