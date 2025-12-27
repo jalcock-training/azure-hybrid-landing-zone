@@ -14,10 +14,10 @@ data "azurerm_client_config" "current" {}
 # Optional Log Analytics Workspace
 ###############################################
 
-resource "azurerm_log_analytics_workspace" "this" {
+resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
   count = var.enable_log_analytics ? 1 : 0
 
-  name                = "${var.prefix}-law"
+  name                = "${var.prefix}-loganalytics"
   location            = var.location
   resource_group_name = var.resource_group_name
   sku                 = var.log_analytics_sku
@@ -30,20 +30,18 @@ resource "azurerm_log_analytics_workspace" "this" {
 # Azure Key Vault
 ###############################################
 
-resource "azurerm_key_vault" "this" {
+resource "azurerm_key_vault" "key_vault" {
   count = var.enable_key_vault ? 1 : 0
 
-  name                = "${var.prefix}-kv"
+  name                = "${var.prefix}-keyvault"
   location            = var.location
   resource_group_name = var.resource_group_name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
 
-  # Security defaults
   soft_delete_retention_days = 90
   purge_protection_enabled   = true
 
-  # Network lockdown
   public_network_access_enabled = false
 
   network_acls {
@@ -53,8 +51,6 @@ resource "azurerm_key_vault" "this" {
     ip_rules                   = []
   }
 
-  # Access policies are intentionally not managed here to avoid
-  # conflicts with RBAC-based access. This module focuses on platform security.
   enable_rbac_authorization = true
 
   tags = var.tags
@@ -64,17 +60,17 @@ resource "azurerm_key_vault" "this" {
 # Private Endpoint for Key Vault
 ###############################################
 
-resource "azurerm_private_endpoint" "key_vault" {
+resource "azurerm_private_endpoint" "private_endpoint_key_vault" {
   count = var.enable_key_vault && var.enable_key_vault_private_endpoint ? 1 : 0
 
-  name                = "${var.prefix}-pe-kv"
+  name                = "${var.prefix}-pe-keyvault"
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.key_vault_private_endpoint_subnet_id
 
   private_service_connection {
-    name                           = "kv-connection"
-    private_connection_resource_id = azurerm_key_vault.this[0].id
+    name                           = "keyvault-connection"
+    private_connection_resource_id = azurerm_key_vault.key_vault[0].id
     subresource_names              = ["vault"]
     is_manual_connection           = false
   }
@@ -96,17 +92,64 @@ resource "azurerm_private_dns_zone" "private_dns_zone_key_vault" {
 }
 
 ###############################################
-# Link DNS Zone to Hub VNet
+# Link Key Vault DNS Zone to Hub VNet
 ###############################################
 
 resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_key_vault_link" {
   count = var.enable_key_vault_private_endpoint ? 1 : 0
 
-  name                  = "${var.prefix}-kv-dns-link"
+  name                  = "${var.prefix}-keyvault-dns-link"
   resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.kv[0].name
+  private_dns_zone_name = azurerm_private_dns_zone.private_dns_zone_key_vault[0].name
   virtual_network_id    = var.hub_vnet_id
 
   registration_enabled = false
 }
 
+###############################################
+# Private DNS Zone for Storage (Blob)
+###############################################
+
+resource "azurerm_private_dns_zone" "private_dns_zone_storage_blob" {
+  count = var.enable_storage_private_endpoints ? 1 : 0
+
+  name                = "privatelink.blob.core.windows.net"
+  resource_group_name = var.resource_group_name
+
+  tags = var.tags
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_storage_blob_link" {
+  count = var.enable_storage_private_endpoints ? 1 : 0
+
+  name                  = "${var.prefix}-storage-blob-dns-link"
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.private_dns_zone_storage_blob[0].name
+  virtual_network_id    = var.hub_vnet_id
+
+  registration_enabled = false
+}
+
+###############################################
+# Private DNS Zone for Storage (File)
+###############################################
+
+resource "azurerm_private_dns_zone" "private_dns_zone_storage_file" {
+  count = var.enable_storage_private_endpoints ? 1 : 0
+
+  name                = "privatelink.file.core.windows.net"
+  resource_group_name = var.resource_group_name
+
+  tags = var.tags
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_storage_file_link" {
+  count = var.enable_storage_private_endpoints ? 1 : 0
+
+  name                  = "${var.prefix}-storage-file-dns-link"
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.private_dns_zone_storage_file[0].name
+  virtual_network_id    = var.hub_vnet_id
+
+  registration_enabled = false
+}
