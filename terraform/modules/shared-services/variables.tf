@@ -44,6 +44,12 @@ variable "enable_key_vault_private_endpoint" {
   default     = false
 }
 
+variable "enable_storage_private_endpoints" {
+  description = "Enable private DNS zones for Storage private endpoints."
+  type        = bool
+  default     = false
+}
+
 ################################################
 # Log Analytics configuration
 ################################################

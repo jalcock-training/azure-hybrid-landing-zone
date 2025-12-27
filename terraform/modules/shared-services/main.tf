@@ -51,7 +51,7 @@ resource "azurerm_key_vault" "key_vault" {
     ip_rules                   = []
   }
 
-  enable_rbac_authorization = true
+  rbac_authorization_enabled = true
 
   tags = var.tags
 }

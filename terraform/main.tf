@@ -302,6 +302,7 @@ module "shared_services" {
   enable_log_analytics              = false
   enable_key_vault                  = true
   enable_key_vault_private_endpoint = true
+  enable_storage_private_endpoints  = false
 
   # Key Vault network configuration
   key_vault_allowed_subnet_ids = [

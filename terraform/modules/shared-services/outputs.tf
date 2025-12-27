@@ -4,12 +4,12 @@
 
 output "log_analytics_workspace_id" {
   description = "ID of the Log Analytics workspace (if deployed)."
-  value       = length(azurerm_log_analytics_workspace.this) > 0 ? azurerm_log_analytics_workspace.this[0].id : null
+  value       = try(azurerm_log_analytics_workspace.log_analytics_workspace[0].id, null)
 }
 
 output "log_analytics_workspace_name" {
   description = "Name of the Log Analytics workspace (if deployed)."
-  value       = length(azurerm_log_analytics_workspace.this) > 0 ? azurerm_log_analytics_workspace.this[0].name : null
+  value       = try(azurerm_log_analytics_workspace.log_analytics_workspace[0].name, null)
 }
 
 ################################################
@@ -18,15 +18,15 @@ output "log_analytics_workspace_name" {
 
 output "key_vault_id" {
   description = "ID of the Key Vault (if deployed)."
-  value       = length(azurerm_key_vault.this) > 0 ? azurerm_key_vault.this[0].id : null
+  value       = try(azurerm_key_vault.key_vault[0].id, null)
 }
 
 output "key_vault_name" {
   description = "Name of the Key Vault (if deployed)."
-  value       = length(azurerm_key_vault.this) > 0 ? azurerm_key_vault.this[0].name : null
+  value       = try(azurerm_key_vault.key_vault[0].name, null)
 }
 
 output "key_vault_uri" {
   description = "Vault URI of the Key Vault (if deployed)."
-  value       = length(azurerm_key_vault.this) > 0 ? azurerm_key_vault.this[0].vault_uri : null
+  value       = try(azurerm_key_vault.key_vault[0].vault_uri, null)
 }
