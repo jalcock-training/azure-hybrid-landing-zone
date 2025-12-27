@@ -9,3 +9,9 @@ variable "location" {
   type        = string
   default     = "southeastasia"
 }
+
+variable "prefix" {
+  description = "Prefix used for naming all resources."
+  type        = string
+  default     = "ahlz-dev"
+}

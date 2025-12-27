@@ -1,117 +1,75 @@
-terraform {
-  required_version = ">= 1.5.0"
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 3.80.0"
-    }
-  }
+################################################
+# Feature Toggles
+################################################
+
+variable "enable_storage" {
+  description = "Enable deployment of the Storage Account and related resources."
+  type        = bool
+  default     = false
 }
 
-###############################################
-# Secure Storage Account (Optional)
-###############################################
-
-resource "azurerm_storage_account" "storage_account" {
-  count = var.enable_storage ? 1 : 0
-
-  # Storage account names must be globally unique, lowercase, alphanumeric only
-  name                     = "${var.prefix}storage"
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-
-  # Security defaults
-  min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
-  shared_access_key_enabled = false
-
-  # Encryption
-  infrastructure_encryption_enabled = true
-
-  # Network lockdown
-  public_network_access_enabled = false
-
-  network_rules {
-    default_action             = "Deny"
-    bypass                     = ["AzureServices"]
-    ip_rules                   = []
-    virtual_network_subnet_ids = var.allowed_subnet_ids
-  }
-
-  # Soft delete for blob data
-  blob_properties {
-    delete_retention_policy {
-      days = 7
-    }
-  }
-
-  tags = var.tags
+variable "enable_storage_private_endpoints" {
+  description = "Enable private endpoints and DNS links for the Storage Account."
+  type        = bool
+  default     = false
 }
 
-###############################################
-# Private Endpoints (Blob + File)
-###############################################
+################################################
+# Core Settings
+################################################
 
-resource "azurerm_private_endpoint" "private_endpoint_blob" {
-  count = var.enable_storage && var.enable_storage_private_endpoints ? 1 : 0
-
-  name                = "${var.prefix}-pe-storage-blob"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
-
-  private_service_connection {
-    name                           = "storage-blob-connection"
-    private_connection_resource_id = azurerm_storage_account.storage_account[0].id
-    subresource_names              = ["blob"]
-    is_manual_connection           = false
-  }
-
-  tags = var.tags
+variable "prefix" {
+  description = "Prefix used for naming all resources."
+  type        = string
 }
 
-resource "azurerm_private_endpoint" "private_endpoint_file" {
-  count = var.enable_storage && var.enable_storage_private_endpoints ? 1 : 0
-
-  name                = "${var.prefix}-pe-storage-file"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
-
-  private_service_connection {
-    name                           = "storage-file-connection"
-    private_connection_resource_id = azurerm_storage_account.storage_account[0].id
-    subresource_names              = ["file"]
-    is_manual_connection           = false
-  }
-
-  tags = var.tags
+variable "location" {
+  description = "Azure region where resources will be deployed."
+  type        = string
 }
 
-###############################################
-# DNS Zone Links (Blob + File)
-###############################################
-
-resource "azurerm_private_dns_zone_virtual_network_link" "dns_link_blob" {
-  count = var.enable_storage_private_endpoints ? 1 : 0
-
-  name                  = "${var.prefix}-storage-blob-dns-link"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = var.private_dns_zone_blob_name
-  virtual_network_id    = var.hub_vnet_id
-
-  registration_enabled = false
+variable "resource_group_name" {
+  description = "Resource group where the Storage Account will be deployed."
+  type        = string
 }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "dns_link_file" {
-  count = var.enable_storage_private_endpoints ? 1 : 0
-
-  name                  = "${var.prefix}-storage-file-dns-link"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = var.private_dns_zone_file_name
-  virtual_network_id    = var.hub_vnet_id
-
-  registration_enabled = false
+variable "tags" {
+  description = "Tags to apply to all Storage resources."
+  type        = map(string)
+  default     = {}
 }
+
+################################################
+# Network + Access Control
+################################################
+
+variable "allowed_subnet_ids" {
+  description = "List of subnet IDs allowed to access the Storage Account."
+  type        = list(string)
+  default     = []
+}
+
+variable "private_endpoint_subnet_id" {
+  description = "Subnet ID where private endpoints will be deployed."
+  type        = string
+}
+
+variable "hub_vnet_id" {
+  description = "ID of the hub virtual network for DNS zone linking."
+  type        = string
+}
+
+################################################
+# DNS Zones
+################################################
+
+variable "private_dns_zone_blob_name" {
+  description = "Name of the Private DNS Zone for blob storage."
+  type        = string
+}
+
+variable "private_dns_zone_file_name" {
+  description = "Name of the Private DNS Zone for file storage."
+  type        = string
+}
+

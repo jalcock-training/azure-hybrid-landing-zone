@@ -26,3 +26,11 @@ output "subnet_ids" {
     aci = azurerm_subnet.aci.id
   }
 }
+
+# Output the NSG IDs
+output "nsg_ids" {
+  value = {
+    shared_services = azurerm_network_security_group.shared_services.id
+  }
+}
+

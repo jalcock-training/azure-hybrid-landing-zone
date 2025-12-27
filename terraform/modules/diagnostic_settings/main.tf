@@ -19,19 +19,17 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic" {
   target_resource_id         = var.target_resource_id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  dynamic "log" {
+  dynamic "enabled_log" {
     for_each = var.log_categories
     content {
-      category = log.value
-      enabled  = true
+      category = enabled_log.value
     }
   }
 
-  dynamic "metric" {
+  dynamic "enabled_metric" {
     for_each = var.metric_categories
     content {
-      category = metric.value
-      enabled  = true
+      category = enabled_metric.value
     }
   }
 }

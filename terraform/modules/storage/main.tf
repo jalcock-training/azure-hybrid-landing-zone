@@ -16,7 +16,7 @@ resource "azurerm_storage_account" "storage_account" {
   count = var.enable_storage ? 1 : 0
 
   # Storage account names must be globally unique, lowercase, alphanumeric only
-  name                     = "${var.prefix}storage"
+  name                     = "${replace(var.prefix, "-", "")}storage"
   resource_group_name      = var.resource_group_name
   location                 = var.location
   account_tier             = "Standard"
@@ -24,7 +24,6 @@ resource "azurerm_storage_account" "storage_account" {
 
   # Security defaults
   min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
   shared_access_key_enabled = false
 
   # Encryption

@@ -55,3 +55,9 @@ variable "tags" {
 variable "governance_dependencies" {
   type = list(any)
 }
+
+variable "prefix" {
+  description = "Prefix used for naming hub network resources."
+  type        = string
+}
+
