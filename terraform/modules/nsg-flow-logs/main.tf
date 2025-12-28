@@ -1,29 +1,22 @@
 # -------------------------------------------------------------------
-# NSG Flow Logs v2 Module
-# Creates Flow Logs for any NSG IDs passed in.
-# Supports Flow Analytics (Traffic Analytics) to Log Analytics.
+# NSG Flow Logs Module (AzureRM v4)
+# Enables NSG Flow Logs using Azure Monitor Diagnostic Settings.
+# Applies to all NSG IDs passed in via nsg_ids.
+# Sends flow logs to both Storage and Log Analytics.
+# Network Watcher resources are no longer required in v4.
 # -------------------------------------------------------------------
+resource "azurerm_monitor_diagnostic_setting" "nsg_flow_logs" {
+  for_each = var.enable_nsg_flow_logs ? var.nsg_ids : {}
 
-resource "azurerm_network_watcher_flow_log" "flow_logs" {
-  for_each = var.enable_nsg_flow_logs ? toset(var.nsg_ids) : []
+  name                       = "${var.prefix}-nsgflow-${each.key}"
+  target_resource_id         = each.value
 
-  name                 = "${var.prefix}-flowlog-${each.key}"
-  network_watcher_name = var.network_watcher_name
-  resource_group_name  = var.network_watcher_rg
-  target_resource_id   = each.value
+  storage_account_id         = var.storage_account_id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  enabled = true
-
-  storage_account_id = var.storage_account_id
-
-  # Flow Logs v2 with Traffic Analytics
-  flow_analytics_configuration {
-    enabled       = true
-    workspace_id  = var.log_analytics_workspace_id
-    traffic_analytics_interval = 10
+  enabled_log {
+    category = "NetworkSecurityGroupFlowEvent"
   }
 
-  retention_policy {
-    enabled = false
-  }
 }
+

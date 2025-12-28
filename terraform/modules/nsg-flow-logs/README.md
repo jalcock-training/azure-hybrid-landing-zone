@@ -1,67 +1,88 @@
-# NSG Flow Logs v2 Module
+# NSG Flow Logs Module (AzureRM v4)
 
-This module enables NSG Flow Logs v2 and Traffic Analytics for any Network Security Groups (NSGs) passed into it.  
-It supports shared-services NSG today, and app/data NSGs later as the landing zone expands.
+This module enables NSG Flow Logs using **Azure Monitor Diagnostic Settings**, which is the correct and supported approach in AzureRM v4.  
+Legacy Network Watcher Flow Log resources (`azurerm_network_watcher_flow_log` and `_v2`) were removed in v4, and Diagnostic Settings is now the unified mechanism for exporting NSG flow data.
 
-Flow Logs v2 provide visibility into network traffic patterns, security posture, and potential lateral movement across workloads.  
-Traffic Analytics sends enriched flow data to Log Analytics for query, dashboards, and threat detection.
+Flow Logs are sent to:
+- A Storage Account (raw flow logs)
+- A Log Analytics Workspace (Traffic Analytics and queryable flow data)
+
+The module accepts a list of NSG resource IDs and applies the same diagnostic configuration to each one.
 
 ---
 
 ## Features
 
-- Enables NSG Flow Logs v2 for any number of NSGs  
-- Supports Traffic Analytics with a 10‑minute interval  
-- Stores raw flow logs in a central storage account  
-- Sends analytics data to Log Analytics workspace  
-- Fully modular and future‑proof (add NSGs later without refactoring)  
-- Includes feature toggle for easy enable/disable  
-- Uses `for_each` for clean scaling across multiple NSGs  
+- Enables **NetworkSecurityGroupFlowEvent** logs for each NSG
+- Sends logs to both **Storage** and **Log Analytics**
+- No dependency on Network Watcher (not required in AzureRM v4)
+- Supports feature toggling via `enable_nsg_flow_logs`
+- Works for hub, spoke, or standalone NSGs
+
+---
+
+## Usage
+
+```hcl
+module "nsg_flow_logs" {
+  source = "./modules/nsg-flow-logs"
+
+  prefix                     = var.prefix
+  enable_nsg_flow_logs       = var.enable_nsg_flow_logs
+
+  nsg_ids = [
+    module.hub_network.nsg_ids["shared_services"]
+  ]
+
+  storage_account_id         = module.storage.storage_account_id
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+}
+```
 
 ---
 
 ## Inputs
 
-| Name | Type | Description |
-|------|------|-------------|
-| `prefix` | string | Prefix used for naming Flow Log resources. |
-| `enable_nsg_flow_logs` | bool | Feature toggle to enable or disable Flow Logs v2. |
-| `nsg_ids` | list(string) | List of NSG IDs to enable Flow Logs for (shared-services now, app/data later). |
-| `network_watcher_name` | string | Name of the Network Watcher instance. |
-| `network_watcher_rg` | string | Resource group containing the Network Watcher. |
-| `storage_account_id` | string | Storage account ID for raw flow logs. |
-| `log_analytics_workspace_id` | string | Log Analytics workspace ID for Traffic Analytics. |
+| Name                        | Type          | Description |
+|-----------------------------|---------------|-------------|
+| `prefix`                    | string        | Naming prefix for diagnostic settings |
+| `enable_nsg_flow_logs`      | bool          | Feature toggle to enable/disable flow logs |
+| `nsg_ids`                   | list(string)  | List of NSG resource IDs to enable flow logs on |
+| `storage_account_id`        | string        | Storage Account resource ID for raw flow logs |
+| `log_analytics_workspace_id`| string        | Log Analytics Workspace resource ID |
 
 ---
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| `nsg_flow_log_ids` | Map of NSG Flow Log resource IDs, keyed by NSG ID. |
+| Name               | Description |
+|--------------------|-------------|
+| `nsg_flow_log_ids` | Map of diagnostic setting IDs keyed by NSG name |
 
 ---
 
-## Example Usage
+## Notes
+
+- Traffic Analytics is automatically enabled when flow logs are sent to Log Analytics.
+- No Network Watcher resources are required in AzureRM v4.
+- Diagnostic Settings is the long‑term supported mechanism for NSG Flow Logs.
+
+---
+
+## Example: Adding more NSGs later
 
 ```hcl
-module "nsg_flow_logs" {
-  source = "../modules/nsg-flow-logs"
-
-  prefix                     = var.prefix
-  enable_nsg_flow_logs       = var.enable_nsg_flow_logs
-  nsg_ids                    = [module.hub_network.shared_services_nsg_id]
-  network_watcher_name       = module.hub_network.network_watcher_name
-  network_watcher_rg         = module.hub_network.network_watcher_rg
-  storage_account_id         = module.storage.storage_account_id
-  log_analytics_workspace_id = module.log_analytics.workspace_id
-}
-
-Later, when app/data spokes are created:
-
 nsg_ids = [
-  module.hub_network.shared_services_nsg_id,
-  module.app_network.app_nsg_id,
-  module.data_network.data_nsg_id
+  module.hub_network.nsg_ids["shared_services"],
+  module.app_network.nsg_ids["app"],
+  module.data_network.nsg_ids["data"]
 ]
+```
+
+---
+
+## Compatibility
+
+- **AzureRM provider:** v4.x and above  
+- **Terraform:** 1.5+ recommended
 

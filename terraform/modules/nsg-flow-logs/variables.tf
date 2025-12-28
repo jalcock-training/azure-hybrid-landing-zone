@@ -13,24 +13,8 @@ variable "enable_nsg_flow_logs" {
 
 # List of NSG IDs to enable Flow Logs for (shared-services now, app/data later)
 variable "nsg_ids" {
-  description = <<EOT
-List of NSG IDs to enable Flow Logs for.
-Supports shared-services now, and app/data NSGs later.
-EOT
-  type        = list(string)
-  default     = []
-}
-
-# Name of the Network Watcher instance used for Flow Logs
-variable "network_watcher_name" {
-  description = "Name of the Network Watcher instance used for Flow Logs."
-  type        = string
-}
-
-# Resource group containing the Network Watcher instance
-variable "network_watcher_rg" {
-  description = "Resource group containing the Network Watcher instance."
-  type        = string
+  description = "Map of NSG names to their resource IDs."
+  type        = map(string)
 }
 
 # Storage account ID used to store NSG Flow Logs
