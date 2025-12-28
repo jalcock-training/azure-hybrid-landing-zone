@@ -27,3 +27,10 @@ variable "enable_activity_log_export" {
   description = "Enable or disable Activity Log export."
   default     = true
 }
+
+variable "enable_nsg_flow_logs" {
+  description = "Enable or disable NSG Flow Logs v2."
+  type        = bool
+  default     = true
+}
+

@@ -34,3 +34,15 @@ output "nsg_ids" {
   }
 }
 
+# Network Watcher name
+output "network_watcher_name" {
+  description = "Name of the Network Watcher instance."
+  value       = azurerm_network_watcher.this.name
+}
+
+# Network Watcher resource group
+output "network_watcher_rg" {
+  description = "Resource group of the Network Watcher instance."
+  value       = azurerm_network_watcher.this.resource_group_name
+}
+

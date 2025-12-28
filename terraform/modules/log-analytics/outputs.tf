@@ -22,3 +22,8 @@ output "log_analytics_workspace_primary_shared_key" {
   value       = try(azurerm_log_analytics_workspace.log_analytics[0].primary_shared_key, null)
   sensitive   = true
 }
+
+output "workspace_id" {
+  description = "Resource ID of the Log Analytics workspace."
+  value       = azurerm_log_analytics_workspace.log_analytics[0].id
+}
