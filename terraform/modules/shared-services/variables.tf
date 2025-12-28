@@ -86,3 +86,4 @@ variable "hub_vnet_id" {
   description = "Hub VNet ID for DNS zone linking."
   type        = string
 }
+
