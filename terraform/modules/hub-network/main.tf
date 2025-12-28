@@ -1,3 +1,7 @@
+# ------------------------------------------------------------
+# Hub Network Module
+# ------------------------------------------------------------
+
 # Create the hub virtual network
 resource "azurerm_virtual_network" "hub" {
   name                = var.hub_vnet_name

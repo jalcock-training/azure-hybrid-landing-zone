@@ -1,5 +1,6 @@
-# Provider configuration for the Azure Hybrid Landing Zone.
-# This file defines the required Terraform and AzureRM provider versions.
+# ------------------------------------------------------------
+# Root Module Providers
+# ------------------------------------------------------------
 
 terraform {
   required_version = ">= 1.7.0"

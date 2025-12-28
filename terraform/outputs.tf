@@ -1,18 +1,15 @@
-# Root module outputs for the Azure Hybrid Landing Zone.
-# Additional outputs will be added as modules are implemented.
-
-################################################
+# ------------------------------------------------------------
 # Subscription Outputs
-################################################
+# ------------------------------------------------------------
 
 output "subscription_id" {
   description = "The Azure subscription ID used for all deployments."
   value       = var.subscription_id
 }
 
-################################################
+# ------------------------------------------------------------
 # Hub Network Outputs
-################################################
+# ------------------------------------------------------------
 
 output "hub_vnet_id" {
   description = "ID of the hub virtual network."
@@ -24,9 +21,9 @@ output "hub_subnet_ids" {
   value       = module.hub_network.subnet_ids
 }
 
-################################################
+# ------------------------------------------------------------
 # Shared Services Outputs (Key Vault + DNS)
-################################################
+# ------------------------------------------------------------
 
 output "key_vault_id" {
   description = "ID of the Key Vault (if deployed)."
@@ -53,9 +50,9 @@ output "private_dns_zone_storage_file_name" {
   value       = try(module.shared_services.private_dns_zone_storage_file_name, null)
 }
 
-################################################
+# ------------------------------------------------------------
 # Storage Outputs
-################################################
+# ------------------------------------------------------------
 
 output "storage_account_id" {
   description = "ID of the Storage Account (if deployed)."
@@ -77,9 +74,9 @@ output "storage_account_primary_file_endpoint" {
   value       = try(module.storage.storage_account_primary_file_endpoint, null)
 }
 
-################################################
+# ------------------------------------------------------------
 # Private Endpoint Outputs
-################################################
+# ------------------------------------------------------------
 
 output "storage_private_endpoint_blob_id" {
   description = "ID of the Blob private endpoint (if deployed)."
@@ -91,9 +88,9 @@ output "storage_private_endpoint_file_id" {
   value       = try(module.storage.private_endpoint_file_id, null)
 }
 
-################################################
+# ------------------------------------------------------------
 # Log Analytics Outputs
-################################################
+# ------------------------------------------------------------
 
 output "log_analytics_workspace_id" {
   description = "ID of the Log Analytics Workspace (if deployed)."

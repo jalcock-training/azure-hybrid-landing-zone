@@ -1,6 +1,6 @@
-################################################
+# ------------------------------------------------------------
 # Storage Account Outputs
-################################################
+# ------------------------------------------------------------
 
 output "storage_account_id" {
   description = "ID of the Storage Account (if deployed)."
@@ -22,9 +22,9 @@ output "storage_account_primary_file_endpoint" {
   value       = try(azurerm_storage_account.storage_account[0].primary_file_endpoint, null)
 }
 
-################################################
+# ------------------------------------------------------------
 # Private Endpoint Outputs
-################################################
+# ------------------------------------------------------------
 
 output "private_endpoint_blob_id" {
   description = "ID of the Blob private endpoint (if deployed)."

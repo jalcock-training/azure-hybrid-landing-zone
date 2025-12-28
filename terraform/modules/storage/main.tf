@@ -1,3 +1,7 @@
+# ------------------------------------------------------------
+# Storage module providers
+# ------------------------------------------------------------
+
 terraform {
   required_version = ">= 1.5.0"
   required_providers {
@@ -8,9 +12,9 @@ terraform {
   }
 }
 
-###############################################
+# ------------------------------------------------------------
 # Secure Storage Account (Optional)
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_storage_account" "storage_account" {
   count = var.enable_storage ? 1 : 0
@@ -49,9 +53,9 @@ resource "azurerm_storage_account" "storage_account" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Private Endpoints (Blob + File)
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_endpoint" "private_endpoint_blob" {
   count = var.enable_storage && var.enable_storage_private_endpoints ? 1 : 0
@@ -89,9 +93,9 @@ resource "azurerm_private_endpoint" "private_endpoint_file" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # DNS Zone Links (Blob + File)
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_link_blob" {
   count = var.enable_storage_private_endpoints ? 1 : 0

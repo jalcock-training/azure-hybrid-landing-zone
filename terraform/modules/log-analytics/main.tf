@@ -1,3 +1,6 @@
+# ------------------------------------------------------------
+# Log Analytics Providers
+# ------------------------------------------------------------
 terraform {
   required_version = ">= 1.5.0"
   required_providers {
@@ -8,9 +11,9 @@ terraform {
   }
 }
 
-###############################################
-# Log Analytics Workspace (Optional)
-###############################################
+# ------------------------------------------------------------
+# Log Analytics Workspace
+# ------------------------------------------------------------
 
 resource "azurerm_log_analytics_workspace" "log_analytics" {
   count = var.enable_log_analytics ? 1 : 0

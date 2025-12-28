@@ -1,3 +1,7 @@
+# ------------------------------------------------------------
+# Network Security Outputs
+# ------------------------------------------------------------
+
 # Output all NSG IDs
 output "nsg_ids" {
   description = "A map of subnet names to their associated NSG IDs."

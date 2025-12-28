@@ -1,6 +1,7 @@
 # ------------------------------------------------------------
 # ACI Jump Container (exec-only, no public IP)
 # ------------------------------------------------------------
+
 resource "azurerm_container_group" "jump" {
   name                = var.container_name
   location            = var.location

@@ -1,6 +1,4 @@
-################################################
 # Feature Toggles
-################################################
 
 variable "enable_storage" {
   description = "Enable deployment of the Storage Account and related resources."
@@ -14,9 +12,7 @@ variable "enable_storage_private_endpoints" {
   default     = false
 }
 
-################################################
 # Core Settings
-################################################
 
 variable "prefix" {
   description = "Prefix used for naming all resources."
@@ -39,9 +35,7 @@ variable "tags" {
   default     = {}
 }
 
-################################################
 # Network + Access Control
-################################################
 
 variable "allowed_subnet_ids" {
   description = "List of subnet IDs allowed to access the Storage Account."
@@ -59,9 +53,7 @@ variable "hub_vnet_id" {
   type        = string
 }
 
-################################################
 # DNS Zones
-################################################
 
 variable "private_dns_zone_blob_name" {
   description = "Name of the Private DNS Zone for blob storage."

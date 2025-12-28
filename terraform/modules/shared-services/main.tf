@@ -1,3 +1,7 @@
+# ------------------------------------------------------------
+# Shared Services Providers
+# ------------------------------------------------------------
+
 terraform {
   required_version = ">= 1.5.0"
   required_providers {
@@ -10,9 +14,9 @@ terraform {
 
 data "azurerm_client_config" "current" {}
 
-###############################################
+# ------------------------------------------------------------
 # Optional Log Analytics Workspace
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
   count = var.enable_log_analytics ? 1 : 0
@@ -26,9 +30,9 @@ resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Azure Key Vault
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_key_vault" "key_vault" {
   count = var.enable_key_vault ? 1 : 0
@@ -56,9 +60,9 @@ resource "azurerm_key_vault" "key_vault" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Private Endpoint for Key Vault
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_endpoint" "private_endpoint_key_vault" {
   count = var.enable_key_vault && var.enable_key_vault_private_endpoint ? 1 : 0
@@ -78,9 +82,9 @@ resource "azurerm_private_endpoint" "private_endpoint_key_vault" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Private DNS Zone for Key Vault
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_dns_zone" "private_dns_zone_key_vault" {
   count = var.enable_key_vault_private_endpoint ? 1 : 0
@@ -91,9 +95,9 @@ resource "azurerm_private_dns_zone" "private_dns_zone_key_vault" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Link Key Vault DNS Zone to Hub VNet
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_key_vault_link" {
   count = var.enable_key_vault_private_endpoint ? 1 : 0
@@ -111,9 +115,9 @@ resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_key_v
   ]
 }
 
-###############################################
+# ------------------------------------------------------------
 # Private DNS Zone for Storage (Blob)
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_dns_zone" "private_dns_zone_storage_blob" {
   count = var.enable_storage_private_endpoints ? 1 : 0
@@ -124,9 +128,9 @@ resource "azurerm_private_dns_zone" "private_dns_zone_storage_blob" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Private DNS Zone for Storage (File)
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_dns_zone" "private_dns_zone_storage_file" {
   count = var.enable_storage_private_endpoints ? 1 : 0
@@ -137,9 +141,9 @@ resource "azurerm_private_dns_zone" "private_dns_zone_storage_file" {
   tags = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Storage private endpoint
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_private_endpoint" "storage_blob" {
   count               = var.enable_storage_private_endpoints ? 1 : 0

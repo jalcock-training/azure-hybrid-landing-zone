@@ -1,3 +1,7 @@
+# ------------------------------------------------------------
+# Spoke Network Module
+# ------------------------------------------------------------
+
 # Create the spoke virtual network
 resource "azurerm_virtual_network" "spoke" {
   name                = var.spoke_vnet_name

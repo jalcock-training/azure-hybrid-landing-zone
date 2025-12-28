@@ -1,16 +1,8 @@
-################################################
-# Feature Toggle
-################################################
-
 variable "enable_diagnostics" {
   description = "Enable diagnostic settings for the target resource."
   type        = bool
   default     = false
 }
-
-################################################
-# Core Inputs
-################################################
 
 variable "prefix" {
   description = "Prefix for naming diagnostic settings."
@@ -26,10 +18,6 @@ variable "log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace to send logs to."
   type        = string
 }
-
-################################################
-# Categories
-################################################
 
 variable "log_categories" {
   description = "List of log categories to enable for the resource."

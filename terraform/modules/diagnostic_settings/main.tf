@@ -1,3 +1,6 @@
+# ------------------------------------------------------------
+# Diagnostics Providers
+# ------------------------------------------------------------
 terraform {
   required_version = ">= 1.5.0"
   required_providers {
@@ -8,9 +11,9 @@ terraform {
   }
 }
 
-###############################################
-# Diagnostic Settings (Generic)
-###############################################
+# ------------------------------------------------------------
+# Diagnostic Settings 
+# ------------------------------------------------------------
 
 resource "azurerm_monitor_diagnostic_setting" "diagnostic" {
   count = var.enable_diagnostics ? 1 : 0

@@ -1,6 +1,6 @@
-################################################
+# ------------------------------------------------------------
 # Log Analytics outputs
-################################################
+# ------------------------------------------------------------
 
 output "log_analytics_workspace_id" {
   description = "ID of the Log Analytics workspace (if deployed)."
@@ -12,9 +12,9 @@ output "log_analytics_workspace_name" {
   value       = try(azurerm_log_analytics_workspace.log_analytics_workspace[0].name, null)
 }
 
-################################################
+# ------------------------------------------------------------
 # Key Vault outputs
-################################################
+# ------------------------------------------------------------
 
 output "key_vault_id" {
   description = "ID of the Key Vault (if deployed)."
@@ -31,9 +31,9 @@ output "key_vault_uri" {
   value       = try(azurerm_key_vault.key_vault[0].vault_uri, null)
 }
 
-################################################
+# ------------------------------------------------------------
 # DNS private zone outputs
-################################################
+# ------------------------------------------------------------
 
 output "private_dns_zone_storage_blob_name" {
   description = "Private DNS zone name for blob storage."

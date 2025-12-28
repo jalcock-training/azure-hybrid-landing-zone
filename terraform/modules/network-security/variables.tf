@@ -11,12 +11,6 @@ variable "resource_group_name" {
 }
 
 # Map of subnet names to subnet IDs
-# Example:
-# {
-#   app              = "/subscriptions/.../subnets/app"
-#   data             = "/subscriptions/.../subnets/data"
-#   private_endpoints = "/subscriptions/.../subnets/private-endpoints"
-# }
 variable "subnet_map" {
   description = "A map of subnet names to their subnet IDs."
   type        = map(string)

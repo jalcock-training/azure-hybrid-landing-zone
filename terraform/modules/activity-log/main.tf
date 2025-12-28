@@ -1,9 +1,6 @@
-# -------------------------------------------------------------------
+# ------------------------------------------------------------
 # Activity Log Export
-# Sends subscription-level Activity Logs to Log Analytics.
-# This captures control-plane operations such as RBAC changes,
-# resource creation/deletion, policy assignments, and admin actions.
-# -------------------------------------------------------------------
+# ------------------------------------------------------------
 
 resource "azurerm_monitor_diagnostic_setting" "activity_log" {
   count = var.enable_activity_log_export ? 1 : 0

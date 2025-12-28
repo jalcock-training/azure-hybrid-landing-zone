@@ -1,6 +1,6 @@
-###############################################
+# ------------------------------------------------------------
 # Create one NSG per subnet
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_network_security_group" "nsg" {
   for_each            = var.subnet_map
@@ -10,9 +10,9 @@ resource "azurerm_network_security_group" "nsg" {
   tags                = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Create NSG rules for each subnet
-###############################################
+# ------------------------------------------------------------
 
 locals {
   nsg_rule_matrix = {
@@ -59,10 +59,9 @@ resource "azurerm_network_security_rule" "rules" {
   resource_group_name         = var.resource_group_name
 }
 
-
-###############################################
+# ------------------------------------------------------------
 # Associate NSGs with subnets
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
   for_each = var.subnet_map
@@ -71,9 +70,9 @@ resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
   network_security_group_id = azurerm_network_security_group.nsg[each.key].id
 }
 
-###############################################
+# ------------------------------------------------------------
 # Create one route table per subnet
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_route_table" "rt" {
   for_each            = var.subnet_map
@@ -83,9 +82,9 @@ resource "azurerm_route_table" "rt" {
   tags                = var.tags
 }
 
-###############################################
+# ------------------------------------------------------------
 # Create routes for each subnet
-###############################################
+# ------------------------------------------------------------
 
 locals {
   route_matrix = {
@@ -125,9 +124,9 @@ resource "azurerm_route" "routes" {
   resource_group_name = var.resource_group_name
 }
 
-###############################################
+# ------------------------------------------------------------
 # Associate route tables with subnets
-###############################################
+# ------------------------------------------------------------
 
 resource "azurerm_subnet_route_table_association" "rt_assoc" {
   for_each = var.subnet_map

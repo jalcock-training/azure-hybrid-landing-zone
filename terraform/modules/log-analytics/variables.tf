@@ -1,16 +1,8 @@
-################################################
-# Feature Toggles
-################################################
-
 variable "enable_log_analytics" {
   description = "Enable deployment of the Log Analytics Workspace."
   type        = bool
   default     = false
 }
-
-################################################
-# Core Settings
-################################################
 
 variable "prefix" {
   description = "Prefix used for naming all resources."
@@ -32,10 +24,6 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-################################################
-# Retention
-################################################
 
 variable "retention_in_days" {
   description = "Number of days to retain logs in the Log Analytics Workspace. Up to 31 days is free."
