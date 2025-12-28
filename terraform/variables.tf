@@ -33,4 +33,3 @@ variable "enable_nsg_flow_logs" {
   type        = bool
   default     = true
 }
-

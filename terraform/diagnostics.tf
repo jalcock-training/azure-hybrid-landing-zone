@@ -6,9 +6,6 @@
 module "log_analytics" {
   source = "./modules/log-analytics"
 
-  # Feature toggle
-  enable_log_analytics = true
-
   # Core settings
   prefix              = var.prefix
   location            = var.location

@@ -15,22 +15,6 @@ terraform {
 data "azurerm_client_config" "current" {}
 
 # ------------------------------------------------------------
-# Optional Log Analytics Workspace
-# ------------------------------------------------------------
-
-resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
-  count = var.enable_log_analytics ? 1 : 0
-
-  name                = "${var.prefix}-loganalytics"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  sku                 = var.log_analytics_sku
-  retention_in_days   = var.log_analytics_retention_days
-
-  tags = var.tags
-}
-
-# ------------------------------------------------------------
 # Azure Key Vault
 # ------------------------------------------------------------
 

@@ -11,6 +11,7 @@ resource "azurerm_monitor_diagnostic_setting" "activity_log" {
   # Send all supported Activity Log categories to Log Analytics
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
+
   enabled_log {
     category = "Administrative"
   }

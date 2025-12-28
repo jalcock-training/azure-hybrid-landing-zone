@@ -22,12 +22,6 @@ variable "tags" {
 
 # Feature toggles
 
-variable "enable_log_analytics" {
-  description = "Whether to deploy a Log Analytics workspace."
-  type        = bool
-  default     = false
-}
-
 variable "enable_key_vault" {
   description = "Whether to deploy a secure Azure Key Vault."
   type        = bool
@@ -44,20 +38,6 @@ variable "enable_storage_private_endpoints" {
   description = "Enable private DNS zones for Storage private endpoints."
   type        = bool
   default     = false
-}
-
-# Log Analytics configuration
-
-variable "log_analytics_sku" {
-  description = "SKU for Log Analytics workspace."
-  type        = string
-  default     = "PerGB2018"
-}
-
-variable "log_analytics_retention_days" {
-  description = "Retention period (in days) for Log Analytics."
-  type        = number
-  default     = 30
 }
 
 # Key Vault networking

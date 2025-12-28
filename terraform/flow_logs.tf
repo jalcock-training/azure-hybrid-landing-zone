@@ -16,5 +16,5 @@ module "nsg_flow_logs" {
   }
 
   storage_account_id         = module.storage.storage_account_id
-  log_analytics_workspace_id = module.log_analytics.workspace_id
+  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
 }
