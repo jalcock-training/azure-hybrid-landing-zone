@@ -15,3 +15,9 @@ variable "prefix" {
   type        = string
   default     = "ahlz-dev"
 }
+
+variable "enable_diagnostics" {
+  type        = bool
+  description = "Enable or disable diagnostic settings for all resources."
+  default     = true
+}

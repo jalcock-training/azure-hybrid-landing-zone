@@ -335,7 +335,7 @@ module "storage" {
 # -------------------------------------------------------------------
 
 module "log_analytics" {
-  source = "./modules/log_analytics"
+  source = "./modules/log-analytics"
 
   # Feature toggle
   enable_log_analytics = true
