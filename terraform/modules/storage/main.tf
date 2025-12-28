@@ -24,7 +24,7 @@ resource "azurerm_storage_account" "storage_account" {
 
   # Security defaults
   min_tls_version           = "TLS1_2"
-  shared_access_key_enabled = false
+  shared_access_key_enabled = true
 
   # Encryption
   infrastructure_encryption_enabled = true
@@ -102,6 +102,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_link_blob" {
   virtual_network_id    = var.hub_vnet_id
 
   registration_enabled = false
+  tags = var.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_link_file" {
@@ -113,4 +114,5 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_link_file" {
   virtual_network_id    = var.hub_vnet_id
 
   registration_enabled = false
+  tags = var.tags
 }

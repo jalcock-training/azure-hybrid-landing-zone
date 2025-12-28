@@ -87,6 +87,7 @@ resource "azapi_resource" "required_tags" {
 # Deny Key Vault public network access
 # ------------------------------------------------------------
 resource "azapi_resource" "deny_kv_public_network" {
+  count     = var.enable_governance_policies ? 1 : 0
   type      = "Microsoft.Authorization/policyAssignments@2021-06-01"
   name      = "deny-kv-public-network"
   parent_id = "/subscriptions/${var.subscription_id}"
@@ -106,6 +107,7 @@ resource "azapi_resource" "deny_kv_public_network" {
 # Deny Storage public access
 # ------------------------------------------------------------
 resource "azapi_resource" "deny_storage_public_access" {
+  count     = var.enable_governance_policies ? 1 : 0
   type      = "Microsoft.Authorization/policyAssignments@2021-06-01"
   name      = "deny-storage-public-access"
   parent_id = "/subscriptions/${var.subscription_id}"
@@ -125,6 +127,7 @@ resource "azapi_resource" "deny_storage_public_access" {
 # Enforce TLS 1.2 on Storage
 # ------------------------------------------------------------
 resource "azapi_resource" "enforce_storage_tls12" {
+  count     = var.enable_governance_policies ? 1 : 0
   type      = "Microsoft.Authorization/policyAssignments@2021-06-01"
   name      = "enforce-storage-tls12"
   parent_id = "/subscriptions/${var.subscription_id}"
@@ -144,6 +147,7 @@ resource "azapi_resource" "enforce_storage_tls12" {
 # Audit missing diagnostic settings
 # ------------------------------------------------------------
 resource "azapi_resource" "audit_diagnostics" {
+  count = var.enable_governance_policies ? 1 : 0
   type      = "Microsoft.Authorization/policyAssignments@2021-06-01"
   name      = "audit-diagnostics"
   parent_id = "/subscriptions/${var.subscription_id}"

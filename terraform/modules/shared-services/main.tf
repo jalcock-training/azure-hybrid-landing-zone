@@ -104,6 +104,11 @@ resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_key_v
   virtual_network_id    = var.hub_vnet_id
 
   registration_enabled = false
+  tags = var.tags
+
+  depends_on = [
+    azurerm_private_dns_zone.private_dns_zone_key_vault
+  ]
 }
 
 ###############################################
@@ -119,17 +124,6 @@ resource "azurerm_private_dns_zone" "private_dns_zone_storage_blob" {
   tags = var.tags
 }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_storage_blob_link" {
-  count = var.enable_storage_private_endpoints ? 1 : 0
-
-  name                  = "${var.prefix}-storage-blob-dns-link"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.private_dns_zone_storage_blob[0].name
-  virtual_network_id    = var.hub_vnet_id
-
-  registration_enabled = false
-}
-
 ###############################################
 # Private DNS Zone for Storage (File)
 ###############################################
@@ -141,15 +135,4 @@ resource "azurerm_private_dns_zone" "private_dns_zone_storage_file" {
   resource_group_name = var.resource_group_name
 
   tags = var.tags
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_storage_file_link" {
-  count = var.enable_storage_private_endpoints ? 1 : 0
-
-  name                  = "${var.prefix}-storage-file-dns-link"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.private_dns_zone_storage_file[0].name
-  virtual_network_id    = var.hub_vnet_id
-
-  registration_enabled = false
 }

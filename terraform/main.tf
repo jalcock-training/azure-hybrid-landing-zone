@@ -17,6 +17,9 @@ module "governance" {
   subscription_id              = var.subscription_id
   location                     = var.location
   platform_resource_group_name = "rg-platform"
+
+  enable_governance_policies = false
+
   tags = {
     Environment = "dev"
     Owner       = "James"
@@ -382,11 +385,7 @@ module "diagnostics_storage" {
   target_resource_id         = module.storage.storage_account_id
   log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
 
-  log_categories = [
-    "StorageRead",
-    "StorageWrite",
-    "StorageDelete"
-  ]
+  log_categories = []
 
   metric_categories = ["AllMetrics"]
 }
@@ -404,10 +403,7 @@ module "diagnostics_hub_vnet" {
   target_resource_id         = module.hub_network.hub_vnet_id
   log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
 
-  log_categories = [
-    "VMProtectionAlerts",
-    "VMProtectionEvents"
-  ]
+  log_categories = []
 
   metric_categories = ["AllMetrics"]
 }
@@ -430,7 +426,7 @@ module "diagnostics_nsg_shared_services" {
     "NetworkSecurityGroupRuleCounter"
   ]
 
-  metric_categories = ["AllMetrics"]
+  metric_categories = []
 }
 
 # -------------------------------------------------------------------
@@ -480,6 +476,6 @@ module "diagnostics_nsg_all" {
     "NetworkSecurityGroupRuleCounter"
   ]
 
-  metric_categories = ["AllMetrics"]
+  metric_categories = []
 }
 

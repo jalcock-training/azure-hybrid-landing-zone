@@ -33,6 +33,12 @@ resource "azurerm_subnet" "shared_services" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.hub.name
   address_prefixes     = [var.subnet_shared_services_prefix]
+
+  # Service endpoints
+  service_endpoints = [
+    "Microsoft.KeyVault",
+    "Microsoft.Storage"
+  ]
 }
 
 # ACI subnet

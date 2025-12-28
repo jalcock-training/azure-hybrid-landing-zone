@@ -21,3 +21,10 @@ variable "tags" {
   description = "A map of tags to apply to the subscription and resource group."
   type        = map(string)
 }
+
+variable "enable_governance_policies" {
+  description = "Enable subscription-level governance policy assignments."
+  type        = bool
+  default     = false
+}
+
