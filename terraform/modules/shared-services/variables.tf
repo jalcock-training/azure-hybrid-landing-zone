@@ -87,3 +87,18 @@ variable "hub_vnet_id" {
   type        = string
 }
 
+
+################################################
+# Storage networking
+################################################
+
+variable "storage_private_endpoint_subnet_id" {
+  description = "Subnet ID for Storage private endpoints."
+  type        = string
+}
+
+variable "storage_account_id" {
+  description = "ID of the Storage Account for private endpoints."
+  type        = string
+}
+

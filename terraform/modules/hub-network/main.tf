@@ -41,6 +41,14 @@ resource "azurerm_subnet" "shared_services" {
   ]
 }
 
+# Private endpoints subnet
+resource "azurerm_subnet" "private_endpoints" {
+  name                 = "private-endpoints"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.hub.name
+  address_prefixes     = [var.subnet_private_endpoints_prefix]
+}
+
 # ACI subnet
 resource "azurerm_subnet" "aci" {
   name                 = "aci"
@@ -68,4 +76,5 @@ resource "azurerm_network_security_group" "shared_services" {
 
   tags = var.tags
 }
+
 

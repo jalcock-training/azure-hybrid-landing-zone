@@ -34,3 +34,7 @@ output "nsg_ids" {
   }
 }
 
+output "private_endpoints_subnet_id" {
+  description = "The ID of the private-endpoints subnet."
+  value       = azurerm_subnet.private_endpoints.id
+}

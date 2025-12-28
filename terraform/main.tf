@@ -45,10 +45,11 @@ module "hub_network" {
   hub_vnet_name          = "vnet-hub"
   hub_vnet_address_space = ["10.0.0.0/16"]
 
-  subnet_gateway_prefix         = "10.0.0.0/27"
-  subnet_firewall_prefix        = "10.0.0.64/26"
-  subnet_shared_services_prefix = "10.0.1.0/24"
-  subnet_aci_prefix             = "10.0.2.0/24"
+  subnet_gateway_prefix           = "10.0.0.0/27"
+  subnet_firewall_prefix          = "10.0.0.64/26"
+  subnet_shared_services_prefix   = "10.0.1.0/24"
+  subnet_aci_prefix               = "10.0.2.0/24"
+  subnet_private_endpoints_prefix = "10.0.3.0/24"
 
   tags = {
     Environment = "dev"
@@ -100,8 +101,9 @@ module "hub_network_security" {
   resource_group_name = module.governance.platform_resource_group_name
 
   subnet_map = {
-    shared_services = module.hub_network.subnet_ids["shared_services"]
-    aci             = module.hub_network.subnet_ids["aci"]
+    shared_services   = module.hub_network.subnet_ids["shared_services"]
+    aci               = module.hub_network.subnet_ids["aci"]
+    private-endpoints = module.hub_network.private_endpoints_subnet_id
 
     # GatewaySubnet and AzureFirewallSubnet are excluded because Azure
     # does not allow NSGs or route tables on these platform-managed subnets.
@@ -293,7 +295,9 @@ module "shared_services" {
     module.hub_network.subnet_ids["shared_services"]
   ]
 
-  key_vault_private_endpoint_subnet_id = module.hub_network.subnet_ids["shared_services"]
+  key_vault_private_endpoint_subnet_id   = module.hub_network.private_endpoints_subnet_id
+  storage_private_endpoint_subnet_id     = module.hub_network.private_endpoints_subnet_id
+  storage_account_id                     = module.storage.storage_account_id
 
   hub_vnet_id = module.hub_network.hub_vnet_id
 }

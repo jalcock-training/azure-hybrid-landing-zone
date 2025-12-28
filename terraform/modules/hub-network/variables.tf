@@ -40,6 +40,12 @@ variable "subnet_aci_prefix" {
   type        = string
 }
 
+# Address prefix for the private-endpoints subnet
+variable "subnet_private_endpoints_prefix" {
+  description = "Address prefix for the aci subnet."
+  type        = string
+}
+
 # Resource group where the hub network will be created
 variable "resource_group_name" {
   description = "Name of the resource group for the hub network."
