@@ -187,7 +187,3 @@ Pending / Future:
 - [ ] Add troubleshooting guide  
 - [ ] Add cost‑optimization guide  
 - [ ] Add “How to extend this landing zone” guide  
-
----
-
-If you want, I can also generate a **folder structure** for `/docs/architecture/` so this checklist fits neatly into the rest of your documentation.
