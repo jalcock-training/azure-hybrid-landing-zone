@@ -21,3 +21,9 @@ variable "enable_diagnostics" {
   description = "Enable or disable diagnostic settings for all resources."
   default     = true
 }
+
+variable "enable_activity_log_export" {
+  type        = bool
+  description = "Enable or disable Activity Log export."
+  default     = true
+}
