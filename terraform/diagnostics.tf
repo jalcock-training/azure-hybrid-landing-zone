@@ -10,6 +10,7 @@ module "log_analytics" {
   prefix              = var.prefix
   location            = var.location
   resource_group_name = module.governance.platform_resource_group_name
+  enable_log_analytics         = true
 
   # Retention (default 30 days, override if needed)
   retention_in_days = 30
