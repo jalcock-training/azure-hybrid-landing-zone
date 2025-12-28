@@ -113,6 +113,10 @@ module "hub_network_security" {
 
   # Basic NSG rules (free-tier friendly)
   nsg_rules = [
+
+    # -----------------------------------------------------------------
+    # Shared rules (apply to all hub subnets)
+    # -----------------------------------------------------------------
     {
       name                       = "allow-vnet-inbound"
       priority                   = 100
@@ -133,6 +137,36 @@ module "hub_network_security" {
       source_port_range          = "*"
       destination_port_range     = "*"
       source_address_prefix      = "AzureLoadBalancer"
+      destination_address_prefix = "*"
+    },
+
+    # -----------------------------------------------------------------
+    # Hardened rules for private-endpoints subnet
+    # -----------------------------------------------------------------
+
+    # Deny all inbound (catch-all)
+    {
+      name                       = "deny-all-inbound"
+      priority                   = 4096
+      direction                  = "Inbound"
+      access                     = "Deny"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    },
+
+    # Deny all outbound
+    {
+      name                       = "deny-all-outbound"
+      priority                   = 4096
+      direction                  = "Outbound"
+      access                     = "Deny"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
       destination_address_prefix = "*"
     }
   ]
