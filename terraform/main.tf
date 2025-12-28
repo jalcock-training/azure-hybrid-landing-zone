@@ -177,6 +177,11 @@ module "hub_network_security" {
       name           = "route-to-spoke"
       address_prefix = "10.1.0.0/16"
       next_hop_type  = "VnetLocal"
+    },
+    {
+      name           = "deny-internet"
+      address_prefix = "0.0.0.0/0"
+      next_hop_type  = "None"
     }
   ]
 
