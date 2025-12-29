@@ -1,9 +1,9 @@
 ============================================================
-      AZURE LANDING ZONE ARCHITECTURE IMPLEMENTATION CHECKLIST
+ 🏗️ AZURE LANDING ZONE ARCHITECTURE IMPLEMENTATION CHECKLIST
 ============================================================
 
-Core Platform Setup
--------------------
+🧱 Core Platform Setup
+----------------------
 Completed
 [x] Create platform resource group
 [x] Configure subscription‑level tags
@@ -17,8 +17,8 @@ Pending / Future
 [ ] Add subscription separation for production workloads
 
 
-Identity & Access Architecture
-------------------------------
+🔐 Identity & Access Architecture
+---------------------------------
 Completed
 [x] Configure tenant ID and subscription ID variables
 [x] Use managed identities for automation
@@ -30,8 +30,8 @@ Pending / Future
 [ ] Add GitHub OIDC federation for CI/CD
 
 
-Networking Architecture
------------------------
+🌐 Networking Architecture
+--------------------------
 Completed
 [x] Deploy hub virtual network
 [x] Deploy shared‑services subnet
@@ -40,16 +40,18 @@ Completed
 [x] Configure NSGs for all subnets
 [x] Configure deny‑all inbound rules
 [x] Configure VNet peering (hub <-> spoke)
-[x] Add service endpoints for Key Vault and Storage
+[x] Implement private endpoints (replaces service endpoints)
 
 Pending / Future
-[ ] Add spoke VNets for workloads
+[ ] Add additional spoke VNets for workload/environment separation
 [ ] Add UDRs for outbound control
-[ ] Add Azure Firewall (paid tier)
+
+Paid tier (out of scope)
+[ ] ❌ Add Azure Firewall (Standard/Premium)
 
 
-Private DNS Architecture
-------------------------
+🧭 Private DNS Architecture
+---------------------------
 Completed
 [x] Create private DNS zone for Key Vault
 [x] Create private DNS zone for Storage (Blob)
@@ -62,8 +64,8 @@ Pending / Future
 [ ] Add DNS forwarding ruleset (Azure DNS Private Resolver)
 
 
-Shared Services Architecture
-----------------------------
+🛠️ Shared Services Architecture
+-------------------------------
 Completed
 [x] Deploy Key Vault
 [x] Enable soft delete and purge protection
@@ -80,8 +82,8 @@ Pending / Future
 [ ] Add Container Registry (private endpoint)
 
 
-Governance & Policy Architecture
---------------------------------
+🛡 Governance & Policy Architecture
+-----------------------------------
 Completed
 [x] Assign allowed locations policy
 [x] Assign required tags policy
@@ -97,8 +99,8 @@ Pending / Future
 [ ] Add remediation tasks
 
 
-Compute Architecture
---------------------
+🖥️ Compute Architecture
+------------------------
 Completed
 [x] Deploy ACI jumpbox container
 [x] Disable public access to compute resources
@@ -111,24 +113,26 @@ Pending / Future
 [ ] Add workload subnets
 
 
-Diagnostics & Monitoring Architecture
--------------------------------------
+📊 Diagnostics & Monitoring Architecture
+----------------------------------------
 Completed
 [x] Create diagnostics module
 [x] Configure metrics‑only diagnostics for Storage
 [x] Configure metrics‑only diagnostics for VNets
+[x] Add Activity Log export
 
 Pending / Future
 [ ] Add diagnostic settings for Key Vault
 [ ] Add diagnostic settings for VMs
-[ ] Add NSG Flow Logs v2
-[ ] Add Activity Log export
 [ ] Add Log Analytics workspace
 [ ] Add alert rules (CPU, disk, network, failures)
 
+Paid tier (out of scope)
+[ ] ❌ Add NSG Flow Logs v2
 
-Automation & CI/CD Architecture
--------------------------------
+
+🤖 Automation & CI/CD Architecture
+----------------------------------
 Completed
 [x] Use Terraform modules for all platform components
 [x] Implement clean variable structure
@@ -141,8 +145,8 @@ Pending / Future
 [ ] Add drift detection
 
 
-Documentation Architecture
---------------------------
+📚 Documentation Architecture
+-----------------------------
 Completed
 [x] Architecture diagrams
 [x] Module‑level READMEs
@@ -150,10 +154,4 @@ Completed
 [x] Architecture Implementation Checklist (this document)
 
 Pending / Future
-[ ] Add end‑to‑end deployment guide
-[ ] Add troubleshooting guide
-[ ] Add cost‑optimization guide
-[ ] Add “How to extend this landing zone” guide
-
-============================================================
-
+[ ] Add end‑to‑
