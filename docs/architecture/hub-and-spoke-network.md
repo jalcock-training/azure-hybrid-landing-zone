@@ -1,130 +1,179 @@
-# Hub and Spoke Network Design
+# Hub-and-spoke network architecture
 
-This document describes the network architecture used in the Azure Hybrid Landing Zone project. The environment follows a hub‑and‑spoke topology, a common enterprise pattern that provides clear separation between shared platform services and workload‑specific resources. The design is intentionally minimal to control cost while still demonstrating scalable and secure network architecture.
+This document describes the hub-and-spoke network architecture used in the Azure Hybrid Landing Zone project.  
+The design provides a secure, cost‑efficient network foundation aligned with Azure landing zone best practices.
 
-## Network Security Overview
-The network design follows a security-first approach aligned with Azure best practices.
-Key security characteristics include:
-- No public IPs assigned to compute resources
-- NSGs enforcing deny‑all inbound rules on all subnets
-- Private endpoints securing access to Key Vault, Storage, and shared services
-- VNet peering restricted to required traffic flows only
-- Jump‑ACI pattern eliminating public SSH/RDP access
-These controls ensure the network remains isolated, predictable, and cost‑efficient.
+For related documentation, see:
+- `/docs/security/security-overview.md`
+- `/docs/architecture/shared-services.md`
+- `/docs/architecture/landing-zone-design.md`
+- `/docs/reference/naming-and-tagging-standards.md`
 
-## 1. Network Topology Overview
+---
 
-The network is organised into two primary virtual networks:
+## 1. Purpose of the network architecture
 
-- Hub Virtual Network
-  Hosts shared services and centralised management components.
+The hub-and-spoke topology provides:
 
-- Spoke Virtual Network
-  Hosts the application workload and any workload‑specific resources.
+- A centralised hub for shared services  
+- A spoke network for workload isolation  
+- A controlled path for administrative access  
+- A foundation that can scale to additional spokes or services in future phases  
 
-The hub and spoke networks are connected using VNet peering, allowing controlled communication while maintaining isolation between workloads.
-All communication occurs over private IP space, with no public ingress required for platform or workload resources.
+The network is intentionally minimal enough for low‑cost operation while still demonstrating enterprise‑aligned patterns.
 
-## 2. Hub Virtual Network
+---
 
-The hub network represents the platform layer of the environment. It provides shared services that support monitoring, governance, and connectivity.
+## 2. High-level topology
 
-### Key Components
+The environment uses a single‑region hub-and-spoke topology.
 
-- Hub Virtual Network
-  - A central VNet that acts as the connectivity and services core.
+### Hub virtual network
 
-- Subnets
-  - Shared Services subnet
-  - Optional Azure Bastion subnet
-  - Optional Azure Firewall subnet (not deployed in this project to minimise cost)
+The hub VNet hosts shared platform services and administrative entry points, including:
 
-- Shared Services
-  - Log Analytics workspace for centralised monitoring (optional or future)
-  - Azure Key Vault (Standard tier) for secret management
-  - Optional Automation Account or other platform services
-  - Private endpoints securing access to Key Vault and Storage
+- Azure Key Vault (with private endpoint)  
+- Storage used for platform services (with private endpoint where required)  
+- Jumphost VM for interactive administrative access  
+- Private DNS zones associated with private endpoints  
+- Jump‑ACI connectivity into the hub  
 
-### Design Considerations
+The hub acts as the central control plane for shared connectivity and security.
 
-- The hub is intentionally lightweight to keep the environment cost‑effective.
-- Shared services are deployed once and consumed by all spokes.
-- No user‑defined routes or network virtual appliances are required at this stage.
-- All hub resources reside within the same subscription as the spoke to maintain free‑tier compatibility.
-- NSGs enforce deny‑all inbound rules on hub subnets, with only required traffic allowed.
-- No public IPs are assigned to any hub resources, reducing attack surface.
+### Spoke virtual network
 
-## 3. Spoke Virtual Network
+The spoke VNet hosts workload resources, including:
 
-The spoke network hosts the example application workload. It is isolated from other workloads and communicates with the hub through VNet peering.
+- Application services  
+- Workload storage accounts  
+- Any additional application components  
 
-### Key Components
+The spoke is isolated from the hub except for explicitly allowed traffic.
 
-- Spoke Virtual Network
-  - A workload‑specific VNet that contains application resources.
+---
 
-- Subnets
-  - Application subnet
-  - Optional Private Endpoint subnet
+## 3. Network security
 
-- Application Resources
-  - Azure App Service (Free tier)
-  - Storage account for application assets or logs
-  - Optional private endpoints for secure access to platform services
-  - No public IPs assigned to compute resources within the spoke
+The network follows a secure‑by‑default model:
 
-### Design Considerations
+- **No direct public IPs** on compute resources in the VNets  
+- **NSGs** applied at subnet level with deny‑all inbound rules and minimal explicit allowances  
+- **Private endpoints** for platform services such as Key Vault and Storage  
+- **Private DNS zones** to support name resolution for private endpoints  
+- **No direct inbound connectivity** from the internet to hub or spoke VNets  
+- **Controlled administrative access** via Jump‑ACI and a dedicated jumphost VM  
 
-- The spoke is isolated from other workloads and from the hub except where explicitly allowed.
-- The application does not require inbound public access; App Service handles external access.
-- Diagnostic settings forward logs to the shared Log Analytics workspace when enabled.
-- NSGs restrict inbound and outbound traffic to only what is required for the workload.
+Full security details are documented in:  
+`/docs/security/security-overview.md`
 
-## 4. Connectivity Between Hub and Spoke
+---
 
-Hub and spoke networks are connected using VNet peering, which provides:
+## 4. Traffic flow
 
-- Low‑latency, high‑bandwidth communication
-- No need for gateways or VPNs
-- Separate control planes for each VNet
-- Clear separation of platform and workload responsibilities
+### Outbound traffic
 
-Peering is configured as non‑transitive, meaning spokes cannot communicate with each other unless explicitly peered.
-Peering is configured without gateway transit or forwarded traffic, ensuring traffic flows remain predictable and controlled.
+Outbound traffic from workloads and shared services:
 
-## 5. Security and Isolation
+- Flows directly to the internet using Azure‑managed outbound IPs  
+- Does not traverse a user‑managed firewall or NVA in this phase  
+- Can be restricted via NSG rules as needed  
 
-The network design supports strong isolation between platform and workload layers:
+### Inbound traffic
 
-- Network Security Groups (NSGs) control traffic at the subnet level.
-- No inbound public access is required for the hub or spoke VNets.
-- Private endpoints can be added later to enhance security without redesigning the network.
-- Azure Firewall is intentionally excluded to avoid unnecessary cost but can be added as a future enhancement.
-- Security controls are applied at the subscription and resource‑group level rather than through management‑group inheritance.
-- All administrative access is routed through an ephemeral jump‑ACI, eliminating the need for public SSH or RDP.
-- Diagnostic logging is enabled for NSGs, VMs, and platform services to provide visibility into network activity.
+Inbound access is tightly controlled:
 
-## 6. Integration with Hybrid Resources
+- No direct inbound access from the public internet to hub or spoke subnets  
+- Administrative access uses a chained model:
 
-Azure Arc–enabled servers do not connect directly to the hub or spoke networks. Instead, they integrate through:
+  1. An operator authenticates using Azure CLI and OIDC‑based or identity‑based credentials.  
+  2. The operator starts a Jump‑ACI container in the hub context.  
+  3. From Jump‑ACI, the operator connects to the jumphost VM.  
+  4. From the jumphost VM, the operator can reach other resources as permitted by NSGs.
 
-- Azure Resource Manager
-- Azure Policy
-- Optional monitoring via Log Analytics
+Currently, access from Jump‑ACI to the jumphost VM uses a generic account with shared keys.  
+The long‑term goal is to move to named accounts integrated with identity management and MFA.
 
-This allows hybrid resources to participate in governance and monitoring without requiring network connectivity to Azure VNets.
-Arc-enabled resources inherit the same policy-driven security controls as cloud resources, ensuring consistent posture across environments.
+### Hub-to-spoke connectivity
 
-## 7. Extensibility
+Hub and spoke VNets are connected using VNet peering:
 
-The hub‑and‑spoke topology is designed to scale as the project grows. Future enhancements may include:
+- Hub → Spoke: allowed for required shared services and management flows  
+- Spoke → Hub: restricted to necessary services only  
+- Spoke → Spoke: not present in this phase  
 
-- Additional spokes for multi‑environment scenarios
-- Azure Firewall or third‑party network virtual appliances
-- Private DNS zones for centralised name resolution
-- ExpressRoute or VPN gateways for enterprise connectivity
-- Service endpoints or private endpoints for more secure service access
+---
 
-The current implementation provides a minimal, cost‑efficient foundation while remaining aligned with enterprise best practices.
+## 5. Private endpoints and private DNS
 
+The architecture implements private connectivity for key platform services:
+
+- **Key Vault private endpoint** in the hub VNet  
+- **Storage private endpoint(s)** where required for platform or logging services  
+- **Private DNS zones** linked to the VNet to resolve private endpoint hostnames  
+
+This ensures:
+
+- Secrets and data are accessed over private IPs  
+- No reliance on public DNS for platform service resolution from within the VNets  
+- A realistic pattern that can be extended to additional services in future phases  
+
+Private endpoints for additional services (e.g. App Service) can be added using the same pattern.
+
+---
+
+## 6. Monitoring and diagnostics
+
+Network‑related monitoring is available and can be enabled as needed, including:
+
+- NSG flow logs (v2) for selected NSGs  
+- Diagnostic settings for supported network resources  
+- Integration with Log Analytics when deployed  
+
+These features provide visibility into network traffic and security posture.
+
+See: `/docs/architecture/shared-services.md`
+
+---
+
+## 7. Administrative access pattern
+
+Administrative access is designed around a controlled, identity‑centric flow:
+
+1. **Jump‑ACI**  
+   - Started via Azure CLI using authenticated credentials  
+   - Provides a short‑lived, container‑based entry point  
+   - Has no long‑lived presence or direct public inbound ports
+
+2. **Jumphost VM**  
+   - Resides in the hub network  
+   - Acts as the primary interactive administration point  
+   - Receives connections from Jump‑ACI  
+   - Currently accessed using a generic account with shared keys
+
+3. **Workload and platform resources**  
+   - Accessed from the jumphost VM according to NSG rules  
+   - Accessible only over private connectivity
+
+Future enhancements will:
+
+- Replace generic accounts with named user accounts  
+- Integrate jumphost authentication with central identity and MFA  
+- Further reduce reliance on static credentials or shared keys  
+
+---
+
+## 8. Extensibility
+
+The network architecture is designed to scale.  
+Future enhancements may include:
+
+- Additional spokes for environment or workload separation  
+- Azure Firewall or other NVAs for centralised egress control  
+- Bastion for browser‑based access to VMs  
+- VPN or ExpressRoute connectivity to on‑premises networks  
+- More advanced routing (forced tunnelling, custom route tables)  
+- Additional private endpoints and private DNS zones for other services  
+- Multi‑region or zone‑redundant network designs  
+
+The current implementation provides a realistic, secure foundation for these future capabilities.
 

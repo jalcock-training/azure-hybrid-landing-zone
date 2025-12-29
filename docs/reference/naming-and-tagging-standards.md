@@ -1,6 +1,12 @@
 # Naming and Tagging Standards
 
-This document defines the naming and tagging standards used in the Azure Hybrid Landing Zone project. Consistent naming and tagging improve clarity, governance, automation, and operational efficiency. These standards follow Azure landing zone best practices while remaining simple and appropriate for a minimal, cost‑efficient environment.
+This document defines the naming and tagging standards used in the Azure Hybrid Landing Zone project.  
+These standards reflect the actual Terraform implementation and ensure consistency, clarity, and operational simplicity across all resources.
+
+For details on governance and policy enforcement, see:  
+`/docs/architecture/governance-and-policy.md`
+
+---
 
 ## 1. Purpose of Naming and Tagging Standards
 
@@ -15,128 +21,74 @@ The goals of these standards are to:
 
 These standards apply to all Azure resources deployed through Terraform.
 
+---
+
 ## 2. Naming Standard
 
-The naming convention uses a structured, readable pattern that balances clarity with brevity. The general format is:
+The naming convention used in this project follows a simple, consistent pattern aligned with the actual Terraform implementation.
 
-<prefix>-<resource>-<location>-<environment>
+General format:
 
+<prefix>-<component>-<environment>
 
 Where:
 
 - **prefix**  
-  A short identifier for the project (e.g., `ahlz` for Azure Hybrid Landing Zone).
+  Short identifier for the project (e.g., `ahlz` for Azure Hybrid Landing Zone).
 
-- **resource**  
-  A short code representing the resource type (e.g., `vnet`, `kv`, `la`, `app`).
-
-- **location**  
-  Azure region abbreviation (e.g., `ausse` for Australia Southeast).
+- **component**  
+  Logical component name (e.g., `hub`, `spoke`, `kv`, `sa`, `app`, `arc`).
 
 - **environment**  
-  Logical environment identifier (e.g., `dev`, `test`, `prod`).  
-  For this project, a single environment such as `dev` is sufficient.
+  Logical environment identifier (e.g., `dev`).  
+  This project uses a single environment (`dev`).
 
-### Examples
+### Examples (matching Terraform implementation)
 
-- `ahlz-vnet-hub-ausse-dev`  
-- `ahlz-vnet-spoke-ausse-dev`  
-- `ahlz-kv-platform-ausse-dev`  
-- `ahlz-la-platform-ausse-dev`  
-- `ahlz-app-web-ausse-dev`
+- `ahlz-hub-dev`
+- `ahlz-spoke-dev`
+- `ahlz-kv-dev`
+- `ahlz-sa-dev`
+- `ahlz-app-dev`
+- `ahlz-arc-dev`
 
-### Resource Type Abbreviations
+### Notes
 
-Common resource abbreviations include:
+- Region is **not** included in resource names.
+- Resource type abbreviations are **not** included unless they are part of the component name.
+- Names are intentionally short to maintain readability and avoid Azure length limits.
 
-- `vnet` — Virtual Network  
-- `subnet` — Subnet  
-- `kv` — Key Vault  
-- `la` — Log Analytics workspace  
-- `app` — App Service  
-- `sa` — Storage Account  
-- `rg` — Resource Group  
-- `vm` — Virtual Machine (Arc‑enabled or Azure‑native)
-
-These abbreviations keep names concise and readable.
+---
 
 ## 3. Resource Group Naming
 
-Resource groups follow a similar pattern:
+Resource groups follow a simplified pattern:
 
-<prefix>-rg-<purpose>-<environment>
-
+<prefix>-rg-<purpose>
 
 Examples:
 
-- `ahlz-rg-platform-dev`
-- `ahlz-rg-network-dev`
-- `ahlz-rg-workload-dev`
+- `ahlz-rg-platform`
+- `ahlz-rg-network`
+- `ahlz-rg-workload`
 
-This structure clearly separates platform, network, and workload resources.
+Environment is not included in resource group names in this implementation.
+
+---
 
 ## 4. Tagging Standard
 
-Tags provide classification, cost management, and governance metadata. All resources must include the following tags:
+Tags provide classification, cost management, and governance metadata.  
+All resources must include the following tags:
 
 - **Environment**  
-  Identifies the logical environment (e.g., `dev`).
+  Logical environment (e.g., `dev`)
 
 - **Owner**  
-  Identifies the responsible person or team (e.g., `james`).
+  Responsible person or team (e.g., `james`)
 
 - **Project**  
-  Identifies the project or service (e.g., `azure-hybrid-landing-zone`).
-
-- **CostCentre**  
-  Identifies the cost centre or billing group (optional for this project).
+  Project or service name (e.g., `azure-hybrid-landing-zone`)
 
 - **Application**  
-  Identifies the application or workload (e.g., `sample-webapp`).
-
-### Example Tag Set
-
-Environment = "dev"
-Owner       = "james"
-Project     = "azure-hybrid-landing-zone"
-Application = "sample-webapp"
-CostCentre  = "demo"
-
-
-These tags support governance, reporting, and operational clarity.
-
-## 5. Tag Enforcement
-
-Azure Policy enforces:
-
-- Required tags  
-- Allowed tag values (optional)  
-- Automatic remediation for missing tags (optional)  
-
-This ensures consistent tagging across cloud and hybrid resources.
-
-## 6. Hybrid Resource Naming
-
-Azure Arc–enabled servers follow the same naming pattern as Azure‑native resources:
-
-ahlz-vm-<hostname>-onprem-dev
-
-
-Example:
-
-- `ahlz-vm-web01-onprem-dev`
-
-This ensures hybrid assets appear consistent within Azure Resource Manager.
-
-## 7. Extensibility
-
-The naming and tagging standards are designed to scale as the environment grows. Future enhancements may include:
-
-- Additional environment identifiers (e.g., `test`, `prod`)
-- More granular application or service tags
-- Region‑specific naming variations
-- Automated tag inheritance through policy
-- Naming conventions for additional resource types
-
-The current standards provide a clear, minimal foundation suitable for this project.
-
+  Application

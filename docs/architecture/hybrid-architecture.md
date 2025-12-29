@@ -1,120 +1,170 @@
 # Hybrid Architecture (Azure Arc)
 
-This document describes the hybrid architecture used in the Azure Hybrid Landing Zone project. The hybrid component demonstrates how Azure can extend governance, monitoring, and configuration management to on‑premises resources using Azure Arc. The design focuses on simplicity and cost‑efficiency while reflecting real‑world enterprise patterns.
+This document describes the hybrid architecture used in the Azure Hybrid Landing Zone, focusing on Azure Arc–enabled servers and how they integrate into the cloud governance, security, and operational model.
+
+For related documentation, see:
+- `/docs/architecture/hub-and-spoke-network.md`
+- `/docs/security/security-overview.md`
+- `/docs/architecture/governance-and-policy.md`
+- `/docs/reference/naming-and-tagging-standards.md`
+
+---
 
 ## 1. Purpose of the Hybrid Architecture
 
-The hybrid architecture enables Azure to manage resources that run outside the cloud. This project uses a small on‑premises Linux virtual machine to demonstrate:
+The hybrid architecture demonstrates how on‑premises or edge servers can participate fully in Azure’s governance and security model using Azure Arc.
 
-- Centralised governance through Azure Policy
-- Inventory and metadata visibility in Azure Resource Manager
-- Optional monitoring through a Log Analytics workspace (if deployed)
-- Consistent automation and configuration management
-- A unified operational model for cloud and on‑premises assets
-- Enforcement of secure configuration baselines across cloud and hybrid resources
+Key objectives include:
 
-The hybrid component is intentionally minimal but provides a foundation for more advanced scenarios.
+- Extending Azure governance to non‑Azure servers  
+- Applying consistent tagging, naming, and policy enforcement  
+- Demonstrating secure administrative access patterns  
+- Providing visibility into hybrid resources  
+- Supporting future enhancements such as monitoring and compliance baselines  
 
-## 2. On‑Premises Environment
+The design is intentionally minimal to keep cost and complexity low while still reflecting enterprise‑aligned hybrid patterns.
 
-The on‑premises environment consists of a lightweight virtual machine hosted on a local KVM hypervisor. This VM represents a typical server running in a data centre or edge location.
+---
 
-### Key Components
+## 2. Azure Arc Integration
 
-- KVM Hypervisor
-  Provides the local virtualisation platform.
+Azure Arc is used to onboard a Linux VM running outside Azure.  
+Once onboarded, the VM becomes an Azure Resource Manager (ARM) resource and participates in the landing zone’s governance model.
 
-- Linux Virtual Machine
-  Runs a supported distribution such as Ubuntu or Rocky Linux.
+### Current capabilities
 
-- NGINX Web Server
-  Used as a simple workload to demonstrate configuration and management.
-  No inbound ports exposed to Azure; all communication is outbound and agent‑initiated
+- Azure Arc Connected Machine resource  
+- Tagging and naming applied consistently  
+- Subscription‑level policy assignments  
+- Optional diagnostic settings  
+- Visibility in Azure Resource Graph  
+- Identity‑based access through the landing zone’s administrative access model  
 
-This environment is not connected to Azure via VPN or ExpressRoute; instead, it integrates through Azure Arc.
+### Not yet implemented (future enhancements)
 
-## 3. Azure Arc–Enabled Server
+- Guest configuration policies  
+- Defender for Cloud integration  
+- Extension‑based monitoring  
+- Custom script extensions  
+- Regulatory compliance initiatives  
 
-Azure Arc enables the on‑premises VM to appear in Azure as a first‑class resource. Once onboarded, it participates in the same governance and management model as native Azure resources.
+These capabilities can be added later without redesigning the hybrid architecture.
 
-### Capabilities Enabled
+---
 
-- Azure Resource Manager Integration
-  The VM is represented as a Connected Machine resource.
+## 3. Administrative Access Flow
 
-- Policy and Governance
-  Azure Policy can audit or enforce configurations on the VM.
+Hybrid VM access follows the same secure, identity‑centric pattern as Azure‑native resources.
 
-- Access Control
-  RBAC applies through Azure Resource Manager, not local accounts.
+### Access chain
 
-- Optional Monitoring
-  The VM can forward logs and metrics to a Log Analytics workspace when one is deployed.
+1. **Operator authentication**  
+   - Performed using Azure CLI with OIDC‑based or identity‑based credentials  
+   - MFA enforced at the identity provider level
 
-- Configuration Management
-  GitHub Actions or other automation tools can apply updates or manage configuration.
-  Secure identity-based access using Azure AD and short‑lived tokens where applicable
+2. **Jump‑ACI (ephemeral container)**  
+   - Started on demand  
+   - No inbound public ports  
+   - Outbound‑only connectivity  
+   - Provides a short‑lived, identity‑based entry point into the hub network
 
-Azure Arc provides a consistent operational model without requiring network‑level connectivity to Azure VNets.
+3. **Jumphost VM**  
+   - Required for interactive administration  
+   - Located in the hub network  
+   - Receives connections only from Jump‑ACI  
+   - Currently accessed using a generic account with shared keys  
+   - Roadmap: named accounts with MFA
 
-## 4. Governance and Policy Integration
+4. **Hybrid VM (Arc‑enabled)**  
+   - Accessed from the jumphost VM  
+   - No public IP  
+   - No inbound internet exposure  
+   - Governed by Azure Policy  
 
-Hybrid resources are governed through the same landing zone structure as cloud resources. This includes:
+This model ensures that hybrid resources follow the same secure access patterns as Azure‑native workloads.
 
-- Policy assignments at the subscription level (subscription‑scoped governance)
-- Required tagging for classification and cost management
-- Baseline security and configuration policies
-- Optional guest configuration policies
-- Enforcement of secure defaults such as restricted locations, diagnostic settings, and configuration baselines
+---
 
-This ensures hybrid assets follow the same governance standards as Azure‑native workloads within the subscription‑scoped landing zone.
+## 4. Governance for Hybrid Resources
+
+Azure Arc–enabled servers participate fully in the landing zone’s governance model.
+
+### Current governance includes:
+
+- Required tagging  
+- Allowed locations  
+- Deny public IPs  
+- Basic Arc baseline policies  
+- Optional diagnostic forwarding to Log Analytics  
+
+### Future governance enhancements:
+
+- Guest configuration baselines  
+- Defender for Cloud integration  
+- Just‑in‑time access controls  
+- Regulatory compliance initiatives  
+- Policy initiatives for hybrid environments  
+
+These enhancements can be layered on without changing the underlying architecture.
+
+---
 
 ## 5. Monitoring and Diagnostics
 
-Monitoring for the hybrid VM is optional and intentionally minimal to control cost. When enabled:
+Monitoring for hybrid resources is optional in this phase.
 
-- Logs and metrics are forwarded to the shared Log Analytics workspace
-- Diagnostic settings follow the same pattern as cloud resources
-- Monitoring data supports inventory, compliance, and troubleshooting
-- Monitoring is agent‑based and does not require network connectivity to Azure VNets
-- No long‑lived credentials; automation uses identity‑based access and short‑lived tokens
+### When enabled:
 
-The monitoring relationship is conceptual rather than network‑based and is not shown in the high‑level diagram to maintain clarity.
+- Diagnostic settings forward logs to Log Analytics  
+- Arc metadata becomes queryable in Azure Resource Graph  
+- NSG flow logs provide visibility into network traffic (if enabled)  
 
-## 6. Automation and Configuration
+### Not yet implemented:
 
-Automation for the hybrid VM is delivered through the same CI/CD pipeline used for cloud resources. This includes:
+- Azure Monitor Agent (AMA)  
+- Performance counters  
+- Syslog collection  
+- Dependency mapping  
 
-- Terraform for onboarding and resource representation
-- GitHub Actions for configuration updates or deployments
-- OIDC‑based authentication for secure automation
-- Consistent workflows across cloud and hybrid environments
+These can be added later as part of the monitoring roadmap.
 
-This demonstrates how hybrid resources can be managed using modern DevOps practices.
+---
 
-## 7. Security Considerations
+## 6. Network Integration
 
-The hybrid architecture is designed with security in mind:
+Hybrid resources do not require inbound connectivity from Azure.
 
-- No inbound ports are required from Azure to the on‑premises VM
-- All communication is agent‑initiated and outbound
-- RBAC and policy enforcement occur through Azure Resource Manager
-- Secrets and credentials are managed through Azure Key Vault where applicable
-- Hybrid resources inherit the same policy-driven security posture as cloud resources
-- No reliance on VPNs or exposed management endpoints, reducing attack surface
+### Current network model:
 
-This model reduces attack surface while maintaining strong governance.
+- Hybrid VM has **no public IP**  
+- No inbound ports exposed  
+- All access flows through the jumphost VM  
+- Arc agent communicates outbound to Azure over HTTPS  
+- No VPN or ExpressRoute required  
 
-## 8. Extensibility
+### Future enhancements:
 
-The hybrid architecture can be expanded to support more advanced scenarios, including:
+- VPN or ExpressRoute connectivity  
+- Private Link for Arc agent traffic (when supported)  
+- Hybrid DNS integration  
 
-- Multiple Arc‑enabled servers
-- Arc‑enabled Kubernetes clusters
-- Arc‑enabled SQL Server or data services
-- Configuration management at scale
-- Integration with Defender for Cloud
-- Edge or branch office deployments
-- Advanced guest configuration and compliance policies for OS‑level hardening
+The current model keeps the hybrid footprint minimal while maintaining secure connectivity.
 
-The current implementation provides a minimal but realistic foundation for hybrid cloud operations.
+---
+
+## 7. Extensibility
+
+The hybrid architecture is designed to scale as the environment grows.
+
+Future enhancements may include:
+
+- Additional Arc‑enabled servers  
+- Windows Server onboarding  
+- Kubernetes (AKS‑Arc) integration  
+- Hybrid monitoring baselines  
+- Defender for Cloud for hybrid workloads  
+- Automated configuration using guest configuration  
+- Multi‑site hybrid deployments  
+
+The current implementation provides a clean, minimal foundation for hybrid governance and secure access.
+

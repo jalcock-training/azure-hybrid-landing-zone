@@ -1,99 +1,183 @@
 # Shared Services
 
-This document describes the shared services that support the Azure Hybrid Landing Zone project. These services are deployed in the hub resource group within a single subscription and provide centralised capabilities used by both cloud and hybrid resources. The design focuses on essential services that enable governance, monitoring, and secure operations while keeping cost and complexity low.
+This document describes the shared platform services deployed in the Azure Hybrid Landing Zone.  
+These services provide centralised security, monitoring, diagnostics, and secret management for both Azure‑native and Azure Arc–enabled resources.
+
+For related documentation, see:
+- `/docs/architecture/hub-and-spoke-network.md`
+- `/docs/security/security-overview.md`
+- `/docs/architecture/governance-and-policy.md`
+- `/docs/reference/naming-and-tagging-standards.md`
+
+---
 
 ## 1. Purpose of Shared Services
 
-Shared services provide foundational capabilities that are consumed across the environment. Their goals include:
+Shared services provide the foundational capabilities required across the environment, including:
 
-- Centralising monitoring and diagnostics
-- Providing secure secret and key management
-- Supporting governance and compliance
-- Reducing duplication across workloads
-- Enabling consistent operational practices
-- Enforcing secure-by-default access patterns through private endpoints and network isolation
+- Secure secret management  
+- Centralised logging and diagnostics  
+- Network visibility  
+- Platform‑level storage  
+- Administrative access support  
 
-The shared services layer is intentionally minimal for this project but reflects common enterprise patterns.
+These services are deployed in the **hub network**, ensuring they are isolated from workloads while remaining accessible to authorised users and automation.
 
-## 2. Log Analytics Workspace
+---
 
-The Log Analytics workspace is an optional shared monitoring component for the environment. It receives logs and metrics from:
+## 2. Key Vault
 
-- Hub and spoke network resources
-- Application services
-- Optional Azure Arc–enabled servers
-- Platform services such as Key Vault
+Azure Key Vault is deployed as the central secret store for the environment.
 
-### Key Characteristics
+### Current configuration
 
-- Deployed once within the same subscription as hub and spoke resources (optional or future)
-- Acts as the central monitoring point for the environment
-- Supports Azure Monitor, alerts, and policy compliance
-- Configured with minimal retention to control cost
-- Receives diagnostic logs from NSGs, Key Vault, Storage, and application services when enabled
+- **Private endpoint enabled**  
+- **Private DNS zone linked** for private name resolution  
+- **Public network access disabled**  
+- **Soft delete and purge protection enabled**  
+- **RBAC‑based access control**  
+- **Managed identities supported** for workloads and automation  
 
-The workspace enables unified visibility across cloud and hybrid assets when enabled.
+Key Vault is used for:
 
-## 3. Azure Key Vault
+- Application secrets  
+- Platform secrets  
+- Terraform automation secrets (when required)  
+- Certificates (future enhancement)
 
-Azure Key Vault provides secure storage for secrets, certificates, and keys used by the environment.
+---
 
-### Key Characteristics
+## 3. Storage Accounts
 
-- Standard tier to minimise cost
-- Used for storing automation credentials where required
-- Supports integration with Terraform and GitHub Actions
-- Can be extended to support application secrets in future enhancements
-- Access restricted through private endpoints and firewall rules
-- Soft delete and purge protection enabled to prevent accidental or malicious deletion
+Storage accounts are deployed for platform and workload use.
 
-Key Vault ensures that sensitive information is managed securely and consistently.
+### Current configuration
 
-## 4. Diagnostic Settings
+- **Private endpoints enabled** where required  
+- **Private DNS zone linked**  
+- **TLS enforced**  
+- **Public network access disabled**  
+- **Identity‑based access supported**  
+- **Standard redundancy** to minimise cost  
 
-Diagnostic settings are configured to forward logs and metrics from supported resources to the Log Analytics workspace. This is optional in the current phase and enabled only when a workspace is deployed. 
-This includes:
+Storage accounts support:
 
-- Virtual networks
-- Subnets (where applicable)
-- Application services
-- Storage accounts
-- Key Vault
-- NSG flow logs (v2) for enhanced network visibility
+- Application data  
+- Diagnostic logs (when enabled)  
+- Platform artefacts  
+- Future workload expansion
 
-This ensures consistent monitoring and supports governance, troubleshooting, and compliance.
+---
 
-## 5. Optional Shared Services
+## 4. Log Analytics (Optional)
 
-The architecture allows for additional shared services to be added as the environment grows. These may include:
+A Log Analytics workspace is available but **not required** for the minimal deployment.
 
-- Azure Bastion for secure remote access
-- Azure Automation Account for runbooks and update management
-- Private DNS zones for centralised name resolution
-- Azure Firewall or third‑party network virtual appliances
-- Defender for Cloud for security posture management
-- Microsoft Sentinel or SIEM integration for advanced threat detection (future)
+### When deployed, it supports:
 
-These services are not deployed in the initial implementation to keep the environment lightweight and cost‑efficient.
+- Diagnostic settings from supported Azure resources  
+- NSG flow logs (v2)  
+- Azure Arc monitoring  
+- Activity Log export (optional)  
 
-## 6. Integration with Hybrid Resources
+Log Analytics is intentionally optional to support low‑cost operation.
 
-Hybrid resources onboarded through Azure Arc can consume shared services in the same way as cloud resources. This includes:
+---
 
-- Forwarding logs to the Log Analytics workspace
-- Using Key Vault for secret retrieval (if configured)
-- Participating in policy‑driven monitoring and compliance
-- Inheriting the same security baselines and policy assignments as Azure-native resources
+## 5. Diagnostic Settings (Optional)
 
-This ensures hybrid assets follow the same operational model as Azure‑native resources.
+Diagnostic settings can be applied to supported resources when Log Analytics is enabled.
 
-## 7. Extensibility
+### Supported diagnostic sources include:
 
-The shared services layer is designed to scale as the project evolves. Future enhancements may include:
+- Key Vault  
+- Storage  
+- Virtual networks  
+- Subnets  
+- NSGs  
+- App Service (when deployed)  
+- Azure Arc–enabled servers  
 
-- Multiple Log Analytics workspaces for environment separation
-- Centralised alerting and incident response workflows
-- Integration with SIEM or SOC tooling
-- Additional automation and configuration management services
+Diagnostic settings provide visibility into:
 
-The current implementation provides a minimal but realistic foundation for enterprise shared services.
+- Resource operations  
+- Security events  
+- Network traffic  
+- Policy compliance  
+
+Diagnostics are optional in this phase.
+
+---
+
+## 6. Activity Log Export
+
+Subscription‑level Activity Log export is implemented to provide:
+
+- Audit visibility  
+- Administrative action tracking  
+- Security‑relevant event history  
+
+Activity logs can be sent to:
+
+- Log Analytics (when deployed)  
+- Storage (future enhancement)  
+- Event Hub (future enhancement)
+
+---
+
+## 7. NSG Flow Logs (Optional)
+
+NSG flow logs (v2) can be enabled for selected NSGs.
+
+### When enabled, they provide:
+
+- Network traffic visibility  
+- Security analysis  
+- Troubleshooting support  
+
+Flow logs require:
+
+- A storage account  
+- (Optional) Log Analytics for analytics and queries  
+
+---
+
+## 8. Administrative Access Support
+
+Shared services include components that support secure administrative access:
+
+### Jump‑ACI
+- Ephemeral container for identity‑based ingress  
+- No public inbound ports  
+- Outbound‑only connectivity  
+
+### Jumphost VM
+- Required for interactive administration  
+- Located in the hub network  
+- Accessed from Jump‑ACI  
+- Currently uses a generic account with shared keys  
+- Roadmap: named accounts with MFA  
+
+These components ensure that administrative access is controlled, auditable, and isolated.
+
+---
+
+## 9. Extensibility
+
+The shared services layer is designed to expand as the environment grows.
+
+Future enhancements may include:
+
+- Azure Automation Account  
+- Azure Sentinel / SIEM integration  
+- Defender for Cloud  
+- Additional private endpoints  
+- Private DNS resolver  
+- Centralised logging via Event Hub  
+- Certificate management in Key Vault  
+- Backup and recovery services  
+- Application Insights for workloads  
+
+The current implementation provides a secure, minimal foundation suitable for hybrid and cloud‑native workloads.
+
+

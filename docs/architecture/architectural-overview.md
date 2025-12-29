@@ -1,112 +1,168 @@
 # Architectural Overview
 
-This document provides a high‑level architectural overview of the Azure Hybrid Landing Zone project. It describes the major components, their relationships, and the design principles guiding the implementation. The goal is to demonstrate a secure, scalable, and automation‑driven cloud foundation that integrates both native Azure resources and on‑premises infrastructure through Azure Arc.
+This document provides a high‑level overview of the Azure Hybrid Landing Zone architecture.  
+It describes the core components, how they interact, and the principles that guide the design.  
+The architecture is intentionally minimal, cost‑efficient, and aligned with Azure landing zone best practices.
 
-## Security Posture Overview
-Security is embedded throughout the architecture using a defence‑in‑depth model aligned with the Microsoft Cloud Security Benchmark (MCSB).
-Key security characteristics include:
-- Identity‑first access using MFA, least‑privilege RBAC, and managed identities
-- No public administrative endpoints, with all access routed through an ephemeral jump‑ACI
-- Hub‑and‑spoke network isolation enforced by NSGs and deny‑all inbound rules
-- Private endpoints for Key Vault, Storage, and shared services
-- Diagnostic logging enabled across platform and workload resources
-- Azure Policy enforcing naming, tagging, private access, and baseline governance
-- Automated VM lifecycle management ensuring compute is only active when required
+For detailed information on specific areas, see:
+- `/docs/architecture/landing-zone-design.md`
+- `/docs/architecture/hub-and-spoke-network.md`
+- `/docs/architecture/governance-and-policy.md`
+- `/docs/architecture/shared-services.md`
+- `/docs/architecture/hybrid-architecture.md`
+- `/docs/security/security-overview.md`
+- `/docs/reference/terraform-structure.md`
 
-This security posture ensures the environment remains cost‑efficient while demonstrating enterprise‑grade patterns without requiring paid Defender for Cloud features.
+---
 
-## 1. Architecture Summary
+## 1. Purpose of the Architecture
 
-The solution is built around three core pillars:
+The Azure Hybrid Landing Zone demonstrates how a small, cost‑efficient environment can implement enterprise‑aligned patterns across:
 
-1. Azure Landing Zone (Subscription‑Scoped): the governance and management foundation that defines identity, policy, RBAC, and naming standards within a single Azure subscription.
-2. Platform and Workload Infrastructure: a hub‑and‑spoke network topology hosting shared services in the hub and application workloads in the spoke.
-3. Hybrid Integration: an on‑premises Linux virtual machine onboarded to Azure using Azure Arc, enabling governance and configuration management from the cloud.
+- Governance  
+- Networking  
+- Security  
+- Shared services  
+- Hybrid/on‑premises integration  
+- Automation and CI/CD  
 
-Automation is provided through Terraform and GitHub Actions, ensuring consistent, repeatable deployments across all layers.
+The design focuses on clarity and secure‑by‑default principles while remaining simple enough to run entirely within free‑tier or low‑cost Azure services.
 
-## 2. Azure Landing Zone
+---
 
-The landing zone establishes the enterprise governance model for the environment. It includes:
+## 2. High‑Level Components
 
-- Subscription‑level Azure Policy assignments for baseline governance
-- RBAC model for least‑privilege access
-- Naming and tagging standards applied consistently across resources
-- A single subscription hosting both platform and workload resources
+The architecture consists of the following major components:
 
-This layer provides the control plane for both cloud and hybrid resources.
-A full management‑group hierarchy and subscription vending model will be introduced in a future enterprise‑grade version of the landing zone.
+### **Landing Zone (Control Plane)**
+A subscription‑scoped landing zone providing:
 
-## 3. Hub Network and Shared Services
+- Identity and access control  
+- Policy‑driven governance  
+- Standardised tagging and naming  
+- Secure‑by‑default configuration baselines  
 
-The hub virtual network hosts shared services and acts as the central connectivity point for the environment. Key components include:
+See: `/docs/architecture/landing-zone-design.md`
 
-- Hub virtual network and subnets
-- Log Analytics workspace for monitoring and diagnostics (optional or future)
-- Azure Key Vault (Standard tier) for secret management
-- Optional shared services such as Bastion or Automation Account
-- Private endpoints securing access to Key Vault and Storage
-- NSGs enforcing deny‑all inbound rules on hub subnets
-- VNet peering to spoke networks
+---
 
-The hub is designed to be lightweight and cost‑efficient while still representing enterprise patterns.
+### **Hub-and-Spoke Network**
+A minimal network topology that provides:
 
-## 4. Spoke Network and Application Workload
+- A central hub VNet for shared services  
+- A spoke VNet for workload isolation  
+- NSGs enforcing deny‑all inbound rules  
+- Private endpoints for platform services (when enabled)
 
-The spoke network hosts the example workload used to demonstrate application deployment and network isolation. Components include:
+See: `/docs/architecture/hub-and-spoke-network.md`
 
-- Spoke virtual network and subnets
-- Azure App Service (Free tier) for the sample web application
-- Storage account for application assets or logs
-- Optional private endpoints for secure service access (recommended for production)
-- NSGs applied to workload subnets with restricted inbound/outbound rules
-- No public IPs assigned to workload resources
-- Diagnostic settings forwarding logs to the shared Log Analytics workspace
+---
 
-This structure reflects a typical application landing zone within an enterprise environment.
+### **Shared Services**
+Centralised platform services used across the environment, including:
 
-## 5. Hybrid On‑Premises Environment (Azure Arc)
+- Azure Key Vault  
+- Optional Log Analytics workspace  
+- Diagnostic settings (when enabled)
 
-A small on‑premises Linux virtual machine, hosted on a local KVM hypervisor, is onboarded to Azure using Azure Arc. This enables:
+These services provide secure secret management, monitoring, and operational consistency.
 
-- Centralised governance through Azure Policy
-- Inventory and metadata visibility in Azure Resource Manager
-- Optional monitoring via Log Analytics
-- Configuration management and updates delivered through GitHub Actions
+See: `/docs/architecture/shared-services.md`
 
-Azure Arc resources inherit the same governance and policy controls as native Azure resources, ensuring consistent security posture across cloud and on‑premises environments.
+---
 
-The hybrid component demonstrates how Azure can manage resources outside the cloud using the same governance and automation patterns.
+### **Hybrid Integration (Azure Arc)**
+A lightweight on‑premises Linux VM is onboarded using Azure Arc to demonstrate:
 
-## 6. Automation and Deployment Pipeline
+- Inventory and metadata visibility in Azure  
+- Policy‑driven governance  
+- Optional monitoring  
+- Consistent operational practices across cloud and hybrid resources  
 
-Infrastructure is provisioned and updated using Terraform, with GitHub Actions providing CI/CD automation. The pipeline includes:
+See: `/docs/architecture/hybrid-architecture.md`
 
-- Terraform formatting, validation, and planning
-- Manual approval for apply operations
-- OIDC‑based authentication from GitHub to Azure
-- Modular Terraform structure for hub, spoke, shared services, and Arc onboarding
+---
 
-This ensures deployments are consistent, repeatable, and aligned with modern engineering practices.
+### **Application Workload**
+A simple web workload deployed into the spoke network using:
 
-## 7. Future Enhancements
+- App Service (with private access when enabled)  
+- Storage account for application data  
+- Managed identities for secure access  
 
-The architecture is intentionally minimal to control cost while remaining extensible. Potential future improvements include:
+This demonstrates secure workload deployment patterns.
 
-- Full management group hierarchy and subscription vending
-- Azure Security Benchmark (ASB) and enterprise policy initiatives
-- Centralised logging and monitoring via Log Analytics workspace
-- Additional spokes for multi‑environment scenarios
-- Azure Firewall or third‑party network virtual appliances
-- Private DNS zones and more advanced name resolution
-- Arc‑enabled Kubernetes or container workloads
-- Defender for Cloud integration
-- Expanded monitoring and alerting
+See: `/docs/architecture/application-workload.md`
 
-These enhancements can be added incrementally as the project evolves.
+---
 
-## 8. Diagram Reference
+### **Automation and CI/CD**
+A GitHub Actions pipeline deploys the entire environment using:
 
-The high‑level architecture diagram associated with this document is located in the `/diagrams` directory of this repository. It illustrates the relationships between the landing zone, hub and spoke networks, hybrid environment, and automation pipeline.
+- Terraform  
+- OIDC‑based authentication  
+- Manual approval for apply  
+- Secure, repeatable workflows  
 
-_Last updated: see commit history_
+See: `/docs/architecture/automation-and-ci-cd.md`
+
+---
+
+## 3. Security-by-Design
+
+Security is embedded throughout the architecture using:
+
+- Least‑privilege RBAC  
+- No public IPs on compute resources  
+- Private endpoints for platform services (when enabled)  
+- NSGs enforcing deny‑all inbound rules  
+- Policy‑driven configuration baselines  
+- Identity‑based access for automation  
+
+Full details: `/docs/security/security-overview.md`
+
+---
+
+## 4. Governance and Policy
+
+Governance is applied at the subscription level and includes:
+
+- Required tagging  
+- Allowed locations  
+- Baseline security policies  
+- Optional diagnostic settings  
+- Policy‑driven prevention of public IPs  
+
+Full details: `/docs/architecture/governance-and-policy.md`
+
+---
+
+## 5. Extensibility
+
+The architecture is intentionally minimal but designed to scale.  
+Future enhancements may include:
+
+- Additional spokes and workloads  
+- Private DNS zones  
+- Azure Firewall or Bastion  
+- Defender for Cloud integration  
+- Management‑group hierarchy  
+- Multi‑subscription landing zone  
+- Advanced guest configuration for Arc resources  
+
+These enhancements can be added without redesigning the core architecture.
+
+---
+
+## 6. Summary
+
+The Azure Hybrid Landing Zone provides a clean, secure, and extensible foundation that demonstrates:
+
+- Enterprise‑aligned governance  
+- Secure‑by‑default networking  
+- Centralised shared services  
+- Hybrid/on‑premises integration  
+- Modern automation practices  
+
+It balances simplicity with architectural clarity, making it suitable for learning, demonstration, and future expansion.
+

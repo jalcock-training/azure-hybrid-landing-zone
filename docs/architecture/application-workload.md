@@ -1,116 +1,194 @@
 # Application Workload Architecture
 
-This document describes the application workload used in the Azure Hybrid Landing Zone project. The workload is intentionally simple and cost‑efficient, serving as an example of how applications are deployed into a governed landing zone and how they consume shared platform services. The design demonstrates workload isolation, monitoring, and integration with the hub‑and‑spoke network model.
+This document describes the application workload deployed in the Azure Hybrid Landing Zone.  
+The workload demonstrates secure‑by‑default deployment patterns using App Service, Storage, managed identities, and private connectivity.
+
+For related documentation, see:
+- `/docs/architecture/hub-and-spoke-network.md`
+- `/docs/security/security-overview.md`
+- `/docs/architecture/shared-services.md`
+- `/docs/reference/naming-and-tagging-standards.md`
+
+---
 
 ## 1. Purpose of the Application Workload
 
-The application workload provides a practical example of how real workloads fit into the landing zone. Its goals are to:
+The workload demonstrates how cloud‑native applications can be deployed securely within the landing zone using:
 
-- Demonstrate deployment into a spoke network
-- Show how workloads consume shared services such as Key Vault and (optionally) Log Analytics
-- Provide a simple, low‑cost application for testing and validation
-- Illustrate how governance and automation apply to workload resources
-- Establish a pattern that can be extended to more complex applications
-- Demonstrate secure-by-default workload deployment using private endpoints, NSGs, and policy enforcement
+- Private connectivity  
+- Managed identities  
+- Platform services with secure defaults  
+- Consistent governance and tagging  
+- Controlled administrative access  
 
-The workload is not intended to be production‑grade; it is a functional demonstration of architectural principles.
+The design is intentionally minimal to support low‑cost operation while still reflecting enterprise‑aligned workload patterns.
+
+---
 
 ## 2. Workload Components
 
-The workload consists of two primary Azure services:
+The workload consists of the following components:
 
-### Azure App Service (Free Tier)
+### **App Service**
+A web application hosted on Azure App Service.
 
-The App Service hosts a simple web application. Key characteristics include:
+### **Storage Account**
+Used for application data, static content, or logs.
 
-- Free tier to minimise cost
-- Public endpoint managed by Azure (no inbound VNet access required)
-- Optional VNet integration for future enhancements
-- Diagnostic settings can forward logs to the shared Log Analytics workspace when enabled
-- Integration with Terraform and CI/CD pipeline
-- No public administrative access; platform-managed endpoints only
-- Can be configured to use managed identities for secure secret retrieval
+### **Managed Identity**
+Used by the application to access platform services such as Key Vault and Storage.
 
-The App Service demonstrates how platform‑managed compute fits into the landing zone.
+### **Private Endpoints**
+Used to ensure platform services are accessed over private IPs.
 
-### Storage Account
+### **Private DNS Zones**
+Used to resolve private endpoint hostnames from within the hub and spoke networks.
 
-A general‑purpose storage account supports the application by providing:
+---
 
-- Static content hosting (optional)
-- Application logs or artifacts
-- Diagnostic settings for monitoring (optional if Log Analytics is not deployed)
-- Optional private endpoint for secure access
-- Public access disabled to enforce secure data access patterns
-- TLS 1.2 enforced for all connections
+## 3. App Service Architecture
 
-The storage account represents a common supporting service for cloud applications.
+The App Service is deployed with secure defaults.
 
-## 3. Network Placement
+### Current configuration
 
-The application workload is deployed into the spoke virtual network, which provides:
+- Supports **private endpoint integration**  
+- Public access can be disabled  
+- Uses a **system‑assigned managed identity**  
+- Access to Key Vault is via RBAC  
+- Access to Storage is via identity or SAS depending on workload needs  
+- TLS enforced  
 
-- Isolation from the hub and other workloads
-- Controlled connectivity through VNet peering
-- Optional private endpoints for secure service access
-- Clear separation of platform and workload responsibilities
-- NSGs applied to workload subnets to restrict inbound and outbound traffic
-- No public IPs assigned to workload resources
+### Future enhancements
 
-The App Service itself does not require inbound VNet access, but the spoke network provides a foundation for future enhancements.
+- Private endpoint enabled by default  
+- App Service Environment (ASE) integration  
+- Application Insights for monitoring  
+- Multiple deployment slots  
+- CI/CD integration for application code  
 
-## 4. Integration with Shared Services
+---
 
-The workload consumes shared services deployed in the hub, including:
+## 4. Storage Architecture
 
-- Log Analytics Workspace
-  Diagnostic settings can forward logs and metrics for centralised monitoring when a workspace is deployed.
+The workload storage account is deployed with secure‑by‑default settings.
 
-- Azure Key Vault
-  Can be used for application secrets if required in future iterations.
+### Current configuration
 
-- Azure Policy
-  Ensures compliance with tagging, diagnostics, and security baselines.
-  Policy enforcement ensures secure defaults such as private endpoints, diagnostic settings, and restricted locations
+- **Private endpoint enabled**  
+- **Private DNS zone linked**  
+- **Public network access disabled**  
+- **TLS enforced**  
+- Identity‑based access supported  
+- Standard redundancy to minimise cost  
 
-This integration demonstrates how workloads benefit from centralised platform capabilities.
+### Usage
 
-## 5. Governance and Compliance
+- Application data  
+- Static content  
+- Logs (optional)  
+- Future workload expansion  
 
-The workload is governed through the same landing zone structure as other resources. This includes:
+---
 
-- Required tags for classification and cost management
-- Policy‑driven diagnostic settings
-- Allowed locations and resource types
-- RBAC applied at the subscription or resource‑group level (subscription‑scoped governance)
-- Enforcement of secure configuration baselines through Azure Policy initiatives
+## 5. Identity and Access
 
-This ensures the workload adheres to enterprise governance standards.
+The workload uses a **system‑assigned managed identity** for secure access to platform services.
 
-## 6. Automation and Deployment
+### Current identity flows
 
-The workload is deployed and managed through the Terraform root module and GitHub Actions pipeline. This provides:
+- App Service → Key Vault (RBAC)  
+- App Service → Storage (identity or SAS)  
+- No long‑lived secrets  
+- No service principals with stored credentials  
 
-- Consistent, repeatable deployments
-- Validation and planning before changes are applied
-- Secure authentication using OIDC
-- Clear separation between infrastructure and application code
-- No long‑lived credentials; all automation uses short‑lived identity tokens
-- Workload resources inherit the same security posture as the rest of the landing zone
+### Future enhancements
 
-This demonstrates modern DevOps practices applied to cloud workloads.
+- User‑assigned managed identities  
+- Key Vault certificate integration  
+- Identity‑based access to additional services  
 
-## 7. Extensibility
+---
 
-The workload architecture is intentionally minimal but can be expanded to support more complex scenarios, including:
+## 6. Administrative Access Flow
 
-- API backends or microservices
-- Containerised workloads using Azure Container Apps or AKS
-- Private endpoints for all supporting services
-- Application secrets stored in Key Vault
-- Multi‑environment deployments (dev/test/prod)
-- Integration with CI/CD pipelines for application code
-- Integration with managed identities for secure secret access
-- Full private networking for App Service using VNet integration and private endpoints
+Administrative access to workload resources follows the same secure, identity‑centric pattern as the rest of the environment.
 
-The current implementation provides a simple but realistic foundation for cloud application deployment.
+### Access chain
+
+1. **Operator authentication**  
+   - Azure CLI using OIDC‑based or identity‑based credentials  
+   - MFA enforced at the identity provider level
+
+2. **Jump‑ACI**  
+   - Ephemeral container  
+   - No inbound public ports  
+   - Outbound‑only connectivity
+
+3. **Jumphost VM**  
+   - Required for interactive administration  
+   - Located in the hub network  
+   - Currently accessed using a generic account with shared keys  
+   - Roadmap: named accounts with MFA
+
+4. **Workload resources**  
+   - Accessed from the jumphost VM  
+   - Protected by NSGs and private endpoints  
+   - No direct inbound access from the internet  
+
+---
+
+## 7. Monitoring and Diagnostics
+
+Monitoring is optional in this phase.
+
+### When enabled:
+
+- App Service diagnostic logs  
+- Storage diagnostic logs  
+- NSG flow logs  
+- Log Analytics workspace integration  
+
+### Not yet implemented:
+
+- Application Insights  
+- Distributed tracing  
+- Performance monitoring  
+- Dependency mapping  
+
+These can be added later without redesigning the workload architecture.
+
+---
+
+## 8. Governance and Compliance
+
+The workload inherits governance from the landing zone, including:
+
+- Required tagging  
+- Allowed locations  
+- Deny public IPs  
+- Policy enforcement for secure configuration  
+- Optional diagnostic settings  
+
+Full governance details are documented in:  
+`/docs/architecture/governance-and-policy.md`
+
+---
+
+## 9. Extensibility
+
+The workload architecture is designed to scale as the environment grows.
+
+Future enhancements may include:
+
+- Additional workloads or microservices  
+- API Management  
+- Private endpoints for all platform services  
+- Multi‑environment deployment (dev/test/prod)  
+- CI/CD integration for application code  
+- Application Insights and monitoring baselines  
+- Integration with hybrid workloads via Arc  
+
+The current implementation provides a secure, minimal foundation for cloud‑native application deployment.
+
+

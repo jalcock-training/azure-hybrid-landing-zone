@@ -1,125 +1,190 @@
-# Governance and Policy Architecture
+# Governance and Policy
 
-This document describes the governance and policy model used in the Azure Hybrid Landing Zone project. Governance ensures that all resources—cloud and hybrid—are deployed, configured, and operated in a consistent, secure, and compliant manner. The design follows Azure landing zone principles while remaining minimal and cost‑efficient.
+This document describes the governance and policy model used in the Azure Hybrid Landing Zone.  
+The design applies consistent, secure, and enforceable standards across Azure‑native and Azure Arc–enabled resources while remaining minimal and cost‑efficient.
 
-## 1. Purpose of Governance
+For related documentation, see:
+- `/docs/security/security-overview.md`
+- `/docs/architecture/landing-zone-design.md`
+- `/docs/reference/naming-and-tagging-standards.md`
 
-The governance model provides a structured framework for managing the environment. Its goals are to:
+---
 
-- Enforce consistent configuration across all resources
-- Apply security and compliance controls
-- Standardise naming, tagging, and resource organisation
-- Ensure visibility through monitoring and diagnostics
-- Govern both Azure‑native and Azure Arc–enabled resources
-- Support scalable, multi‑environment growth
+## 1. Governance Objectives
 
-Governance is applied through management groups, Azure Policy, RBAC, and standardised resource organisation.
+The governance model ensures that all resources—cloud or hybrid—are deployed within a controlled, compliant, and secure framework.
 
-## 2. Management Group Hierarchy
+Key objectives include:
 
-A lightweight management group hierarchy provides the foundation for governance:
+- Enforcing consistent tagging and naming  
+- Applying secure‑by‑default configuration baselines  
+- Restricting resource deployment to approved regions  
+- Preventing insecure configurations (e.g., public IPs)  
+- Governing Azure Arc–enabled servers  
+- Providing visibility through optional diagnostics and logging  
 
-- **Root Management Group**  
-  The top‑level scope for global governance assignments.
+The model is intentionally minimal to support low‑cost operation while demonstrating enterprise‑aligned governance patterns.
 
-- **Platform Management Group**  
-  Contains the subscription hosting shared services and the hub network.
+---
 
-- **Landing Zones Management Group**  
-  Contains workload subscriptions, including the spoke network and application resources.
+## 2. Governance Scope
 
-This structure allows governance to be applied at the appropriate scope while keeping the environment simple.
+Governance is applied at the **subscription level** in this phase of the project.
 
-## 3. Role‑Based Access Control (RBAC)
+This includes:
 
-Identity and access management is centralised through Microsoft Entra ID. RBAC is applied using least‑privilege principles:
+- Subscription‑level Azure Policy assignments  
+- RBAC assignments at subscription and resource‑group scopes  
+- Required tagging  
+- Location restrictions  
+- Arc baseline policies  
+- Optional diagnostic settings  
 
-- Platform administrators manage shared services and networking
-- Workload administrators manage application resources
-- Automation identities use scoped permissions for Terraform and CI/CD
-- No unmanaged local accounts or long‑lived credentials
+A full management‑group hierarchy and multi‑subscription model are planned for future enhancements.
 
-RBAC assignments are made at the management group or subscription level to ensure consistency.
+---
 
-## 4. Azure Policy
+## 3. Identity and Access Governance
 
-Azure Policy enforces configuration standards across the environment. The initial policy set includes:
+Identity is centralised through Microsoft Entra ID.  
+Governance ensures:
 
-### Tagging Policies
+- RBAC follows least‑privilege principles  
+- No long‑lived credentials or local admin accounts  
+- Automation uses OIDC‑based authentication  
+- Administrative access flows through:
 
-- Required tags for:
-  - Environment
-  - Owner
-  - Cost centre or project
-  - Application or service name
+  1. Azure CLI authentication  
+  2. Jump‑ACI (ephemeral, identity‑based)  
+  3. Jumphost VM (generic account today; named accounts with MFA planned)  
 
-These support cost management, classification, and operational clarity.
+Identity governance is enforced consistently across Azure‑native and Arc‑enabled resources.
 
-### Location Policies
+---
 
-- Allowed locations to prevent accidental deployment outside the intended region
+## 4. Tagging Governance
 
-This ensures resources remain within governance boundaries.
+Tagging is enforced through Azure Policy to support:
 
-### Diagnostic Policies
+- Cost management  
+- Ownership clarity  
+- Resource classification  
+- Operational consistency  
 
-- Enforce diagnostic settings for supported resources
-- Forward logs and metrics to the shared Log Analytics workspace
+Required tags include:
 
-This ensures consistent monitoring across cloud and hybrid assets.
+- `Environment`  
+- `Owner`  
+- `Project`  
+- `Application`  
+- `CostCentre` (optional in this phase)
 
-### Security Baseline Policies
+Tagging standards are defined in:  
+`/docs/reference/naming-and-tagging-standards.md`
 
-- Baseline security configurations for Azure Arc–enabled servers
-- Optional guest configuration policies for hybrid resources
+---
 
-These policies ensure hybrid assets follow the same governance standards as Azure‑native resources.
+## 5. Naming Governance
 
-## 5. Governance for Hybrid Resources
+Naming consistency is enforced through:
 
-Azure Arc enables hybrid resources to participate fully in the governance model. This includes:
+- Terraform variables  
+- Module‑level naming patterns  
+- Policy‑driven validation where applicable  
 
-- Policy assignments applied at the management group or subscription level
-- Required tagging for classification
-- Optional monitoring through Log Analytics
-- RBAC applied through Azure Resource Manager
+Naming standards are defined in:  
+`/docs/reference/naming-and-tagging-standards.md`
 
-Hybrid resources follow the same governance patterns as cloud resources without requiring network connectivity to Azure VNets.
+---
 
-## 6. Resource Organisation
+## 6. Policy Assignments
 
-Resources are organised using a consistent structure:
+The landing zone applies a set of subscription‑level policies that enforce secure and consistent configuration.
 
-- **Management groups** for governance boundaries
-- **Subscriptions** for platform and workload separation
-- **Resource groups** for logical grouping of related resources
-- **Naming standards** for clarity and traceability
-- **Tagging standards** for classification and cost management
+### **Current policy assignments**
 
-This structure supports operational clarity and scalability.
+- **Required tags**  
+  Ensures all resources include the standard tag set.
 
-## 7. Compliance and Visibility
+- **Allowed locations**  
+  Restricts deployments to the intended Azure region.
 
-Governance ensures visibility across the environment through:
+- **Deny public IPs on compute resources**  
+  Prevents accidental exposure of VMs and Arc servers.
 
-- Centralised monitoring in Log Analytics
-- Policy compliance reporting
-- RBAC audit logs
-- Terraform‑driven drift detection
+- **Azure Arc baseline policies**  
+  Ensures Arc‑enabled servers meet minimum governance requirements.
 
-These capabilities support operational oversight and troubleshooting.
+- **Optional diagnostic settings**  
+  Enables diagnostic forwarding when Log Analytics is deployed.
 
-## 8. Extensibility
+### **Not yet implemented (future enhancements)**
 
-The governance model is designed to scale as the environment grows. Future enhancements may include:
+- Policy initiatives (bundled policies)  
+- Defender for Cloud regulatory compliance  
+- Guest configuration baselines for Arc servers  
+- Policy‑driven private endpoint enforcement  
+- Management‑group–level governance  
 
-- Additional policy initiatives for security or compliance
-- Defender for Cloud integration
-- More granular RBAC roles
-- Multi‑environment management group structure (dev/test/prod)
-- Private DNS zones and centralised name resolution
-- Policy‑driven configuration for Arc‑enabled Kubernetes or SQL Server
+These will be introduced in later phases.
 
-The current implementation provides a minimal but realistic governance foundation.
+---
+
+## 7. Azure Arc Governance
+
+Azure Arc–enabled servers participate fully in the governance model.
+
+Current governance includes:
+
+- Required tagging  
+- Allowed locations  
+- Deny public IPs  
+- Basic Arc baseline policies  
+- Optional diagnostic forwarding to Log Analytics  
+
+Future enhancements may include:
+
+- Guest configuration policies  
+- Defender for Cloud integration  
+- Advanced monitoring baselines  
+- Just‑in‑time access controls  
+
+---
+
+## 8. Logging and Audit Governance
+
+Logging and audit controls include:
+
+- **Activity Log export** (subscription‑level)  
+- **NSG flow logs (v2)** when enabled  
+- **Diagnostic settings** for supported resources  
+- **Optional Log Analytics workspace** for centralised monitoring  
+
+These controls provide visibility into:
+
+- Administrative actions  
+- Network traffic  
+- Policy compliance  
+- Resource health  
+
+Logging is optional in this phase to support low‑cost operation.
+
+---
+
+## 9. Extensibility
+
+The governance model is designed to scale.  
+Future enhancements may include:
+
+- Full management‑group hierarchy  
+- Multi‑subscription landing zone  
+- Policy initiatives for security and compliance  
+- Defender for Cloud integration  
+- Private endpoint enforcement policies  
+- Advanced Arc governance  
+- Regulatory compliance mappings  
+- Automated remediation  
+
+The current implementation provides a strong, minimal foundation for enterprise‑aligned governance.
 
 

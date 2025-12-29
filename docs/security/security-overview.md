@@ -1,209 +1,181 @@
 # Security Overview
 
-This document defines the central security model for the Azure Hybrid Landing Zone.
-All module‑level documentation refers back to this file for security controls.
+This document describes the security posture of the Azure Hybrid Landing Zone.  
+The design follows secure‑by‑default principles and applies consistent controls across Azure‑native and Azure Arc–enabled resources.
 
-It covers:
-
-- Network segmentation
-- Network Security Groups (NSGs)
-- Route tables
-- Private endpoints
-- DNS zone strategy
-- Identity and access
-- Logging and monitoring
-- Hub/spoke trust boundaries
-- Cross‑module dependencies
-
-This file is the single source of truth for all security behaviour across the platform.
+For related documentation, see:
+- `/docs/architecture/hub-and-spoke-network.md`
+- `/docs/architecture/governance-and-policy.md`
+- `/docs/architecture/shared-services.md`
+- `/docs/reference/naming-and-tagging-standards.md`
 
 ---
 
-## 1. Network Segmentation Model
+## 1. Security Principles
 
-The landing zone uses a hub‑and‑spoke topology.
+The environment is built around the following principles:
 
-### Hub VNet
-- Shared Services subnet
-- ACI subnet
-- Private Endpoints subnet
-- Azure Firewall subnet (reserved)
-- Gateway subnet (reserved)
+- **Identity-first access**  
+  All administrative access begins with Microsoft Entra ID authentication.
 
-### Spoke VNet
-- App subnet
-- Data subnet
-- Private Endpoints subnet
+- **Least privilege**  
+  RBAC assignments are scoped to the minimum required level.
 
-### Segmentation Principles
-- Subnets are isolated by default
-- Only required east‑west flows are allowed
-- No direct internet ingress
-- No direct internet egress
-- Private endpoints are isolated in a dedicated subnet
-- ACI is isolated but allowed to reach the jump VM
+- **No direct public exposure**  
+  No compute resources in the hub or spoke VNets are reachable from the public internet.
+
+- **Private connectivity for platform services**  
+  Key Vault and Storage use private endpoints and private DNS zones.
+
+- **Segmentation and isolation**  
+  Hub and spoke VNets are isolated except for explicitly allowed flows.
+
+- **Secure-by-default configuration**  
+  NSGs, diagnostics, TLS enforcement, and identity-based access are applied wherever possible.
 
 ---
 
-## 2. Network Security Groups (NSGs)
+## 2. Identity and Access Control
 
-NSGs are applied per subnet.
-Each subnet receives its own NSG with a consistent rule set.
+Identity is centralised through Microsoft Entra ID.
 
-### Inbound Rules
-- Allow VNet → VNet
-- Allow Azure Load Balancer
-- Deny all inbound (catch‑all)
+### Administrative Access Flow
 
-### Outbound Rules
-- Allow VNet outbound
-- Deny all outbound (internet egress blocked)
+Administrative access follows a controlled, identity‑centric chain:
 
-### Subnet‑Specific Behaviour
-- Private Endpoints subnet: fully locked down
-- ACI subnet: locked down; allowed to reach the jump VM via VNet rule
-- Shared Services subnet: same baseline rules
+1. **Operator authentication**  
+   - Performed using Azure CLI with OIDC‑based or identity‑based credentials  
+   - MFA enforced at the identity provider level
 
-All NSG behaviour is defined centrally in the `network-security` module.
+2. **Jump‑ACI (ephemeral container)**  
+   - Started on demand  
+   - No inbound public ports  
+   - Outbound‑only connectivity  
+   - Provides a short‑lived, identity‑based entry point into the hub network
 
----
+3. **Jumphost VM**  
+   - Required for interactive administration  
+   - Receives connections only from Jump‑ACI  
+   - Currently accessed using a generic account with shared keys  
+   - Roadmap: named user accounts integrated with identity and MFA
 
-## 3. Route Tables
+4. **Hub and Spoke Resources**  
+   - Access controlled by NSGs and private connectivity  
+   - No direct inbound access from the internet
 
-Each subnet receives its own route table.
-
-### Hub Routes
-- Route to Spoke (VnetLocal)
-- Deny internet (0.0.0.0/0 → None)
-
-### Spoke Routes
-- No custom routes by default
-- Future firewall integration will update this
+This model ensures that all administrative access is authenticated, controlled, and traceable.
 
 ---
 
-## 4. Private Endpoint Security
+## 3. Network Security
 
-Private endpoints are deployed only in the dedicated `private-endpoints` subnet.
+Network security is enforced through multiple layers:
 
-### Security Controls
-- Public network access disabled on all PaaS services
-- Private DNS zones resolve service endpoints
-- NSG denies all inbound/outbound except VNet
-- Route table denies internet egress
-- No service delegation
-- No UDRs that break private endpoint routing
+- **No public IPs** on compute resources  
+- **NSGs** with deny‑all inbound rules and minimal outbound allowances  
+- **Hub-and-spoke segmentation** to isolate workloads  
+- **Private endpoints** for Key Vault and Storage  
+- **Private DNS zones** for private endpoint name resolution  
+- **Controlled administrative ingress** via Jump‑ACI and the jumphost VM  
 
-### Services Using Private Endpoints
-- Key Vault
-- Storage (Blob + File)
+There is no Azure Firewall, Bastion, or VPN gateway in this phase.  
+These can be added in future iterations.
 
 ---
 
-## 5. Private DNS Zones
+## 4. Platform Service Security
 
-DNS zones are created once in shared‑services and linked to the hub VNet.
+Platform services are deployed with secure defaults:
 
-### Zones
-- privatelink.vaultcore.azure.net
-- privatelink.blob.core.windows.net
-- privatelink.file.core.windows.net
+### Key Vault
+- Private endpoint enabled  
+- Private DNS zone linked  
+- Purge protection enabled  
+- Soft delete enabled  
+- Public network access disabled  
+- Access controlled via RBAC and managed identities
 
-### DNS Strategy
-- Zones created in shared‑services
-- Linked to hub VNet
-- Storage module consumes zone names and creates VNet links
-- No duplication of DNS zones
-- No public DNS exposure
+### Storage
+- Private endpoint enabled where required  
+- Private DNS zone linked  
+- TLS enforced  
+- Public network access disabled  
+- Identity-based access supported
 
----
-
-## 6. Identity and Access Management
-
-### RBAC
-- Platform Resource Group:
-  - Owner: platform administrators
-  - Contributor: automation identities
-  - Reader: monitoring identities
-
-### Key Vault Access
-- RBAC‑enabled Key Vault
-- No access policies
-- Access controlled via Azure AD roles
-- Network ACLs restrict access to Shared Services and Private Endpoints subnets
-
-### Managed Identities
-- Used for automation and ACI workloads
-- No secrets stored outside Key Vault
+### App Service (when deployed)
+- Supports private endpoint integration  
+- Public access can be disabled  
+- Managed identity used for platform access
 
 ---
 
-## 7. Logging and Monitoring
+## 5. Hybrid Resource Security (Azure Arc)
 
-### Log Analytics Workspace
-- Single workspace for the entire landing zone
-- Centralised logging and diagnostics
-- Retention configurable (default 30 days)
+Azure Arc–enabled servers participate fully in the landing zone’s security model:
 
-### Activity Log Export
-- Subscription‑level export to Log Analytics
-- All categories enabled
+- Governed by Azure Policy  
+- Tagged and named consistently  
+- Visible in Azure Resource Manager  
+- Optional diagnostic forwarding to Log Analytics  
+- No inbound public access to the on‑premises host  
 
-### Diagnostic Settings
-Applied to:
-- Storage Account
-- Key Vault
-- Network resources
-- Private endpoints
+Future enhancements may include:
 
-All logs flow into the same workspace.
+- Guest configuration policies  
+- Defender for Cloud integration  
+- Advanced monitoring baselines
 
 ---
 
-## 8. Hub/Spoke Trust Boundaries
+## 6. Monitoring and Logging
 
-### Hub
-- Contains shared infrastructure
-- Fully locked down
-- No internet egress
-- No inbound from outside VNet
-- Private endpoints isolated
-- ACI isolated but allowed to reach jump VM
+Monitoring is available and can be enabled as needed:
 
-### Spoke
-- Application workloads
-- No direct internet ingress
-- No direct internet egress
-- Trusts hub for DNS, logging, shared services, and future firewall routing
+- **Log Analytics workspace** (optional)  
+- **Diagnostic settings** for supported resources  
+- **NSG flow logs (v2)** for selected NSGs  
+- **Activity Log export** for subscription‑level events  
 
----
+These features provide visibility into:
 
-## 9. Cross‑Module Dependencies
+- Administrative actions  
+- Network traffic  
+- Policy compliance  
+- Resource health  
 
-To ensure deterministic ordering:
-
-- Governance → Log Analytics
-- Log Analytics → Activity Log Export
-- Log Analytics → Diagnostic Settings
-- Hub Network → Network Security
-- Shared Services → Storage (DNS zones)
-- Hub Network → Shared Services (Key Vault PE subnet)
-
-Dependencies are enforced at the module level.
+Monitoring is optional in this phase to support low‑cost operation.
 
 ---
 
-## 10. Security Philosophy
+## 7. Governance and Compliance
 
-The landing zone follows these principles:
+Security is reinforced through subscription‑level governance:
 
-- Secure by default
-- Least privilege
-- Deny by default
-- Explicit allow
-- Centralised logging
-- No public endpoints
-- No internet egress
-- Deterministic module ordering
-- Single source of truth for security controls
+- Required tagging  
+- Allowed locations  
+- Baseline security policies  
+- Prevention of public IP assignment  
+- Policy enforcement for Arc‑enabled servers  
+
+Full governance details are documented in:  
+`/docs/architecture/governance-and-policy.md`
+
+---
+
+## 8. Extensibility
+
+The security architecture is designed to evolve.  
+Future enhancements may include:
+
+- Azure Firewall or third‑party NVAs  
+- Bastion for browser‑based VM access  
+- VPN or ExpressRoute connectivity  
+- Defender for Cloud integration  
+- Management‑group–level governance  
+- Named accounts with MFA on the jumphost VM  
+- Additional private endpoints and private DNS zones  
+- Multi‑region or zone‑redundant security patterns  
+
+The current implementation provides a strong, secure foundation while remaining cost‑efficient and easy to extend.
+
 
