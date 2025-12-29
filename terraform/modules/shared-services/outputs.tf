@@ -30,4 +30,3 @@ output "private_dns_zone_storage_file_name" {
   description = "Private DNS zone name for file storage."
   value       = try(azurerm_private_dns_zone.private_dns_zone_storage_file[0].name, null)
 }
-

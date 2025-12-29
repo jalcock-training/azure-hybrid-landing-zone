@@ -20,20 +20,14 @@ runcmd:
     # Login with managed identity
     az login --identity >> /var/log/workload-init.log 2>&1
 
-    # Variables passed from Terraform
-    SA_NAME="${storage_account_name}"
-    CONTAINER_NAME="${storage_container_name}"
-    KV_NAME="${kv_name}"
-    KV_CERT_NAME="${kv_cert_name}"
-
     # Create web root
     mkdir -p /var/www/html
 
     # Download index.html from Storage
     echo "[cloud-init] Downloading index.html from Storage" >> /var/log/workload-init.log
     az storage blob download \
-      --account-name "${SA_NAME}" \
-      --container-name "${CONTAINER_NAME}" \
+      --account-name "${storage_account_id}" \
+      --container-name "${storage_container_name}" \
       --name "index.html" \
       --file "/var/www/html/index.html" \
       --auth-mode login >> /var/log/workload-init.log 2>&1
@@ -62,8 +56,8 @@ EOF
     # Download certificate from Key Vault as PFX
     echo "[cloud-init] Downloading certificate from Key Vault" >> /var/log/workload-init.log
     az keyvault certificate download \
-      --vault-name "${KV_NAME}" \
-      --name "${KV_CERT_NAME}" \
+      --vault-name "${kv_name}" \
+      --name "${kv_cert_name}" \
       --file "/etc/nginx/ssl/cert.pfx" \
       --encoding PFX >> /var/log/workload-init.log 2>&1
 

@@ -11,6 +11,13 @@ locals {
   tags = var.common_tags
 
   certificate_subject = "${var.name_prefix}-workload.internal"
+
+  cloud_init = templatefile("${path.module}/cloud-init-workload.yaml", {
+    storage_account_id     = data.azurerm_storage_account.sa.id
+    storage_container_name = azurerm_storage_container.workload_content.name
+    kv_name                = data.azurerm_key_vault.kv.name
+    kv_cert_name           = azurerm_key_vault_certificate.workload_cert.name
+  })
 }
 
 # ------------------------------------------------------------
@@ -26,10 +33,9 @@ data "azurerm_virtual_network" "vnet" {
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 
-data "azurerm_subnet" "workload" {
-  name                 = var.workload_subnet_name
-  virtual_network_name = data.azurerm_virtual_network.vnet.name
-  resource_group_name  = data.azurerm_resource_group.rg.name
+data "azapi_resource" "workload_subnet" {
+  type        = "Microsoft.Network/virtualNetworks/subnets@2023-05-01"
+  resource_id = var.workload_subnet_id
 }
 
 data "azurerm_key_vault" "kv" {
@@ -37,12 +43,13 @@ data "azurerm_key_vault" "kv" {
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 
+data "azurerm_subscription" "current" {}
+
 data "azurerm_storage_account" "sa" {
   name                = var.storage_account_name
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 
-data "azurerm_subscription" "current" {}
 
 # ------------------------------------------------------------
 # Certificate Generation (Terraform → Key Vault)
@@ -73,23 +80,32 @@ resource "azurerm_key_vault_certificate" "workload_cert" {
   name         = "${var.name_prefix}-workload-cert"
   key_vault_id = data.azurerm_key_vault.kv.id
 
-  certificate {
-    contents = tls_self_signed_cert.workload_cert.cert_pem
-  }
+  certificate_policy {
+    issuer_parameters {
+      name = "Self"
+    }
 
-  key_properties {
-    exportable = true
-    key_size   = 2048
-    key_type   = "RSA"
-    reuse_key  = false
-  }
+    key_properties {
+      exportable = true
+      key_size   = 2048
+      key_type   = "RSA"
+      reuse_key  = false
+    }
 
-  secret_properties {
-    content_type = "application/x-pem-file"
-  }
+    secret_properties {
+      content_type = "application/x-pem-file"
+    }
 
-  lifecycle {
-    create_before_destroy = true
+    x509_certificate_properties {
+      subject            = "CN=${local.certificate_subject}"
+      validity_in_months = 12
+
+      extended_key_usage = ["1.3.6.1.5.5.7.3.1"] # serverAuth
+      key_usage = [
+        "digitalSignature",
+        "keyEncipherment"
+      ]
+    }
   }
 }
 
@@ -142,7 +158,7 @@ resource "azurerm_network_security_group" "workload_nsg" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "workload_nsg_assoc" {
-  subnet_id                 = data.azurerm_subnet.workload.id
+  subnet_id                 = data.azapi_resource.workload_subnet.id
   network_security_group_id = azurerm_network_security_group.workload_nsg.id
 }
 
@@ -157,26 +173,11 @@ resource "azurerm_network_interface" "nic" {
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = data.azurerm_subnet.workload.id
+    subnet_id                     = data.azapi_resource.workload_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 
   tags = local.tags
-}
-
-# ------------------------------------------------------------
-# Cloud-init Template
-# ------------------------------------------------------------
-
-data "templatefile" "cloud_init" {
-  template = file("${path.module}/cloud-init-workload.yaml")
-
-  vars = {
-    storage_account_name   = data.azurerm_storage_account.sa.name
-    storage_container_name = var.storage_container_name
-    kv_name                = data.azurerm_key_vault.kv.name
-    kv_cert_name           = azurerm_key_vault_certificate.workload_cert.name
-  }
 }
 
 # ------------------------------------------------------------
@@ -218,7 +219,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  custom_data = base64encode(data.templatefile.cloud_init.rendered)
+  custom_data = base64encode(local.cloud_init)
 
   tags = local.tags
 }
@@ -241,5 +242,15 @@ resource "azurerm_role_assignment" "vm_storage_reader" {
   scope                = data.azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
+
+# ------------------------------------------------------------
+# Storage Container for Workload Content
+# ------------------------------------------------------------
+
+resource "azurerm_storage_container" "workload_content" {
+  name                  = "${var.name_prefix}-workload-content"
+  storage_account_id    = data.azurerm_storage_account.sa.id
+  container_access_type = "private"
 }
 

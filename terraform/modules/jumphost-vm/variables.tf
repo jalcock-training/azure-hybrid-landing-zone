@@ -29,6 +29,12 @@ variable "ssh_public_key" {
   type        = string
 }
 
+# SSH public key for authentication
+variable "ssh_private_key" {
+  description = "SSH private key for VM login."
+  type        = string
+}
+
 # VM size (small and cheap by default)
 variable "vm_size" {
   description = "Size of the jumphost VM."

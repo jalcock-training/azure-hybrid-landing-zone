@@ -38,3 +38,8 @@ output "private_endpoints_subnet_id" {
   description = "The ID of the private-endpoints subnet."
   value       = azurerm_subnet.private_endpoints.id
 }
+
+output "shared_services_subnet_cidr" {
+  description = "The CIDR prefix of the shared-services subnet."
+  value       = azurerm_subnet.shared_services.address_prefixes
+}

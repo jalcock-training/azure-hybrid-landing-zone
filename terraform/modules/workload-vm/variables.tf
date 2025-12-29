@@ -14,19 +14,11 @@ variable "vnet_name" {
   type = string
 }
 
-variable "workload_subnet_name" {
+variable "workload_subnet_id" {
   type = string
 }
 
 variable "kv_name" {
-  type = string
-}
-
-variable "storage_account_name" {
-  type = string
-}
-
-variable "storage_container_name" {
   type = string
 }
 
@@ -58,5 +50,13 @@ variable "internal_cidrs" {
 
 variable "common_tags" {
   type = map(string)
+}
+
+variable "storage_account_id" {
+  type = string
+}
+
+variable "storage_account_name" {
+  type = string
 }
 
