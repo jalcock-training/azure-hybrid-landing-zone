@@ -1,4 +1,8 @@
 #cloud-config
+package_update: true
+packages: 
+ - unzip 
+ - curl
 
 users:
   - name: ${admin_username}
@@ -15,4 +19,8 @@ write_files:
 runcmd:
   - mkdir -p /home/${admin_username}/.ssh
   - chown ${admin_username}:${admin_username} /home/${admin_username}/.ssh
-  - chmod 700 /home/${admin_username}/.ssh
+  - chmod -r 600 /home/${admin_username}/.ssh
+  - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
+  - apt-get update
+  - apt-get install -y terraform

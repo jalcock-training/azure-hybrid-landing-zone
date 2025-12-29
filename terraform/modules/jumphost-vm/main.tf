@@ -20,7 +20,7 @@ resource "azurerm_network_interface" "nic" {
 }
 
 # ------------------------------------------------------------
-# Network Security Group (internal SSH only)
+# Network Security Group (internal SSH in and outbound internet)
 # ------------------------------------------------------------
 resource "azurerm_network_security_group" "nsg" {
   name                = "jumphost-nsg"
@@ -37,6 +37,18 @@ resource "azurerm_network_security_group" "nsg" {
     destination_port_range     = "22"
     source_address_prefix      = "VirtualNetwork"
     destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allow-jhvm-internet-outbound"
+    priority                   = 110
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "Internet"
   }
 
   tags = var.tags

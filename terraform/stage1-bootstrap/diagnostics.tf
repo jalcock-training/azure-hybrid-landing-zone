@@ -4,7 +4,7 @@
 
 
 module "log_analytics" {
-  source = "./modules/log-analytics"
+  source = "../modules/log-analytics"
 
   # Core settings
   prefix              = var.prefix
@@ -33,7 +33,7 @@ module "log_analytics" {
 # ------------------------------------------------------------
 
 module "diagnostics_key_vault" {
-  source = "./modules/diagnostic_settings"
+  source = "../modules/diagnostic_settings"
 
   enable_diagnostics = true
   prefix             = var.prefix
@@ -50,7 +50,7 @@ module "diagnostics_key_vault" {
 # ------------------------------------------------------------
 
 module "diagnostics_storage" {
-  source = "./modules/diagnostic_settings"
+  source = "../modules/diagnostic_settings"
 
   enable_diagnostics = true
   prefix             = var.prefix
@@ -72,7 +72,7 @@ module "diagnostics_storage" {
 # ------------------------------------------------------------
 
 module "diagnostics_hub_vnet" {
-  source = "./modules/diagnostic_settings"
+  source = "../modules/diagnostic_settings"
 
   enable_diagnostics = true
   prefix             = var.prefix
@@ -90,7 +90,7 @@ module "diagnostics_hub_vnet" {
 # ------------------------------------------------------------
 
 module "diagnostics_nsg_shared_services" {
-  source = "./modules/diagnostic_settings"
+  source = "../modules/diagnostic_settings"
 
   enable_diagnostics = true
   prefix             = var.prefix
@@ -111,7 +111,7 @@ module "diagnostics_nsg_shared_services" {
 # ------------------------------------------------------------
 
 module "diagnostics_activity_log" {
-  source = "./modules/diagnostic_settings"
+  source = "../modules/diagnostic_settings"
 
   enable_diagnostics = true
   prefix             = var.prefix
@@ -138,7 +138,7 @@ module "diagnostics_activity_log" {
 # ------------------------------------------------------------
 
 module "diagnostics_nsg_all" {
-  source = "./modules/diagnostic_settings"
+  source = "../modules/diagnostic_settings"
 
   for_each = module.hub_network.nsg_ids
 

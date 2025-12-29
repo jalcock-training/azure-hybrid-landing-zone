@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 
 module "storage" {
-  source = "./modules/storage"
+  source = "../modules/storage"
 
   # Feature toggles
   enable_storage                   = true

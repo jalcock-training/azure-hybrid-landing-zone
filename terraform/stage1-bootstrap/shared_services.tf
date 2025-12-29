@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 
 module "shared_services" {
-  source = "./modules/shared-services"
+  source = "../modules/shared-services"
 
   location            = var.location
   resource_group_name = module.governance.platform_resource_group_name

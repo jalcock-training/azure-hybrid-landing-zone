@@ -3,7 +3,7 @@
 # ------------------------------------------------------------
 
 module "activity_log" {
-  source = "./modules/activity-log"
+  source = "../modules/activity-log"
 
   prefix                       = var.prefix
   subscription_id              = var.subscription_id

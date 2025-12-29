@@ -5,7 +5,7 @@
 module "nsg_flow_logs" {
   count = var.enable_nsg_flow_logs ? 1 : 0
 
-  source = "./modules/nsg-flow-logs"
+  source = "../modules/nsg-flow-logs"
 
   prefix                     = var.prefix
   enable_nsg_flow_logs       = var.enable_nsg_flow_logs

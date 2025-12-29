@@ -2,7 +2,7 @@
 # Jump ACI
 # ------------------------------------------------------------
 module "jump_aci" {
-  source = "./modules/jump-aci"
+  source = "../modules/jump-aci"
 
   location            = var.location
   resource_group_name = module.governance.platform_resource_group_name
@@ -14,7 +14,7 @@ module "jump_aci" {
   memory_gb       = 1
 
   # Pass private key securely into ACI
-  private_key_pem = tls_private_key.jump.private_key_pem
+  private_key_pem = tls_private_key.jump.private_key_openssh
   vm_name         = module.jumphost_vm.vm_name
 
   tags = {
@@ -28,7 +28,7 @@ module "jump_aci" {
 # Jumphost VM 
 # ------------------------------------------------------------
 module "jumphost_vm" {
-  source = "./modules/jumphost-vm"
+  source = "../modules/jumphost-vm"
 
   location            = var.location
   resource_group_name = module.governance.platform_resource_group_name
@@ -54,6 +54,7 @@ module "jumphost_vm" {
 resource "tls_private_key" "jump" {
   algorithm = "RSA"
   rsa_bits  = 4096
+  ecdsa_curve = null
 }
 
 # ------------------------------------------------------------

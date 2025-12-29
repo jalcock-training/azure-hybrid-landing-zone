@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 
 module "hub_network" {
-  source = "./modules/hub-network"
+  source = "../modules/hub-network"
 
   resource_group_name = module.governance.platform_resource_group_name
   prefix              = var.prefix
@@ -21,6 +21,7 @@ module "hub_network" {
   subnet_shared_services_prefix   = "10.0.1.0/24"
   subnet_aci_prefix               = "10.0.2.0/24"
   subnet_private_endpoints_prefix = "10.0.3.0/24"
+  subnet_jumphost_prefix          = "10.0.4.0/24"
 
   tags = {
     Environment = "dev"
@@ -34,7 +35,7 @@ module "hub_network" {
 # -------------------------------------------------------------------
 
 module "spoke_network" {
-  source = "./modules/spoke-network"
+  source = "../modules/spoke-network"
 
   resource_group_name = module.governance.platform_resource_group_name
   location            = var.location

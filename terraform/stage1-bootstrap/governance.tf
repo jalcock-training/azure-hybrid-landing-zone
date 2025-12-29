@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 
 module "governance" {
-  source = "./modules/governance"
+  source = "../modules/governance"
 
   subscription_id              = var.subscription_id
   location                     = var.location
