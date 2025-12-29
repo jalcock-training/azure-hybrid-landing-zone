@@ -63,6 +63,14 @@ resource "azurerm_private_endpoint" "private_endpoint_key_vault" {
     is_manual_connection           = false
   }
 
+  private_dns_zone_group {
+    name = "${var.prefix}-keyvault-dns-zone-group"
+
+    private_dns_zone_ids = [
+      azurerm_private_dns_zone.private_dns_zone_key_vault[0].id
+    ]
+  }
+
   tags = var.tags
 }
 
