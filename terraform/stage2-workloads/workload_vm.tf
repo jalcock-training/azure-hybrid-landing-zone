@@ -8,7 +8,7 @@ module "workload_vm" {
     azapi = azapi
   }
 
-  source = "./modules/workload-vm"
+  source = "../modules/workload-vm"
 
   # Location + RG
   location            = var.location
