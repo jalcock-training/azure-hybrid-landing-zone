@@ -69,6 +69,14 @@ resource "azurerm_subnet" "aci" {
   }
 }
 
+# Jumphost subnet
+resource "azurerm_subnet" "jumphost" {
+  name                 = "jumphost"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.hub.name
+  address_prefixes     = [var.subnet_jumphost_prefix]
+}
+
 # Define shared services NSG
 resource "azurerm_network_security_group" "shared_services" {
   name                = "${var.prefix}-nsg-shared-services"

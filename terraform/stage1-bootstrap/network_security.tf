@@ -151,15 +151,15 @@ module "spoke_network_security" {
       destination_address_prefix = "VirtualNetwork"
     },
     {
-      name                       = "allow-vnet-outbound"
-      priority                   = 110
-      direction                  = "Outbound"
+      name                       = "allow-azure-lb-inbound"
+      priority                   = 200
+      direction                  = "Inbound"
       access                     = "Allow"
       protocol                   = "*"
       source_port_range          = "*"
       destination_port_range     = "*"
-      source_address_prefix      = "VirtualNetwork"
-      destination_address_prefix = "VirtualNetwork"
+      source_address_prefix      = "AzureLoadBalancer"
+      destination_address_prefix = "*"
     },
     {
       name                       = "deny-all-inbound"
@@ -171,7 +171,29 @@ module "spoke_network_security" {
       destination_port_range     = "*"
       source_address_prefix      = "*"
       destination_address_prefix = "*"
-    }
+    },
+    {
+      name                       = "allow-azure-lb-outbound"
+      priority                   = 200
+      direction                  = "Outbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
+      destination_address_prefix = "AzureLoadBalancer"
+    },
+    {
+      name                       = "allow-vnet-outbound"
+      priority                   = 110
+      direction                  = "Outbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "VirtualNetwork"
+      destination_address_prefix = "VirtualNetwork"
+    },
   ]
 
   routes = []
@@ -228,7 +250,7 @@ module "jumphost_network_security" {
       name                       = "allow-internet-all-outbound"
       priority                   = 120
       direction                  = "Outbound"
-      access                     = "Deny"
+      access                     = "Allow"
       protocol                   = "*"
       source_port_range          = "*"
       destination_port_range     = "*"
@@ -245,7 +267,37 @@ module "jumphost_network_security" {
       destination_port_range     = "*"
       source_address_prefix      = "*"
       destination_address_prefix = "*"
+    },
+    {
+      name                       = "allow-azure-lb-inbound"
+      priority                   = 200
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "AzureLoadBalancer"
+      destination_address_prefix = "*"
+    },
+    {
+      name                       = "allow-azure-lb-outbound"
+      priority                   = 200
+      direction                  = "Outbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
+      destination_address_prefix = "AzureLoadBalancer"
     }
   ]
+
+  routes = []
+
+  tags = {
+    Environment = "dev"
+    Owner       = "James"
+    Project     = "AzureHybridLandingZone"
+  }
 }
 

@@ -32,7 +32,8 @@ az login --identity --allow-no-subscriptions
 apt-get update
 apt-get install -y openssh-client
 mkdir -p /root/.ssh
-echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+#echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+printf "%b" "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 echo "$ENTRYPOINT_SCRIPT" > /entrypoint.sh
 chmod +x /entrypoint.sh
@@ -41,7 +42,7 @@ EOF
   ]
 
     secure_environment_variables = {
-      SSH_PRIVATE_KEY    = var.private_key_pem
+      SSH_PRIVATE_KEY    = var.private_key_openssh
       VM_NAME            = var.vm_name
       RESOURCE_GROUP     = var.resource_group_name
       ENTRYPOINT_SCRIPT  = file("${path.module}/entrypoint.sh")

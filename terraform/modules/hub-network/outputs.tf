@@ -23,7 +23,8 @@ output "subnet_ids" {
     gateway         = azurerm_subnet.gateway.id
     firewall        = azurerm_subnet.firewall.id
     shared_services = azurerm_subnet.shared_services.id
-    aci = azurerm_subnet.aci.id
+    aci             = azurerm_subnet.aci.id
+    jumphost        = azurerm_subnet.jumphost.id
   }
 }
 

@@ -67,3 +67,8 @@ variable "prefix" {
   type        = string
 }
 
+variable "subnet_jumphost_prefix" {
+  type        = string
+  description = "Address prefix for the jumphost subnet"
+}
+

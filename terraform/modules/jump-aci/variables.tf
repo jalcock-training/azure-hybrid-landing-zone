@@ -43,10 +43,11 @@ variable "tags" {
   default     = {}
 }
 
-variable "private_key_pem" {
+variable "private_key_openssh" {
   description = "The private SSH key used by the ACI container to access the jumphost VM."
   type        = string
 }
+
 variable "vm_name" {
   type        = string
   description = "Name of the jumphost VM to start/stop."

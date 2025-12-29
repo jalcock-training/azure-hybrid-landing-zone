@@ -24,7 +24,8 @@ az vm start --resource-group "$RESOURCE_GROUP" --name "$VM_NAME"
 
 echo "Writing private SSH key..."
 mkdir -p /root/.ssh
-echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+#echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+printf "%b" "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
 echo "Jump container ready. Monitoring for idle activity..."

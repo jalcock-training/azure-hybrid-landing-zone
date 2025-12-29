@@ -112,16 +112,3 @@ output "log_analytics_workspace_primary_shared_key" {
   value       = try(module.log_analytics.log_analytics_workspace_primary_shared_key, null)
   sensitive   = true
 }
-
-# ------------------------------------------------------------
-# Workload VM Outputs
-# ------------------------------------------------------------
-
-output "workload_vm_private_ip" {
-  value = module.workload_vm.vm_private_ip
-}
-
-output "workload_vm_identity_principal_id" {
-  value = module.workload_vm.vm_identity_principal_id
-}
-
