@@ -22,7 +22,7 @@ module "storage" {
 
   # Networking
   allowed_subnet_ids         = [module.hub_network.subnet_ids["shared_services"]]
-  private_endpoint_subnet_id = module.hub_network.subnet_ids["shared_services"]
+  private_endpoint_subnet_id = module.hub_network.private_endpoints_subnet_id
   hub_vnet_id                = module.hub_network.hub_vnet_id
 
   # DNS zones (from shared-services)
