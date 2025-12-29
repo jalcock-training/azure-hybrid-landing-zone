@@ -33,3 +33,28 @@ variable "enable_nsg_flow_logs" {
   type        = bool
   default     = true
 }
+
+# ------------------------------------------------------------
+# Workload VM Variables
+# ------------------------------------------------------------
+
+variable "workload_certificate_name" {
+  type        = string
+  description = "Name of the certificate stored in Key Vault for the workload VM"
+}
+
+variable "workload_storage_container_name" {
+  type        = string
+  description = "Storage container holding workload static content"
+}
+
+variable "workload_vm_size" {
+  type        = string
+  default     = "Standard_D2as_v5"
+}
+
+variable "vm_admin_username" {
+  type        = string
+  default     = "azureuser"
+}
+
