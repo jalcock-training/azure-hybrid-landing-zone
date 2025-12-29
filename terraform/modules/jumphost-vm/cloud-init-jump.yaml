@@ -1,0 +1,18 @@
+#cloud-config
+
+users:
+  - name: ${admin_username}
+    groups: sudo
+    shell: /bin/bash
+
+write_files:
+  - path: /home/${admin_username}/.ssh/id_rsa
+    permissions: '0600'
+    owner: ${admin_username}:${admin_username}
+    content: |
+      ${private_key}
+
+runcmd:
+  - mkdir -p /home/${admin_username}/.ssh
+  - chown ${admin_username}:${admin_username} /home/${admin_username}/.ssh
+  - chmod 700 /home/${admin_username}/.ssh

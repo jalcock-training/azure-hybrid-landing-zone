@@ -69,6 +69,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
     public_key = var.ssh_public_key
   }
 
+  custom_data = base64encode(templatefile("${path.module}/cloud-init-jump.yaml", {
+    admin_username = var.admin_username
+    private_key    = var.ssh_private_key
+  }))
+
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
