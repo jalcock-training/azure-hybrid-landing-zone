@@ -10,9 +10,6 @@ resource "azurerm_virtual_network" "hub" {
   address_space       = var.hub_vnet_address_space
   tags                = var.tags
 
-  depends_on = [
-    var.governance_dependencies
-  ]
 }
 
 # GatewaySubnet (required name for Azure gateways)

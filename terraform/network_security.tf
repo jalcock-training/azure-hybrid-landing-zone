@@ -147,4 +147,8 @@ module "spoke_network_security" {
     Owner       = "James"
     Project     = "AzureHybridLandingZone"
   }
+
+  depends_on = [
+    module.hub_network
+  ]
 }

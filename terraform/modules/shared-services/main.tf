@@ -94,9 +94,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_key_v
   registration_enabled = false
   tags = var.tags
 
-  depends_on = [
-    azurerm_private_dns_zone.private_dns_zone_key_vault
-  ]
 }
 
 # ------------------------------------------------------------

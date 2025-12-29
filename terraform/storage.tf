@@ -28,4 +28,9 @@ module "storage" {
   # DNS zones (from shared-services)
   private_dns_zone_blob_name = module.shared_services.private_dns_zone_storage_blob_name
   private_dns_zone_file_name = module.shared_services.private_dns_zone_storage_file_name
+
+  # Make sure modules are built in the correct order
+  depends_on = [
+    module.shared_services
+  ]
 }

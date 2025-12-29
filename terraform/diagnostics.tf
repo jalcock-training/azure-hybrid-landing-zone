@@ -20,6 +20,12 @@ module "log_analytics" {
     Owner       = "James"
     Project     = "AzureHybridLandingZone"
   }
+
+  # Make sure modules are built in the correct order
+  depends_on = [
+    module.governance
+  ]
+
 }
 
 # ------------------------------------------------------------
@@ -55,10 +61,14 @@ module "diagnostics_storage" {
   log_categories = []
 
   metric_categories = ["AllMetrics"]
+
+  depends_on = [
+    module.log_analytics
+  ]
 }
 
 # ------------------------------------------------------------
-# Storage Diagnostics
+# Hub Network Diagnostics
 # ------------------------------------------------------------
 
 module "diagnostics_hub_vnet" {

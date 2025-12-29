@@ -8,9 +8,6 @@ resource "azurerm_virtual_network" "spoke" {
   location            = var.location
   resource_group_name = var.resource_group_name
   address_space       = var.spoke_vnet_address_space
-  depends_on = [
-    var.governance_dependencies
-  ]
   tags                = var.tags
 }
 
