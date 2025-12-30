@@ -9,7 +9,11 @@ module "jump_aci" {
   subnet_id           = module.hub_network.subnet_ids["aci"]
 
   container_name  = "jump-aci"
-  container_image = "mcr.microsoft.com/azure-cli:2.52.0"
+  #container_image = "mcr.microsoft.com/azure-cli:2.52.0"
+  #container_image = "platformregistryjames.azurecr.io/jump-aci:latest"
+  container_image = "ghcr.io/jalcock-training/jump-aci:latest"
+
+
   cpu_cores       = 1
   memory_gb       = 1
 
