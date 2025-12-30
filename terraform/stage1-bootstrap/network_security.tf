@@ -49,7 +49,7 @@ module "hub_network_security" {
     },
     {
       name                       = "allow-vnet-outbound"
-      priority                   = 100
+      priority                   = 110
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "*"
@@ -60,7 +60,7 @@ module "hub_network_security" {
     },
     {
       name                       = "allow-azure-lb-outbound"
-      priority                   = 200
+      priority                   = 220
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "*"
@@ -69,6 +69,30 @@ module "hub_network_security" {
       source_address_prefix      = "*"
       destination_address_prefix = "AzureLoadBalancer"
     },
+
+    {
+      name                       = "allow-imds-outbound"
+      priority                   = 230
+      direction                  = "Outbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "80"
+      source_address_prefix      = "*"
+      destination_address_prefix = "169.254.169.254/32"
+    },
+    {
+      name                       = "allow-azurecloud-outbound"
+      priority                   = 240
+      direction                  = "Outbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
+      destination_address_prefix = "AzureCloud"
+    },
+
 
 
     # -----------------------------------------------------------------

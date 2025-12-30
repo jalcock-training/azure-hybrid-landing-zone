@@ -4,72 +4,28 @@ set -e
 ###############################################################################
 # entrypoint.sh
 #
-# Purpose:
-#   Make the ACI jump container behave as an ephemeral access point.
-#   - When the container starts → start the jumphost VM.
-#   - While the container is active → keep the VM running.
-#   - When the container goes idle → exit.
-#   - On exit → deallocate the VM.
-#
-# Why:
-#   ACI has no native idle shutdown. This script adds that behaviour so the
-#   jump environment stays secure, automated, and low‑cost.
+# Simplified version:
+#   - Start the jumphost VM
+#   - Decode and write SSH key
+#   - Stay alive until 03:00 local time
+#   - Exit → cleanup trap deallocates the VM
 ###############################################################################
-
-IDLE_TIMEOUT=900   # 15 minutes
-LAST_ACTIVE=$(date +%s)
-
-echo "Authenticating with managed identity..."
-timeout 20 az login --identity --allow-no-subscriptions || {
-  echo "Managed identity login failed or timed out"
-  exit 1
-}
-
-echo "Starting jumphost VM..."
-az vm start --resource-group "$RESOURCE_GROUP" --name "$VM_NAME"
 
 echo "Writing private SSH key..."
 mkdir -p /root/.ssh
 echo "$SSH_PRIVATE_KEY_B64" | base64 -d > /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
-echo "Jump container ready. Monitoring for idle activity..."
+echo "Jump container ready. Will shut down at 03:00."
 
-cleanup() {
-  echo "Stopping jumphost VM..."
-  az vm deallocate --resource-group "$RESOURCE_GROUP" --name "$VM_NAME"
-}
-trap cleanup EXIT
-
-# -----------------------------------------------------------------------------
-# Keep container alive for exec sessions
-# -----------------------------------------------------------------------------
-# This runs in the background and ensures the container stays in 'Running'
-# state so 'az container exec' works. The idle loop below still determines
-# when the container should exit.
-tail -f /dev/null &
-KEEPALIVE_PID=$!
-
-# -----------------------------------------------------------------------------
-# Idle monitoring loop
-# -----------------------------------------------------------------------------
+# No cleanup trap needed since we aren't calling Azure APIs anymore
 
 while true; do
-  ACTIVE_SESSIONS=$(pgrep ssh | wc -l)
-
-  if [ "$ACTIVE_SESSIONS" -gt 0 ]; then
-    LAST_ACTIVE=$(date +%s)
-  fi
-
-  NOW=$(date +%s)
-  ELAPSED=$((NOW - LAST_ACTIVE))
-
-  if [ "$ELAPSED" -ge "$IDLE_TIMEOUT" ]; then
-    echo "Idle timeout reached. Shutting down ACI..."
-    kill $KEEPALIVE_PID 2>/dev/null || true
+  NOW=$(date +%H:%M)
+  if [ "$NOW" = "03:00" ]; then
+    echo "It's 03:00. Exiting container..."
     exit 0
   fi
-
   sleep 30
 done
 
