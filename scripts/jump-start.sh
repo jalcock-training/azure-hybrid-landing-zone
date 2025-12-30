@@ -32,4 +32,4 @@ echo "ACI is running. Opening shell..."
 az container exec \
     -g "$RESOURCE_GROUP" \
     -n "$ACI_NAME" \
-    --exec-command "/bin/sh"
+    --exec-command "/bin/bash"

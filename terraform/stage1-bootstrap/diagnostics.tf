@@ -60,7 +60,10 @@ module "diagnostics_storage" {
 
   log_categories = []
 
-  metric_categories = ["AllMetrics"]
+  metric_categories = [
+    "Capacity",
+    "Transaction",
+  ]
 
   depends_on = [
     module.log_analytics

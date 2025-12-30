@@ -67,6 +67,11 @@ resource "azurerm_subnet" "aci" {
       ]
     }
   }
+  lifecycle {
+    ignore_changes = [
+      delegation[0].service_delegation[0].actions
+    ]
+  }
 }
 
 # Jumphost subnet
