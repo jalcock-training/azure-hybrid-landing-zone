@@ -86,26 +86,19 @@ resource "azurerm_role_assignment" "aci_vm_control" {
   principal_id         = module.jump_aci.identity_principal_id
 }
 
-# Jump host needs key vault access to be able to build workloads
-resource "azurerm_key_vault_access_policy" "jumphost_kv_access" {
-  key_vault_id = module.shared_services.key_vault_id
+# ------------------------------------------------------------
+# RBAC: Allow jumphost to manage key vault objects
+# ------------------------------------------------------------
 
-  tenant_id = data.azurerm_subscription.current.tenant_id
-  object_id = module.jumphost_vm.identity_principal_id
+resource "azurerm_role_assignment" "jumphost_kv_cert_officer" {
+  scope                = module.shared_services.key_vault_id
+  role_definition_name = "Key Vault Certificates Officer"
+  principal_id         = module.jumphost_vm.identity_principal_id
+}
 
-  certificate_permissions = [
-    "Get",
-    "List",
-    "Create",
-    "Delete",
-    "Import"
-  ]
-
-  secret_permissions = [
-    "Get",
-    "List",
-    "Set",
-    "Delete"
-  ]
+resource "azurerm_role_assignment" "jumphost_kv_secrets_officer" {
+  scope                = module.shared_services.key_vault_id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = module.jumphost_vm.identity_principal_id
 }
 

@@ -175,16 +175,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
 # Access Policies
 # ------------------------------------------------------------
 
-resource "azurerm_key_vault_access_policy" "vm_kv_access" {
-  key_vault_id = data.azurerm_key_vault.kv.id
-
-  tenant_id = data.azurerm_subscription.current.tenant_id
-  object_id = azurerm_linux_virtual_machine.vm.identity[0].principal_id
-
-  certificate_permissions = ["Get", "List"]
-  secret_permissions      = ["Get", "List"]
-}
-
 resource "azurerm_role_assignment" "vm_storage_reader" {
   scope                = data.azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Reader"
