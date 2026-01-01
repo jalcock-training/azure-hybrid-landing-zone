@@ -26,7 +26,9 @@ cd "$STAGE1_DIR"
 terraform refresh  
 
 # Export outputs as JSON directly into stage2
-terraform output -json > "$STAGE2_DIR/$OUTPUT_FILE"
+#terraform output -json > "$STAGE2_DIR/$OUTPUT_FILE"
+terraform output -json | jq 'map_values(.value)' > "$STAGE2_DIR/stage1_outputs.auto.tfvars.json"
+
 
 echo "Outputs written to: $STAGE2_DIR/$OUTPUT_FILE"
 echo "Stage2 will automatically load these values on next plan/apply."

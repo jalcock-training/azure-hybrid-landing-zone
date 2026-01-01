@@ -129,3 +129,15 @@ output "spoke_vnet_name" {
 output "spoke_subnet_ids" {
   value = module.spoke_network.subnet_ids
 }
+
+output "jump_public_key" {
+  value = tls_private_key.jump.public_key_openssh
+}
+
+output "spoke_vnet_address_space" {
+  value = module.spoke_network.spoke_vnet_address_space
+}
+
+output "shared_services_subnet_cidr" {
+  value = module.hub_network.shared_services_subnet_cidr
+}

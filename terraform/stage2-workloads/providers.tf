@@ -17,7 +17,6 @@ terraform {
     azapi = {
       source  = "azure/azapi"
       version = "~> 1.12"
-      use_cli = true
     }
   }
 }
@@ -27,4 +26,6 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 
-provider "azapi" {}
+provider "azapi" {
+  use_cli = true
+}
