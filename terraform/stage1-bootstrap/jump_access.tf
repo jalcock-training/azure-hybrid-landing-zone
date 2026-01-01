@@ -60,6 +60,8 @@ data "azurerm_storage_account" "tfstate" {
   resource_group_name = var.tfstate_resource_group_name
 }
 
+data "azurerm_subscription" "current" {}
+
 resource "azurerm_role_assignment" "jumphost_tfstate_access" {
   scope                = data.azurerm_storage_account.tfstate.id
   role_definition_name = "Storage Blob Data Contributor"
@@ -83,3 +85,27 @@ resource "azurerm_role_assignment" "aci_vm_control" {
   role_definition_name = "Virtual Machine Contributor"
   principal_id         = module.jump_aci.identity_principal_id
 }
+
+# Jump host needs key vault access to be able to build workloads
+resource "azurerm_key_vault_access_policy" "jumphost_kv_access" {
+  key_vault_id = module.shared_services.key_vault_id
+
+  tenant_id = data.azurerm_subscription.current.tenant_id
+  object_id = module.jumphost_vm.identity_principal_id
+
+  certificate_permissions = [
+    "Get",
+    "List",
+    "Create",
+    "Delete",
+    "Import"
+  ]
+
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete"
+  ]
+}
+
