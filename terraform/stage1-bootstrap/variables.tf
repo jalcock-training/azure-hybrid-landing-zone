@@ -33,3 +33,12 @@ variable "enable_nsg_flow_logs" {
   type        = bool
   default     = true
 }
+
+variable "tfstate_storage_account_name" {
+  type = string
+}
+
+variable "tfstate_resource_group_name" {
+  type = string
+}
+

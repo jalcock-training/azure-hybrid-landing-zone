@@ -54,6 +54,31 @@ resource "azurerm_network_security_group" "nsg" {
   tags = var.tags
 }
 
+# Add roles to the identity to be able to pull data from the subscription resources
+resource "azurerm_role_assignment" "jumphost_contributor" {
+  scope                = "/subscriptions/${var.subscription_id}"
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "jumphost_network" {
+  scope                = "/subscriptions/${var.subscription_id}"
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "jumphost_policy" {
+  scope                = "/subscriptions/${var.subscription_id}"
+  role_definition_name = "Resource Policy Contributor"
+  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "jumphost_tags" {
+  scope                = "/subscriptions/${var.subscription_id}"
+  role_definition_name = "Tag Contributor"
+  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
+
 # Attach NSG to NIC
 resource "azurerm_network_interface_security_group_association" "nic_nsg" {
   network_interface_id      = azurerm_network_interface.nic.id
@@ -97,6 +122,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "22_04-lts-gen2"
     version   = "latest"
+  }
+
+  identity {
+    type = "SystemAssigned"
   }
 
   tags = var.tags

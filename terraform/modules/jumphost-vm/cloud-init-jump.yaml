@@ -1,26 +1,40 @@
 #cloud-config
+
 package_update: true
-packages: 
- - unzip 
- - curl
+package_upgrade: true
 
-users:
-  - name: ${admin_username}
-    groups: sudo
-    shell: /bin/bash
-
-write_files:
-  - path: /home/${admin_username}/.ssh/id_rsa
-    permissions: '0600'
-    owner: ${admin_username}:${admin_username}
-    content: |
-      ${private_key}
+packages:
+  - jq
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - unzip
 
 runcmd:
-  - mkdir -p /home/${admin_username}/.ssh
-  - chown ${admin_username}:${admin_username} /home/${admin_username}/.ssh
-  - chmod -r 600 /home/${admin_username}/.ssh
-  - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
-  - echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
+  # -------------------------
+  # Install Azure CLI
+  # -------------------------
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+  # -------------------------
+  # Install Terraform
+  # -------------------------
+  - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
   - apt-get update
   - apt-get install -y terraform
+
+  # -------------------------
+  # Confirm tools installed
+  # -------------------------
+  - terraform -version
+  - az version
+  - jq --version
+
+  # -------------------------
+  # Clone landing zone repo
+  # -------------------------
+  - git clone https://github.com/jalcock-training/azure-hybrid-landing-zone /opt/azure-hybrid-landing-zone || true
+  - chown -R ${admin_username}:${admin_username} /opt/azure-hybrid-landing-zone
+
