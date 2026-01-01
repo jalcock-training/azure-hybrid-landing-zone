@@ -23,7 +23,7 @@ cd "$STAGE1_DIR"
 
 # Ensure state is accessible
 #terraform refresh >/dev/null 2>&1 || true
-terraform refresh  
+#terraform refresh  
 
 # Export outputs as JSON directly into stage2
 #terraform output -json > "$STAGE2_DIR/$OUTPUT_FILE"
