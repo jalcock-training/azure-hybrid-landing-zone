@@ -27,7 +27,7 @@ terraform refresh
 
 # Export outputs as JSON directly into stage2
 #terraform output -json > "$STAGE2_DIR/$OUTPUT_FILE"
-terraform output -json | jq 'map_values(.value)' > "$STAGE2_DIR/stage1_outputs.auto.tfvars.json"
+terraform output -json -no-color -refresh=false | jq 'map_values(.value)' > "$STAGE2_DIR/stage1_outputs.auto.tfvars.json"
 
 
 echo "Outputs written to: $STAGE2_DIR/$OUTPUT_FILE"
