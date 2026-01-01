@@ -4,14 +4,30 @@ set -e
 ###############################################################################
 # jump-stop.sh
 #
-# Stops the jump‑ACI container group. The container's entrypoint.sh includes 
-# a cleanup trap that deallocates the jumphost VM when the container stops.
+# Stops the jump VM and the jump ACI container group.
 ###############################################################################
 
-RESOURCE_GROUP="rg-platform"
+# VM details
+VM_RESOURCE_GROUP="rg-platform"
+VM_NAME="vm-jumphost"
+
+# ACI details
+ACI_RESOURCE_GROUP="rg-platform"
 ACI_NAME="jump-aci"
 
-echo "Stopping ACI container group: $ACI_NAME"
-az container stop -g "$RESOURCE_GROUP" -n "$ACI_NAME" >/dev/null
+###############################################################################
+# Stop ACI
+###############################################################################
 
+echo "Stopping ACI container group: $ACI_NAME"
+az container stop -g "$ACI_RESOURCE_GROUP" -n "$ACI_NAME" >/dev/null || true
 echo "ACI stop request submitted."
+
+###############################################################################
+# Stop VM
+###############################################################################
+
+echo "Stopping Jump VM: $VM_NAME"
+az vm deallocate -g "$VM_RESOURCE_GROUP" -n "$VM_NAME" >/dev/null || true
+echo "VM deallocate request submitted."
+

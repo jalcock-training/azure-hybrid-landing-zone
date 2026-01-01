@@ -6,3 +6,5 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform/
 local.auto.tfvars
+*.auto.tfvars.json
+

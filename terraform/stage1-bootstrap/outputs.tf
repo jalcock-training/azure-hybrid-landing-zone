@@ -112,3 +112,20 @@ output "log_analytics_workspace_primary_shared_key" {
   value       = try(module.log_analytics.log_analytics_workspace_primary_shared_key, null)
   sensitive   = true
 }
+
+
+# ------------------------------------------------------------
+# Outputs required for stage 2
+# ------------------------------------------------------------
+
+output "platform_resource_group_name" {
+  value = module.governance.platform_resource_group_name
+}
+
+output "spoke_vnet_name" {
+  value = module.spoke_network.spoke_vnet_name
+}
+
+output "spoke_subnet_ids" {
+  value = module.spoke_network.subnet_ids
+}

@@ -4,32 +4,51 @@ set -e
 ###############################################################################
 # jump-start.sh
 #
-# Starts the jump‑ACI container, waits until it's running, then opens an
-# interactive shell inside it.
+# Starts the jump VM (asynchronously) and the jump ACI container, waits only
+# for the ACI container to reach 'Running', then opens an interactive shell.
 ###############################################################################
 
-RESOURCE_GROUP="rg-platform"
+# VM details
+VM_RESOURCE_GROUP="rg-platform"
+VM_NAME="jumphost"
+
+# ACI details
+ACI_RESOURCE_GROUP="rg-platform"
 ACI_NAME="jump-aci"
 
-echo "Starting ACI container group: $ACI_NAME"
-az container start -g "$RESOURCE_GROUP" -n "$ACI_NAME" >/dev/null
+###############################################################################
+# Start VM (no waiting)
+###############################################################################
 
-# Wait for container to reach 'Running' state
+echo "Starting Jump VM: $VM_NAME (no wait)"
+az vm start -g "$VM_RESOURCE_GROUP" -n "$VM_NAME" >/dev/null &
+
+###############################################################################
+# Start ACI
+###############################################################################
+
+echo "Starting ACI container group: $ACI_NAME"
+az container start -g "$ACI_RESOURCE_GROUP" -n "$ACI_NAME" >/dev/null
+
 echo "Waiting for ACI to reach 'Running' state..."
 while true; do
-    STATE=$(az container show \
-        -g "$RESOURCE_GROUP" \
+    ACI_STATE=$(az container show \
+        -g "$ACI_RESOURCE_GROUP" \
         -n "$ACI_NAME" \
         --query "instanceView.state" \
         -o tsv)
 
-    [ "$STATE" = "Running" ] && break
+    [ "$ACI_STATE" = "Running" ] && break
     sleep 2
 done
 
-# Open interactive shell
+###############################################################################
+# Exec into ACI
+###############################################################################
+
 echo "ACI is running. Opening shell..."
 az container exec \
-    -g "$RESOURCE_GROUP" \
+    -g "$ACI_RESOURCE_GROUP" \
     -n "$ACI_NAME" \
     --exec-command "/bin/bash"
+
