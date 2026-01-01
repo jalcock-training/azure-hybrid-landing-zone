@@ -13,7 +13,7 @@ locals {
   certificate_subject = "${var.name_prefix}-workload.internal"
 
   cloud_init = templatefile("${path.module}/cloud-init-workload.yaml", {
-    storage_account_id     = data.azurerm_storage_account.sa.id
+    storage_account_name   = data.azurerm_storage_account.sa.name
     storage_container_name = azurerm_storage_container.workload_content.name
     kv_name                = data.azurerm_key_vault.kv.name
     kv_cert_name           = azurerm_key_vault_certificate.workload_cert.name
