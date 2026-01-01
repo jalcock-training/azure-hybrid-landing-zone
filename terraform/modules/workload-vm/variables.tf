@@ -60,3 +60,8 @@ variable "storage_account_name" {
   type = string
 }
 
+variable "key_vault_id" {
+  description = "The ID of the Key Vault used for certificate storage and RBAC assignments."
+  type        = string
+}
+

@@ -21,9 +21,10 @@ module "workload_vm" {
 
   # Key Vault (from shared services)
   kv_name = var.key_vault_name
+  key_vault_id = var.key_vault_id
 
   # Set the vm ssh public key
-  vm_ssh_public_key = var.jump_public_key
+  jumphost_ssh_public_key = var.jump_public_key
 
   # Prefix for naming
   name_prefix = var.prefix
