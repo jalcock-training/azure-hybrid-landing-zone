@@ -172,7 +172,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }
 
 # ------------------------------------------------------------
-# Access Policies
+# RBAC: Allow storage access 
 # ------------------------------------------------------------
 
 resource "azurerm_role_assignment" "vm_storage_reader" {
@@ -189,5 +189,21 @@ resource "azurerm_storage_container" "workload_content" {
   name                  = "${var.name_prefix}-workload-content"
   storage_account_id    = data.azurerm_storage_account.sa.id
   container_access_type = "private"
+}
+
+# ------------------------------------------------------------
+# RBAC: Allow workload VM access to the key vault
+# ------------------------------------------------------------
+
+resource "azurerm_role_assignment" "workload_vm_kv_cert_officer" {
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Certificates Officer"
+  principal_id         = azurerm_linux_virtual_machine.workload_vm.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "workload_vm_kv_secrets_officer" {
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = azurerm_linux_virtual_machine.workload_vm.identity[0].principal_id
 }
 
