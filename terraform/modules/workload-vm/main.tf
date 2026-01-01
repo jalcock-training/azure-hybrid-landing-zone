@@ -110,59 +110,6 @@ resource "azurerm_key_vault_certificate" "workload_cert" {
 }
 
 # ------------------------------------------------------------
-# Network Security Group
-# ------------------------------------------------------------
-
-resource "azurerm_network_security_group" "workload_nsg" {
-  name                = "${var.name_prefix}-workload-nsg"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-
-  security_rule {
-    name                       = "Allow-SSH-from-Jumphost"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefixes    = var.jumphost_cidrs
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "Allow-HTTPS-Internal"
-    priority                   = 200
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefixes    = var.internal_cidrs
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "Deny-All-Inbound"
-    priority                   = 4000
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = local.tags
-}
-
-resource "azurerm_subnet_network_security_group_association" "workload_nsg_assoc" {
-  subnet_id                 = data.azapi_resource.workload_subnet.id
-  network_security_group_id = azurerm_network_security_group.workload_nsg.id
-}
-
-# ------------------------------------------------------------
 # Network Interface
 # ------------------------------------------------------------
 
