@@ -19,7 +19,7 @@ module "jump_aci" {
 
   # Pass private key securely into ACI
   private_key_openssh = tls_private_key.jump.private_key_openssh
-  vm_name         = module.jumphost_vm.vm_name
+  jumphost_name         = module.jumphost_vm.jumphost_name
 
   tags = {
     Environment = "dev"
@@ -44,7 +44,7 @@ module "jumphost_vm" {
   ssh_public_key  = tls_private_key.jump.public_key_openssh
   ssh_private_key = tls_private_key.jump.private_key_pem
 
-  vm_size = "Standard_D2as_v5"
+  jumphost_size = "Standard_D2as_v5"
 
   tags = {
     Environment = "dev"
@@ -81,7 +81,7 @@ resource "tls_private_key" "jump" {
 # RBAC: Allow ACI to start/stop the VM
 # ------------------------------------------------------------
 resource "azurerm_role_assignment" "aci_vm_control" {
-  scope                = module.jumphost_vm.vm_id
+  scope                = module.jumphost_vm.jumphost_id
   role_definition_name = "Virtual Machine Contributor"
   principal_id         = module.jump_aci.identity_principal_id
 }

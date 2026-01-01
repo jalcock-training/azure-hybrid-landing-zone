@@ -36,7 +36,7 @@ variable "ssh_private_key" {
 }
 
 # VM size (small and cheap by default)
-variable "vm_size" {
+variable "jumphost_size" {
   description = "Size of the jumphost VM."
   type        = string
   default     = "Standard_D2as_v5"

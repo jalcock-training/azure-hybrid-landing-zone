@@ -131,21 +131,21 @@ resource "azurerm_network_interface" "nic" {
 # Virtual Machine
 # ------------------------------------------------------------
 
-resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "${var.name_prefix}-workload-vm"
+resource "azurerm_linux_virtual_machine" "workload" {
+  name                = "${var.name_prefix}-workload"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg.name
-  size                = var.vm_size
+  size                = var.workload_size
 
-  admin_username = var.vm_admin_username
+  admin_username = var.jumphost_admin_username
 
   network_interface_ids = [
     azurerm_network_interface.nic.id
   ]
 
   admin_ssh_key {
-    username   = var.vm_admin_username
-    public_key = var.vm_ssh_public_key
+    username   = var.jumphost_admin_username
+    public_key = var.jumphost_ssh_public_key
   }
 
   disable_password_authentication = true
@@ -175,10 +175,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
 # RBAC: Allow storage access 
 # ------------------------------------------------------------
 
-resource "azurerm_role_assignment" "vm_storage_reader" {
+resource "azurerm_role_assignment" "workload_storage_reader" {
   scope                = data.azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Reader"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.workload.identity[0].principal_id
 }
 
 # ------------------------------------------------------------
@@ -195,15 +195,15 @@ resource "azurerm_storage_container" "workload_content" {
 # RBAC: Allow workload VM access to the key vault
 # ------------------------------------------------------------
 
-resource "azurerm_role_assignment" "workload_vm_kv_cert_officer" {
+resource "azurerm_role_assignment" "workload_kv_cert_officer" {
   scope                = var.key_vault_id
   role_definition_name = "Key Vault Certificates Officer"
-  principal_id         = azurerm_linux_virtual_machine.workload_vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.workload.identity[0].principal_id
 }
 
-resource "azurerm_role_assignment" "workload_vm_kv_secrets_officer" {
+resource "azurerm_role_assignment" "workload_kv_secrets_officer" {
   scope                = var.key_vault_id
   role_definition_name = "Key Vault Secrets Officer"
-  principal_id         = azurerm_linux_virtual_machine.workload_vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.workload.identity[0].principal_id
 }
 

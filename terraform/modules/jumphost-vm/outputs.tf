@@ -1,11 +1,11 @@
-output "vm_id" {
+output "jumphost_id" {
   description = "The ID of the jumphost VM."
-  value       = azurerm_linux_virtual_machine.vm.id
+  value       = azurerm_linux_virtual_machine.jumphost.id
 }
 
-output "vm_name" {
+output "jumphost_name" {
   description = "The name of the jumphost VM."
-  value       = azurerm_linux_virtual_machine.vm.name
+  value       = azurerm_linux_virtual_machine.jumphost.name
 }
 
 output "private_ip" {
@@ -24,6 +24,6 @@ output "nsg_id" {
 }
 
 output "identity_principal_id" {
-  value = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+  value = azurerm_linux_virtual_machine.jumphost.identity[0].principal_id
 }
 

@@ -29,7 +29,7 @@ resource "azurerm_container_group" "jump" {
 
     secure_environment_variables = {
       SSH_PRIVATE_KEY_B64 = base64encode(var.private_key_openssh)
-      VM_NAME             = var.vm_name
+      JUMPHOST_NAME             = var.jumphost_name
       RESOURCE_GROUP      = var.resource_group_name
     }
   }

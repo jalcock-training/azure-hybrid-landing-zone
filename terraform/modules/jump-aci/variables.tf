@@ -41,7 +41,7 @@ variable "private_key_openssh" {
   sensitive   = true
 }
 
-variable "vm_name" {
+variable "jumphost_name" {
   type        = string
   description = "Name of the jumphost VM to start/stop"
 }

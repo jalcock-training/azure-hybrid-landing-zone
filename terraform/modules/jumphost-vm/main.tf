@@ -58,25 +58,25 @@ resource "azurerm_network_security_group" "nsg" {
 resource "azurerm_role_assignment" "jumphost_contributor" {
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = "Contributor"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.jumphost.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "jumphost_network" {
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = "Network Contributor"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.jumphost.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "jumphost_policy" {
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = "Resource Policy Contributor"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.jumphost.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "jumphost_tags" {
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = "Tag Contributor"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+  principal_id         = azurerm_linux_virtual_machine.jumphost.identity[0].principal_id
 }
 
 # Attach NSG to NIC
@@ -88,11 +88,11 @@ resource "azurerm_network_interface_security_group_association" "nic_nsg" {
 # ------------------------------------------------------------
 # Jumphost VM (Ubuntu 24.04 LTS)
 # ------------------------------------------------------------
-resource "azurerm_linux_virtual_machine" "vm" {
+resource "azurerm_linux_virtual_machine" "jumphost" {
   name                = "jumphost"
   location            = var.location
   resource_group_name = var.resource_group_name
-  size                = var.vm_size
+  size                = var.jumphost_size
   admin_username      = var.admin_username
 
   network_interface_ids = [

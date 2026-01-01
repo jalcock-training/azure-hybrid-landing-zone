@@ -22,16 +22,16 @@ variable "kv_name" {
   type = string
 }
 
-variable "vm_admin_username" {
+variable "jumphost_admin_username" {
   type    = string
   default = "azureuser"
 }
 
-variable "vm_ssh_public_key" {
+variable "jumphost_ssh_public_key" {
   type = string
 }
 
-variable "vm_size" {
+variable "workload_size" {
   type    = string
   default = "Standard_D2as_v5"
 }
