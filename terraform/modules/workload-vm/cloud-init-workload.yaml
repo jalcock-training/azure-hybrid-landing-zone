@@ -6,99 +6,100 @@ packages:
   - curl
   - unzip
 
+write_files:
+  - path: /var/www/html/index.html.fallback
+    permissions: '0644'
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>James' Training Workload</title>
+      </head>
+      <body>
+        <h1>Hello, you've reached James' training workload.</h1>
+        <p>This content is served from an Ubuntu VM in a secure Azure landing zone.</p>
+      </body>
+      </html>
+
+  - path: /etc/nginx/sites-available/default
+    permissions: '0644'
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+          return 301 https://$host$request_uri;
+      }
+
+      server {
+          listen 443 ssl;
+          listen [::]:443 ssl;
+
+          ssl_certificate     /etc/nginx/ssl/cert.pem;
+          ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+          root /var/www/html;
+          index index.html;
+
+          server_name _;
+
+          location / {
+              try_files $uri $uri/ =404;
+          }
+      }
+
 runcmd:
-  - |
-    echo "[cloud-init] Starting workload setup" > /var/log/workload-init.log
+  - echo "[cloud-init] Starting workload setup" | tee -a /var/log/workload-init.log
 
-    # Install Microsoft package repo for Azure CLI
-    curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
-    AZ_REPO=$(lsb_release -cs)
-    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
-    apt-get update -y
-    apt-get install -y azure-cli
+  # Install Microsoft repo + Azure CLI
+  - curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+  - AZ_REPO=$(lsb_release -cs)
+  - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
+  - apt-get update -y
+  - apt-get install -y azure-cli
 
-    # Login with managed identity
-    az login --identity >> /var/log/workload-init.log 2>&1
+  # Login using managed identity
+  - echo "[cloud-init] Logging in with managed identity" | tee -a /var/log/workload-init.log
+  - az login --identity >> /var/log/workload-init.log 2>&1
 
-    # Create web root
-    mkdir -p /var/www/html
+  # Ensure web root exists
+  - mkdir -p /var/www/html
 
-    # Download index.html from Storage
-    echo "[cloud-init] Downloading index.html from Storage" >> /var/log/workload-init.log
-    az storage blob download \
-      --account-name "${storage_account_id}" \
+  # Attempt to download index.html from Storage
+  - echo "[cloud-init] Downloading index.html from Storage" | tee -a /var/log/workload-init.log
+  - az storage blob download \
+      --account-name "${storage_account_name}" \
       --container-name "${storage_container_name}" \
       --name "index.html" \
       --file "/var/www/html/index.html" \
-      --auth-mode login >> /var/log/workload-init.log 2>&1
+      --auth-mode login >> /var/log/workload-init.log 2>&1 || true
 
-    # If download fails, fallback to a local file so VM is still useful
-    if [ ! -s /var/www/html/index.html ]; then
-      echo "[cloud-init] Storage download failed, writing fallback page" >> /var/log/workload-init.log
-      cat > /var/www/html/index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-  <title>James' Training Workload</title>
-</head>
-<body>
-  <h1>Hello, you've reached James' training workload.</h1>
-  <p>This content is served from an Ubuntu VM in a secure Azure landing zone.</p>
-</body>
-</html>
-EOF
-    fi
+  # Fallback if download failed
+  - if [ ! -s /var/www/html/index.html ]; then cp /var/www/html/index.html.fallback /var/www/html/index.html; fi
 
-    # Create directory for TLS material
-    mkdir -p /etc/nginx/ssl
-    chmod 700 /etc/nginx/ssl
+  # TLS directory
+  - mkdir -p /etc/nginx/ssl
+  - chmod 700 /etc/nginx/ssl
 
-    # Download certificate from Key Vault as PFX
-    echo "[cloud-init] Downloading certificate from Key Vault" >> /var/log/workload-init.log
-    az keyvault certificate download \
+  # Download certificate from Key Vault
+  - echo "[cloud-init] Downloading certificate from Key Vault" | tee -a /var/log/workload-init.log
+  - az keyvault certificate download \
       --vault-name "${kv_name}" \
       --name "${kv_cert_name}" \
       --file "/etc/nginx/ssl/cert.pfx" \
-      --encoding PFX >> /var/log/workload-init.log 2>&1
+      --encoding PFX >> /var/log/workload-init.log 2>&1 || true
 
-    # Convert PFX to PEM key + cert (assumes no password on PFX)
-    if [ -s /etc/nginx/ssl/cert.pfx ]; then
-      openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -nocerts -nodes -out /etc/nginx/ssl/key.pem -passin pass: >> /var/log/workload-init.log 2>&1
-      openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -clcerts -nokeys -out /etc/nginx/ssl/cert.pem -passin pass: >> /var/log/workload-init.log 2>&1
-      chmod 600 /etc/nginx/ssl/key.pem /etc/nginx/ssl/cert.pem
-    else
-      echo "[cloud-init] No PFX downloaded; HTTPS cert missing" >> /var/log/workload-init.log
+  # Convert PFX → PEM
+  - if [ -s /etc/nginx/ssl/cert.pfx ]; then \
+        openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -nocerts -nodes -out /etc/nginx/ssl/key.pem -passin pass: >> /var/log/workload-init.log 2>&1; \
+        openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -clcerts -nokeys -out /etc/nginx/ssl/cert.pem -passin pass: >> /var/log/workload-init.log 2>&1; \
+        chmod 600 /etc/nginx/ssl/key.pem /etc/nginx/ssl/cert.pem; \
+    else \
+        echo "[cloud-init] No certificate downloaded" | tee -a /var/log/workload-init.log; \
     fi
 
-    # Basic HTTPS NGINX config
-    cat > /etc/nginx/sites-available/default << 'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    return 301 https://$host$request_uri;
-}
+  # Enable + restart nginx
+  - systemctl enable nginx
+  - systemctl restart nginx
 
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-
-    ssl_certificate     /etc/nginx/ssl/cert.pem;
-    ssl_certificate_key /etc/nginx/ssl/key.pem;
-
-    root /var/www/html;
-    index index.html;
-
-    server_name _;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-EOF
-
-    # Enable and restart NGINX
-    systemctl enable nginx
-    systemctl restart nginx
-
-    echo "[cloud-init] Workload setup complete" >> /var/log/workload-init.log
+  - echo "[cloud-init] Workload setup complete" | tee -a /var/log/workload-init.log
 
