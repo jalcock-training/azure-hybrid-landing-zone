@@ -80,6 +80,7 @@ resource "azurerm_subnet" "jumphost" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.hub.name
   address_prefixes     = [var.subnet_jumphost_prefix]
+  service_endpoints    = ["Microsoft.KeyVault"]
 }
 
 # Define shared services NSG

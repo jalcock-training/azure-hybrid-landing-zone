@@ -22,7 +22,8 @@ module "shared_services" {
 
   # Key Vault network configuration
   key_vault_allowed_subnet_ids = [
-    module.hub_network.subnet_ids["shared_services"]
+    module.hub_network.subnet_ids["shared_services"],
+    module.hub_network.subnet_ids["jumphost"]
   ]
 
   key_vault_private_endpoint_subnet_id   = module.hub_network.private_endpoints_subnet_id
