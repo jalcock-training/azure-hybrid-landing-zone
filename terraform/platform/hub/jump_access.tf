@@ -5,7 +5,7 @@ module "jump_aci" {
   source = "../../modules/jump-aci"
 
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.hub.name
   subnet_id           = module.hub_network.subnet_ids["aci"]
 
   container_name  = "jump-aci"
@@ -29,7 +29,7 @@ module "jumphost_vm" {
   source = "../../modules/jumphost-vm"
 
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.hub.name
   subnet_id           = module.hub_network.subnet_ids["jumphost"]
   subscription_id = var.subscription_id
 

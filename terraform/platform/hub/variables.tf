@@ -28,3 +28,9 @@ variable "enable_nsg_flow_logs" {
   default     = false
 }
 
+variable "enable_activity_log_export" {
+  type        = bool
+  description = "Enable subscription Activity Log export to Log Analytics."
+  default     = true
+}
+

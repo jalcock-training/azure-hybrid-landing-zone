@@ -19,5 +19,4 @@ module "nsg_flow_logs" {
   # Hub-owned Log Analytics workspace
   log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
 
-  tags = var.tags
 }

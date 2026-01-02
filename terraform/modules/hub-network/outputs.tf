@@ -28,6 +28,18 @@ output "subnet_ids" {
   }
 }
 
+output "subnet_cidrs" {
+  value = {
+    gateway           = azurerm_subnet.gateway.address_prefixes
+    firewall          = azurerm_subnet.firewall.address_prefixes
+    shared_services   = azurerm_subnet.shared_services.address_prefixes
+    aci               = azurerm_subnet.aci.address_prefixes
+    private_endpoints = azurerm_subnet.private_endpoints.address_prefixes
+    jumphost          = azurerm_subnet.jumphost.address_prefixes
+  }
+}
+
+
 # Output the NSG IDs
 output "nsg_ids" {
   value = {

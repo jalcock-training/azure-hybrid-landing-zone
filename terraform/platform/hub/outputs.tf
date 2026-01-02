@@ -22,3 +22,7 @@ output "jumphost_identity_principal_id" {
   value = module.jumphost_vm.identity_principal_id
 }
 
+output "log_analytics_workspace_id" {
+  value = module.log_analytics.log_analytics_workspace_id
+}
+

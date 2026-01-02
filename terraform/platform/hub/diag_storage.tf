@@ -7,7 +7,7 @@ module "diag_storage" {
 
   prefix              = var.prefix
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.hub.name
 
   tags = var.tags
 }

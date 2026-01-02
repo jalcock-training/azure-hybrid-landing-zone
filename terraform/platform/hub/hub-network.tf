@@ -1,7 +1,7 @@
 module "hub_network" {
   source = "../../modules/hub-network"
 
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.hub.name
   prefix              = var.prefix
   location            = var.location
 

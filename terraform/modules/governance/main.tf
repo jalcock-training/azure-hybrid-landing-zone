@@ -69,14 +69,21 @@ resource "azapi_resource" "required_tags" {
 
   body = {
     properties = {
-      displayName        = "Enforce Required Tags"
-      policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/1e30110a-5ceb-460c-a204-c1c3969c6d62"
+      displayName        = "Enforce Required Tags (custom)"
+      policyDefinitionId = azapi_resource.required_tags_definition.id
+
       parameters = {
         tagName = {
           value = "Owner"
         }
         tagValue = {
           value = "James"
+        }
+
+        excludedResourceTypes = {
+          value = [
+            "Microsoft.Network/networkWatchers"
+          ]
         }
       }
     }
@@ -159,3 +166,15 @@ resource "azapi_resource" "audit_diagnostics" {
     }
   }
 }
+
+# ------------------------------------------------------------
+# Needed a custom required fields resource
+# ------------------------------------------------------------
+resource "azapi_resource" "required_tags_definition" {
+  type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
+  name      = "custom-required-tags"
+  parent_id = "/subscriptions/${var.subscription_id}"
+
+  body = jsondecode(file("${path.module}/policy-required-tags.json"))
+}
+

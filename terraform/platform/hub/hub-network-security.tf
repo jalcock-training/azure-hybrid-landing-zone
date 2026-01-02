@@ -6,7 +6,7 @@ module "hub_network_security" {
   source = "../../modules/network-security"
 
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.hub.name
 
   subnet_map = {
     shared_services   = module.hub_network.subnet_ids["shared_services"]
