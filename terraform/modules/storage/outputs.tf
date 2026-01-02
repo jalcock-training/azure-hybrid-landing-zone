@@ -35,3 +35,14 @@ output "private_endpoint_file_id" {
   description = "ID of the File private endpoint (if deployed)."
   value       = try(azurerm_private_endpoint.private_endpoint_file[0].id, null)
 }
+
+output "private_dns_zone_blob_id" {
+  description = "ID of the Private DNS Zone for Blob."
+  value       = try(azurerm_private_dns_zone.private_dns_zone_storage_blob[0].id, null)
+}
+
+output "private_dns_zone_file_id" {
+  description = "ID of the Private DNS Zone for File."
+  value       = try(azurerm_private_dns_zone.private_dns_zone_storage_file[0].id, null)
+}
+

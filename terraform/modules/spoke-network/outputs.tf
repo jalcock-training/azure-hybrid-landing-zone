@@ -25,3 +25,4 @@ output "subnet_ids" {
     private_endpoints = azurerm_subnet.private_endpoints.id
   }
 }
+

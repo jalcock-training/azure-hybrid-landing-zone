@@ -59,3 +59,43 @@ variable "tags" {
 variable "governance_dependencies" {
   type = list(any)
 }
+
+variable "key_vault_id" {
+  description = "ID of the shared Key Vault to create a spoke private endpoint to."
+  type        = string
+  default     = null
+}
+
+variable "key_vault_private_dns_zone_id" {
+  description = "ID of the Key Vault private DNS zone."
+  type        = string
+  default     = null
+}
+
+variable "storage_account_id" {
+  description = "ID of the shared Storage Account."
+  type        = string
+  default     = null
+}
+
+variable "storage_blob_private_dns_zone_id" {
+  description = "ID of the Blob private DNS zone."
+  type        = string
+  default     = null
+}
+
+variable "storage_file_private_dns_zone_id" {
+  description = "ID of the File private DNS zone."
+  type        = string
+  default     = null
+}
+
+variable "private_dns_resource_group_name" {
+  description = "Resource group where the private DNS zones are created."
+  type        = string
+}
+
+variable "hub_resource_group_name" {
+  description = "Resource group of the hub virtual network."
+  type        = string
+}

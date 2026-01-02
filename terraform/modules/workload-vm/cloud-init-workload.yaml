@@ -1,12 +1,12 @@
 #cloud-config
 package_update: true
 packages:
-  - nginx
   - ca-certificates
   - curl
   - unzip
 
 write_files:
+  # Fallback HTML content
   - path: /var/www/html/index.html.fallback
     permissions: '0644'
     content: |
@@ -21,6 +21,7 @@ write_files:
       </body>
       </html>
 
+  # NGINX config (safe to write before install)
   - path: /etc/nginx/sites-available/default
     permissions: '0644'
     content: |
@@ -55,7 +56,7 @@ runcmd:
   - AZ_REPO=$(lsb_release -cs)
   - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
   - apt-get update -y
-  - apt-get install -y azure-cli
+  - apt-get install -y azure-cli >> /var/log/workload-init.log 2>&1
 
   # Login using managed identity
   - echo "[cloud-init] Logging in with managed identity" | tee -a /var/log/workload-init.log
@@ -74,7 +75,11 @@ runcmd:
       --auth-mode login >> /var/log/workload-init.log 2>&1 || true
 
   # Fallback if download failed
-  - if [ ! -s /var/www/html/index.html ]; then cp /var/www/html/index.html.fallback /var/www/html/index.html; fi
+  - |
+      if [ ! -s /var/www/html/index.html ]; then
+          echo "[cloud-init] Using fallback HTML" | tee -a /var/log/workload-init.log
+          cp /var/www/html/index.html.fallback /var/www/html/index.html
+      fi
 
   # TLS directory
   - mkdir -p /etc/nginx/ssl
@@ -90,17 +95,15 @@ runcmd:
 
   # Convert PFX → PEM
   - |
-       if [ -s /etc/nginx/ssl/cert.pfx ]; then
+      if [ -s /etc/nginx/ssl/cert.pfx ]; then
           echo "[cloud-init] Converting PFX to PEM" >> /var/log/workload-init.log
 
-          # Extract private key (no password on PFX)
           openssl pkcs12 \
             -in /etc/nginx/ssl/cert.pfx \
             -nocerts -nodes \
             -out /etc/nginx/ssl/key.pem \
             -passin pass:"" >> /var/log/workload-init.log 2>&1
 
-          # Extract certificate
           openssl pkcs12 \
             -in /etc/nginx/ssl/cert.pfx \
             -clcerts -nokeys \
@@ -112,6 +115,9 @@ runcmd:
           echo "[cloud-init] No certificate downloaded" | tee -a /var/log/workload-init.log
       fi
 
+  # Install nginx AFTER certs exist
+  - echo "[cloud-init] Installing nginx" | tee -a /var/log/workload-init.log
+  - apt-get install -y nginx >> /var/log/workload-init.log 2>&1
 
   # Enable + restart nginx
   - systemctl enable nginx

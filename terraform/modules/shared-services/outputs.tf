@@ -17,6 +17,11 @@ output "key_vault_uri" {
   value       = try(azurerm_key_vault.key_vault[0].vault_uri, null)
 }
 
+output "key_vault_private_dns_zone_id" {
+  description = "ID of the Private DNS Zone for Key Vault."
+  value       = try(azurerm_private_dns_zone.private_dns_zone_key_vault[0].id, null)
+}
+
 # ------------------------------------------------------------
 # DNS private zone outputs
 # ------------------------------------------------------------
@@ -30,3 +35,4 @@ output "private_dns_zone_storage_file_name" {
   description = "Private DNS zone name for file storage."
   value       = try(azurerm_private_dns_zone.private_dns_zone_storage_file[0].name, null)
 }
+
