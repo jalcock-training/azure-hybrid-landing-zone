@@ -18,10 +18,10 @@ data "azurerm_client_config" "current" {}
 # Azure Key Vault
 # ------------------------------------------------------------
 
-resource "azurerm_key_vault" "key_vault" {
+resource "azurerm_key_vault" "key_vault01" {
   count = var.enable_key_vault ? 1 : 0
 
-  name                = "${var.prefix}-keyvault"
+  name                = "${var.prefix}-keyvault01"
   location            = var.location
   resource_group_name = var.resource_group_name
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -60,7 +60,7 @@ resource "azurerm_private_endpoint" "private_endpoint_key_vault" {
 
   private_service_connection {
     name                           = "keyvault-connection"
-    private_connection_resource_id = azurerm_key_vault.key_vault[0].id
+    private_connection_resource_id = azurerm_key_vault.key_vault01[0].id
     subresource_names              = ["vault"]
     is_manual_connection           = false
   }

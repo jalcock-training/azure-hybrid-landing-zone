@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "displayName": "Temporary exemption for Key Vault recovery",
+    "description": "Allows recovery of soft-deleted Key Vaults without required tags.",
+    "exemptionCategory": "Waiver",
+    "policyDefinitionId": "/subscriptions/66ca4a38-9f37-4a03-a931-744566662dd0/providers/Microsoft.Authorization/policyDefinitions/custom-required-tags",
+    "metadata": {
+      "reason": "Key Vault recovery operation cannot supply tags; temporary exemption required."
+    }
+  }
+}
+

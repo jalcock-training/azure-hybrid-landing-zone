@@ -4,17 +4,17 @@
 
 output "key_vault_id" {
   description = "ID of the Key Vault (if deployed)."
-  value       = try(azurerm_key_vault.key_vault[0].id, null)
+  value       = try(azurerm_key_vault.key_vault01[0].id, null)
 }
 
 output "key_vault_name" {
   description = "Name of the Key Vault (if deployed)."
-  value       = try(azurerm_key_vault.key_vault[0].name, null)
+  value       = try(azurerm_key_vault.key_vault01[0].name, null)
 }
 
 output "key_vault_uri" {
   description = "Vault URI of the Key Vault (if deployed)."
-  value       = try(azurerm_key_vault.key_vault[0].vault_uri, null)
+  value       = try(azurerm_key_vault.key_vault01[0].vault_uri, null)
 }
 
 output "key_vault_private_dns_zone_id" {
