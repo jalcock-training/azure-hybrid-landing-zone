@@ -17,3 +17,8 @@ variable "tags" {
   type        = map(string)
   description = "Tags to apply."
 }
+
+variable "subscription_id" {
+  type = string
+}
+

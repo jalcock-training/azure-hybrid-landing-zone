@@ -13,10 +13,10 @@ module "nsg_flow_logs" {
   # Only shared-services NSG exists today
   nsg_ids                    = module.hub_network.nsg_ids
 
-  # Hub-owned diagnostics storage
-  storage_account_id         = module.diag_storage.storage_account_id
+  # Governance-owned diagnostics storage
+  storage_account_id         = data.terraform_remote_state.governance.outputs.diag_storage_account_id
 
   # Hub-owned Log Analytics workspace
-  log_analytics_workspace_id = module.log_analytics.log_analytics_workspace_id
+  log_analytics_workspace_id = data.terraform_remote_state.governance.outputs.log_analytics_workspace_id
 
 }

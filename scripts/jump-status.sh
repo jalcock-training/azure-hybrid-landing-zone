@@ -7,7 +7,7 @@ set -e
 # Shows the current state of the jump‑ACI container and the jumphost VM.
 ###############################################################################
 
-RESOURCE_GROUP="rg-platform"
+RESOURCE_GROUP="rg-hub"
 ACI_NAME="jump-aci"
 VM_NAME="jumphost"
 

@@ -24,7 +24,7 @@ module "workload_vm" {
   key_vault_id = data.terraform_remote_state.shared.outputs.key_vault_id
 
   # Set the vm ssh public key
-  jumphost_ssh_public_key = data.terraform_remote_state.shared.outputs.jump_public_key
+  jumphost_ssh_public_key = data.terraform_remote_state.hub.outputs.jump_public_key
 
   # Prefix for naming
   name_prefix = var.prefix
@@ -36,6 +36,10 @@ module "workload_vm" {
   # Storage account details from shared-services
   storage_account_id     = data.terraform_remote_state.shared.outputs.storage_account_id
   storage_account_name   = data.terraform_remote_state.shared.outputs.storage_account_name
+
+  # Pass the resource group names from shared services
+  key_vault_resource_group_name   = data.terraform_remote_state.shared.outputs.shared_services_resource_group_name
+  storage_resource_group_name     = data.terraform_remote_state.shared.outputs.shared_services_resource_group_name
 
   tags = var.tags
 }

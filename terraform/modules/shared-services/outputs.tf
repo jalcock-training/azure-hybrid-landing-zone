@@ -36,3 +36,11 @@ output "private_dns_zone_storage_file_name" {
   value       = try(azurerm_private_dns_zone.private_dns_zone_storage_file[0].name, null)
 }
 
+output "private_dns_zone_storage_blob_id" {
+  value = azurerm_private_dns_zone.private_dns_zone_storage_blob[0].id
+}
+
+output "private_dns_zone_storage_file_id" {
+  value = azurerm_private_dns_zone.private_dns_zone_storage_file[0].id
+}
+

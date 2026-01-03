@@ -7,7 +7,7 @@ set -e
 # Creates a shell in the jump-aci container
 ###############################################################################
 
-RESOURCE_GROUP="rg-platform"
+RESOURCE_GROUP="rg-hub"
 ACI_NAME="jump-aci"
 
 az container exec \

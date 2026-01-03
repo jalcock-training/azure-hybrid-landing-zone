@@ -18,7 +18,6 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "subscription_id" {}
 variable "tfstate_storage_account_name" {}
 variable "tfstate_resource_group_name" {}
 
@@ -32,5 +31,9 @@ variable "enable_activity_log_export" {
   type        = bool
   description = "Enable subscription Activity Log export to Log Analytics."
   default     = true
+}
+
+variable "subscription_id" {
+  type = string
 }
 

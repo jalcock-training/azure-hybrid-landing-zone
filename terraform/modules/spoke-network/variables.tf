@@ -56,10 +56,6 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "governance_dependencies" {
-  type = list(any)
-}
-
 variable "key_vault_id" {
   description = "ID of the shared Key Vault to create a spoke private endpoint to."
   type        = string
@@ -99,3 +95,9 @@ variable "hub_resource_group_name" {
   description = "Resource group of the hub virtual network."
   type        = string
 }
+
+variable "prefix" {
+  description = "Naming prefix for spoke resources."
+  type = string
+}
+

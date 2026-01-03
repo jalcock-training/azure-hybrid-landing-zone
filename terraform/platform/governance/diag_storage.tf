@@ -1,5 +1,5 @@
 # ------------------------------------------------------------
-# Hub Diagnostics Storage Account
+# Governance Diagnostics Storage Account
 # ------------------------------------------------------------
 
 module "diag_storage" {
@@ -7,7 +7,7 @@ module "diag_storage" {
 
   prefix              = var.prefix
   location            = var.location
-  resource_group_name = azurerm_resource_group.hub.name
+  resource_group_name = azurerm_resource_group.governance.name
 
   tags = var.tags
 }

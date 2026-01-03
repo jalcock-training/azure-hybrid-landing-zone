@@ -8,7 +8,7 @@
 # ------------------------------------------------------------
 
 locals {
-  tags = var.common_tags
+  tags = var.tags
 
   certificate_subject = "${var.name_prefix}-workload.internal"
 
@@ -24,15 +24,6 @@ locals {
 # Data Sources
 # ------------------------------------------------------------
 
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
-data "azurerm_virtual_network" "vnet" {
-  name                = var.vnet_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-}
-
 data "azapi_resource" "workload_subnet" {
   type        = "Microsoft.Network/virtualNetworks/subnets@2023-05-01"
   resource_id = var.workload_subnet_id
@@ -40,16 +31,15 @@ data "azapi_resource" "workload_subnet" {
 
 data "azurerm_key_vault" "kv" {
   name                = var.kv_name
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = var.key_vault_resource_group_name
 }
 
 data "azurerm_subscription" "current" {}
 
 data "azurerm_storage_account" "sa" {
   name                = var.storage_account_name
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = var.storage_resource_group_name
 }
-
 
 # ------------------------------------------------------------
 # Certificate Generation (Terraform → Key Vault)
@@ -116,7 +106,7 @@ resource "azurerm_key_vault_certificate" "workload_cert" {
 resource "azurerm_network_interface" "nic" {
   name                = "${var.name_prefix}-workload-nic"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
 
   ip_configuration {
     name                          = "ipconfig1"
@@ -134,7 +124,7 @@ resource "azurerm_network_interface" "nic" {
 resource "azurerm_linux_virtual_machine" "workload" {
   name                = "${var.name_prefix}-workload"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
   size                = var.workload_size
 
   admin_username = var.jumphost_admin_username

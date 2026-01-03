@@ -1,6 +1,6 @@
 resource_group_name = "rg-hub"
 location            = "southeastasia"
-prefix              = "ahlz-dev"
+prefix              = "ahlz-hub-dev"
 
 tags = {
   Environment = "dev"

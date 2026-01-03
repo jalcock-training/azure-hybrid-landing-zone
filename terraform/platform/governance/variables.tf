@@ -13,3 +13,8 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "prefix" {
+  description = "Prefix for governance resources."
+  type        = string
+}
+

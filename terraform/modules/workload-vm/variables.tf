@@ -7,6 +7,7 @@ variable "location" {
 }
 
 variable "resource_group_name" {
+  description = "Resource group where the workload VM and related resources will be deployed."
   type = string
 }
 
@@ -48,7 +49,7 @@ variable "internal_cidrs" {
   type = list(string)
 }
 
-variable "common_tags" {
+variable "tags" {
   type = map(string)
 }
 
@@ -62,6 +63,16 @@ variable "storage_account_name" {
 
 variable "key_vault_id" {
   description = "The ID of the Key Vault used for certificate storage and RBAC assignments."
+  type        = string
+}
+
+variable "key_vault_resource_group_name" {
+  description = "Resource group where the Key Vault is located."
+  type        = string
+}
+
+variable "storage_resource_group_name" {
+  description = "Resource group where the Storage Account is located."
   type        = string
 }
 

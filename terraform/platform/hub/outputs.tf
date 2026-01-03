@@ -22,7 +22,15 @@ output "jumphost_identity_principal_id" {
   value = module.jumphost_vm.identity_principal_id
 }
 
-output "log_analytics_workspace_id" {
-  value = module.log_analytics.log_analytics_workspace_id
+output "hub_resource_group_name" {
+  value = azurerm_resource_group.hub.name
+}
+
+output "jump_public_key" {
+  value = tls_private_key.jump.public_key_openssh
+}
+
+output "nsg_ids" {
+  value = module.hub_network_security.nsg_ids
 }
 

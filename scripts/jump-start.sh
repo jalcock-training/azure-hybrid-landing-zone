@@ -9,11 +9,11 @@ set -e
 ###############################################################################
 
 # VM details
-VM_RESOURCE_GROUP="rg-platform"
+VM_RESOURCE_GROUP="rg-hub"
 VM_NAME="jumphost"
 
 # ACI details
-ACI_RESOURCE_GROUP="rg-platform"
+ACI_RESOURCE_GROUP="rg-hub"
 ACI_NAME="jump-aci"
 
 ###############################################################################

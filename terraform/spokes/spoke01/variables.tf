@@ -1,24 +1,23 @@
 variable "resource_group_name" {
-  description = "Resource group for hub network resources."
+  description = "Resource group for spoke01 resources."
   type        = string
 }
 
 variable "location" {
-  description = "Azure region for hub resources."
+  description = "Azure region for spoke01 resources."
   type        = string
 }
 
 variable "prefix" {
-  description = "Prefix for hub resource names."
+  description = "Prefix for spok01 names."
   type        = string
 }
 
 variable "tags" {
-  description = "Tags to apply to hub resources."
+  description = "Tags to apply to spoke01 resources."
   type        = map(string)
 }
 
-variable "key_vault_id" { 
-  type = string 
+variable "subscription_id" {
+  type = string
 }
-
