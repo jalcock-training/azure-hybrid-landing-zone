@@ -16,12 +16,13 @@ locals {
     storage_account_name   = data.azurerm_storage_account.sa.name
     storage_container_name = azurerm_storage_container.workload_content.name
     kv_name                = data.azurerm_key_vault.kv.name
-    kv_cert_name           = azurerm_key_vault_certificate.workload_cert.name
+    kv_cert_name           = azurerm_key_vault_secret.workload_cert.name
+    kv_key_name            = azurerm_key_vault_secret.workload_key.name
   })
 }
 
 # ------------------------------------------------------------
-# Certificate Generation (Terraform → Key Vault)
+# Certificate Generation (Terraform → Key Vault) — PEM only
 # ------------------------------------------------------------
 
 resource "tls_private_key" "workload_key" {
@@ -44,19 +45,18 @@ resource "tls_self_signed_cert" "workload_cert" {
   ]
 }
 
-resource "tls_pkcs12" "workload_pfx" {
-  private_key_pem = tls_private_key.workload_key.private_key_pem
-  cert_pem        = tls_self_signed_cert.workload_cert.cert_pem
-  password        = ""
+# Store private key in Key Vault as a secret
+resource "azurerm_key_vault_secret" "workload_key" {
+  name         = "${var.name_prefix}-workload-key"
+  value        = tls_private_key.workload_key.private_key_pem
+  key_vault_id = data.azurerm_key_vault.kv.id
 }
 
-resource "azurerm_key_vault_certificate" "workload_cert" {
+# Store certificate in Key Vault as a secret
+resource "azurerm_key_vault_secret" "workload_cert" {
   name         = "${var.name_prefix}-workload-cert"
+  value        = tls_self_signed_cert.workload_cert.cert_pem
   key_vault_id = data.azurerm_key_vault.kv.id
-
-  certificate {
-    contents = tls_pkcs12.workload_pfx.pkcs12_base64
-  }
 }
 
 

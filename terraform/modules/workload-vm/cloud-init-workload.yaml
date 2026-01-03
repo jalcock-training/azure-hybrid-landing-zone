@@ -83,21 +83,9 @@ runcmd:
 
   # Download certificate from Key Vault
   - echo "[cloud-init] Downloading certificate from Key Vault" | tee -a /var/log/workload-init.log
-  - az keyvault secret download --vault-name "${kv_name}" --name "${kv_cert_name}" --file "/etc/nginx/ssl/cert.pfx" >> /var/log/workload-init.log 2>&1 || true
-
-  # Convert PFX → PEM
-  - |
-      if [ -s /etc/nginx/ssl/cert.pfx ]; then
-          echo "[cloud-init] Converting PFX to PEM" >> /var/log/workload-init.log
-
-          openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -nocerts -nodes -out /etc/nginx/ssl/key.pem -passin pass:"" >> /var/log/workload-init.log 2>&1
-
-          openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -clcerts -nokeys -out /etc/nginx/ssl/cert.pem -passin pass:"" >> /var/log/workload-init.log 2>&1
-
-          chmod 600 /etc/nginx/ssl/key.pem /etc/nginx/ssl/cert.pem
-      else
-          echo "[cloud-init] No certificate downloaded" | tee -a /var/log/workload-init.log
-      fi
+  - az keyvault secret download --vault-name "${kv_name}" --name "${kv_cert_name}" --file "/etc/nginx/ssl/cert.pem"
+  - az keyvault secret download --vault-name "${kv_name}" --name "${kv_key_name}"  --file "/etc/nginx/ssl/key.pem"
+  - chmod 600 /etc/nginx/ssl/key.pem /etc/nginx/ssl/cert.pem
 
   # Install nginx AFTER certs exist
   - echo "[cloud-init] Installing nginx" | tee -a /var/log/workload-init.log
