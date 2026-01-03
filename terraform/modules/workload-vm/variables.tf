@@ -75,5 +75,3 @@ variable "storage_resource_group_name" {
   description = "Resource group where the Storage Account is located."
   type        = string
 }
-
-variable "storage_container_name" {}

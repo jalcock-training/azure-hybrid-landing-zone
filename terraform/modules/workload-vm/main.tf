@@ -183,7 +183,7 @@ resource "azurerm_role_assignment" "workload_kv_secrets_officer" {
 resource "azurerm_storage_blob" "workload_index_html" {
   name                   = "index.html"
   storage_account_name   = var.storage_account_name
-  storage_container_name = var.storage_container_name
+  storage_container_name = azurerm_storage_container.workload_content.name
   type                   = "Block"
   source_content         = <<EOF
 <!DOCTYPE html>
