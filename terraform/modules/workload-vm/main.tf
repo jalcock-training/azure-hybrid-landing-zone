@@ -41,42 +41,46 @@ data "azurerm_storage_account" "sa" {
   resource_group_name = var.storage_resource_group_name
 }
 
+/*
 # ------------------------------------------------------------
 # Certificate Generation (Terraform → Key Vault)
 # ------------------------------------------------------------
+
+resource "tls_private_key" "workload_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+resource "tls_self_signed_cert" "workload_cert" {
+  private_key_pem = tls_private_key.workload_key.private_key_pem
+
+  subject {
+    common_name = local.certificate_subject
+  }
+
+  validity_period_hours = 8760
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+}
+
+resource "pkcs12_certificate" "workload_pfx" {
+  private_key_pem = tls_private_key.workload_key.private_key_pem
+  certificate_pem = tls_self_signed_cert.workload_cert.cert_pem
+  password        = ""
+}
 
 resource "azurerm_key_vault_certificate" "workload_cert" {
   name         = "${var.name_prefix}-workload-cert"
   key_vault_id = data.azurerm_key_vault.kv.id
 
-  certificate_policy {
-    issuer_parameters {
-      name = "Self"
-    }
-
-    key_properties {
-      exportable = true
-      key_size   = 2048
-      key_type   = "RSA"
-      reuse_key  = false
-    }
-
-    secret_properties {
-      content_type = "application/x-pkcs12"
-    }
-
-    x509_certificate_properties {
-      subject            = "CN=${local.certificate_subject}"
-      validity_in_months = 12
-
-      extended_key_usage = ["1.3.6.1.5.5.7.3.1"] # serverAuth
-      key_usage = [
-        "digitalSignature",
-        "keyEncipherment"
-      ]
-    }
+  certificate {
+    contents = pkcs12_certificate.workload_pfx.pfx_base64
   }
 }
+
 
 # ------------------------------------------------------------
 # Network Interface
