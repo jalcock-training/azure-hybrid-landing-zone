@@ -45,27 +45,6 @@ data "azurerm_storage_account" "sa" {
 # Certificate Generation (Terraform → Key Vault)
 # ------------------------------------------------------------
 
-resource "tls_private_key" "workload_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "tls_self_signed_cert" "workload_cert" {
-  private_key_pem = tls_private_key.workload_key.private_key_pem
-
-  subject {
-    common_name  = local.certificate_subject
-    organization = "James Training Workload"
-  }
-
-  validity_period_hours = 8760 # 1 year
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "server_auth",
-  ]
-}
-
 resource "azurerm_key_vault_certificate" "workload_cert" {
   name         = "${var.name_prefix}-workload-cert"
   key_vault_id = data.azurerm_key_vault.kv.id

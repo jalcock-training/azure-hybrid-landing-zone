@@ -90,17 +90,9 @@ runcmd:
       if [ -s /etc/nginx/ssl/cert.pfx ]; then
           echo "[cloud-init] Converting PFX to PEM" >> /var/log/workload-init.log
 
-          openssl pkcs12 \
-            -in /etc/nginx/ssl/cert.pfx \
-            -nocerts -nodes \
-            -out /etc/nginx/ssl/key.pem \
-            -passin pass:"" >> /var/log/workload-init.log 2>&1
+          openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -nocerts -nodes -out /etc/nginx/ssl/key.pem -passin pass:"" >> /var/log/workload-init.log 2>&1
 
-          openssl pkcs12 \
-            -in /etc/nginx/ssl/cert.pfx \
-            -clcerts -nokeys \
-            -out /etc/nginx/ssl/cert.pem \
-            -passin pass:"" >> /var/log/workload-init.log 2>&1
+          openssl pkcs12 -in /etc/nginx/ssl/cert.pfx -clcerts -nokeys -out /etc/nginx/ssl/cert.pem -passin pass:"" >> /var/log/workload-init.log 2>&1
 
           chmod 600 /etc/nginx/ssl/key.pem /etc/nginx/ssl/cert.pem
       else
