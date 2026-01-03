@@ -176,3 +176,26 @@ resource "azurerm_role_assignment" "workload_kv_secrets_officer" {
   principal_id         = azurerm_linux_virtual_machine.workload.identity[0].principal_id
 }
 
+# ------------------------------------------------------------
+# Create the blob storage index.html file
+# ------------------------------------------------------------
+
+resource "azurerm_storage_blob" "workload_index_html" {
+  name                   = "index.html"
+  storage_account_name   = var.storage_account_name
+  storage_container_name = var.storage_container_name
+  type                   = "Block"
+  source_content         = <<EOF
+<!DOCTYPE html>
+<html>
+<head>
+  <title>James' Training Workload</title>
+</head>
+<body>
+  <h1>Hello from Terraform‑managed content</h1>
+  <p>This file was uploaded automatically by the workload module.</p>
+</body>
+</html>
+EOF
+}
+
