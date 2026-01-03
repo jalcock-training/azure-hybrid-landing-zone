@@ -91,6 +91,9 @@ runcmd:
   - echo "[cloud-init] Installing nginx" | tee -a /var/log/workload-init.log
   - apt-get install -y nginx >> /var/log/workload-init.log 2>&1
 
+  # Symlink in default sites to sites-enabled
+  - ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
   # Enable + restart nginx
   - systemctl enable nginx
   - systemctl restart nginx
