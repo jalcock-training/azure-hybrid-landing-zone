@@ -21,28 +21,6 @@ locals {
 }
 
 # ------------------------------------------------------------
-# Data Sources
-# ------------------------------------------------------------
-
-data "azapi_resource" "workload_subnet" {
-  type        = "Microsoft.Network/virtualNetworks/subnets@2023-05-01"
-  resource_id = var.workload_subnet_id
-}
-
-data "azurerm_key_vault" "kv" {
-  name                = var.kv_name
-  resource_group_name = var.key_vault_resource_group_name
-}
-
-data "azurerm_subscription" "current" {}
-
-data "azurerm_storage_account" "sa" {
-  name                = var.storage_account_name
-  resource_group_name = var.storage_resource_group_name
-}
-
-/*
-# ------------------------------------------------------------
 # Certificate Generation (Terraform → Key Vault)
 # ------------------------------------------------------------
 
@@ -79,6 +57,28 @@ resource "azurerm_key_vault_certificate" "workload_cert" {
   certificate {
     contents = pkcs12_certificate.workload_pfx.pfx_base64
   }
+}
+
+
+# ------------------------------------------------------------
+# Data Sources
+# ------------------------------------------------------------
+
+data "azapi_resource" "workload_subnet" {
+  type        = "Microsoft.Network/virtualNetworks/subnets@2023-05-01"
+  resource_id = var.workload_subnet_id
+}
+
+data "azurerm_key_vault" "kv" {
+  name                = var.kv_name
+  resource_group_name = var.key_vault_resource_group_name
+}
+
+data "azurerm_subscription" "current" {}
+
+data "azurerm_storage_account" "sa" {
+  name                = var.storage_account_name
+  resource_group_name = var.storage_resource_group_name
 }
 
 
