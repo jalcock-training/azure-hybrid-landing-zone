@@ -108,7 +108,7 @@ resource "azurerm_linux_virtual_machine" "jumphost" {
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init-jump.yaml", {
     admin_username = var.admin_username
-    private_key    = var.ssh_private_key
+    private_key    = indent(6, var.ssh_private_key)
   }))
 
   os_disk {

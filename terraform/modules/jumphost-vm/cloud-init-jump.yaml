@@ -11,6 +11,12 @@ packages:
   - lsb-release
   - unzip
 
+write_files:
+  - path: /home/azureuser/.ssh/id_rsa
+    permissions: '0600'
+    content: |
+      ${private_key}
+
 runcmd:
   # -------------------------
   # Install Azure CLI
@@ -37,4 +43,11 @@ runcmd:
   # -------------------------
   - git clone https://github.com/jalcock-training/azure-hybrid-landing-zone /opt/azure-hybrid-landing-zone || true
   - chown -R ${admin_username}:${admin_username} /opt/azure-hybrid-landing-zone
+  
+  # ------------------------
+  # Set up for private key
+  # -----------------------
+  - mkdir -p /home/azureuser/.ssh
+  - chmod 700 /home/azureuser/.ssh
+  - chown -R azureuser:azureuser /home/azureuser/.ssh
 
