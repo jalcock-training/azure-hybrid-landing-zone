@@ -8,3 +8,7 @@ data "terraform_remote_state" "hub" {
     key                  = "hub.tfstate"
   }
 }
+
+locals {
+  jumphost_identity_principal_id = data.terraform_remote_state.hub.outputs.jumphost_identity_principal_id
+}
