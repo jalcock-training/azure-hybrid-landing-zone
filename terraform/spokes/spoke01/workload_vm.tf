@@ -41,5 +41,8 @@ module "workload_vm" {
   key_vault_resource_group_name   = data.terraform_remote_state.shared.outputs.shared_services_resource_group_name
   storage_resource_group_name     = data.terraform_remote_state.shared.outputs.shared_services_resource_group_name
 
+  # Pass key vault cert detials:
+  
+
   tags = var.tags
 }

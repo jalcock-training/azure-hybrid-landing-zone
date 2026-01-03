@@ -18,6 +18,7 @@ write_files:
       <body>
         <h1>Hello, you've reached James' training workload.</h1>
         <p>This content is served from an Ubuntu VM in a secure Azure landing zone.</p>
+        <p>f</p>
       </body>
       </html>
 
@@ -87,11 +88,10 @@ runcmd:
 
   # Download certificate from Key Vault
   - echo "[cloud-init] Downloading certificate from Key Vault" | tee -a /var/log/workload-init.log
-  - az keyvault certificate download \
+  - az keyvault secret download \
       --vault-name "${kv_name}" \
       --name "${kv_cert_name}" \
-      --file "/etc/nginx/ssl/cert.pfx" \
-      --encoding PFX >> /var/log/workload-init.log 2>&1 || true
+      --file "/etc/nginx/ssl/cert.pfx" >> /var/log/workload-init.log 2>&1 || true
 
   # Convert PFX → PEM
   - |

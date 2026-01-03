@@ -49,5 +49,6 @@ runcmd:
   # -----------------------
   - mkdir -p /home/azureuser/.ssh
   - chmod 700 /home/azureuser/.ssh
+  - chown -R azureuser:azureuser /home/azureuser
   - chown -R azureuser:azureuser /home/azureuser/.ssh
 

@@ -83,7 +83,7 @@ resource "azurerm_key_vault_certificate" "workload_cert" {
     }
 
     secret_properties {
-      content_type = "application/x-pem-file"
+      content_type = "application/x-pkcs12"
     }
 
     x509_certificate_properties {
