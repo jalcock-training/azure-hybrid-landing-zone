@@ -44,9 +44,9 @@ resource "tls_self_signed_cert" "workload_cert" {
   ]
 }
 
-resource "pkcs12_certificate" "workload_pfx" {
+resource "tls_pkcs12" "workload_pfx" {
   private_key_pem = tls_private_key.workload_key.private_key_pem
-  certificate_pem = tls_self_signed_cert.workload_cert.cert_pem
+  cert_pem        = tls_self_signed_cert.workload_cert.cert_pem
   password        = ""
 }
 
@@ -55,7 +55,7 @@ resource "azurerm_key_vault_certificate" "workload_cert" {
   key_vault_id = data.azurerm_key_vault.kv.id
 
   certificate {
-    contents = pkcs12_certificate.workload_pfx.pfx_base64
+    contents = tls_pkcs12.workload_pfx.pkcs12_base64
   }
 }
 
