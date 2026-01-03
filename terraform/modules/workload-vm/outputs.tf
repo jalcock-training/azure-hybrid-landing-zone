@@ -11,7 +11,11 @@ output "workload_identity_principal_id" {
 }
 
 output "certificate_name" {
-  value = azurerm_key_vault_certificate.workload_cert.name
+  value = azurerm_key_vault_secret.workload_cert.name
+}
+
+output "private_key_name" {
+  value = azurerm_key_vault_secret.workload_key.name
 }
 
 output "storage_container_name" {
