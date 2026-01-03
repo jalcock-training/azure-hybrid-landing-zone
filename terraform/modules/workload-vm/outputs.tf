@@ -14,3 +14,7 @@ output "certificate_name" {
   value = azurerm_key_vault_certificate.workload_cert.name
 }
 
+output "storage_container_name" {
+  value = azurerm_storage_container.workload_content.name
+}
+
