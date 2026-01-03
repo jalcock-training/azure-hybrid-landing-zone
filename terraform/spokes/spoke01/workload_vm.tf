@@ -36,7 +36,7 @@ module "workload_vm" {
   # Storage account details from shared-services
   storage_account_id     = data.terraform_remote_state.shared.outputs.storage_account_id
   storage_account_name   = data.terraform_remote_state.shared.outputs.storage_account_name
-  storage_container_name = module.shared_services.storage_container_name
+  storage_container_name = data.terraform_remote_state.shared.outputs.storage_container_name
 
   # Pass the resource group names from shared services
   key_vault_resource_group_name   = data.terraform_remote_state.shared.outputs.shared_services_resource_group_name
