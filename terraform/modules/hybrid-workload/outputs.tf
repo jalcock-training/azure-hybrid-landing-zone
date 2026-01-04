@@ -1,7 +1,3 @@
-output "tenant_id" {
-  value = data.azurerm_client_config.current.tenant_id
-}
-
 output "client_id" {
   value = azuread_application.sp.application_id
 }

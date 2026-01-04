@@ -8,21 +8,24 @@ variable "pool" {
   type        = string
 }
 
-variable "base_image" {
-  description = "Path or URL to cloud image (e.g. Ubuntu qcow2)"
+variable "base_image_url" {
+  description = "URL to the base cloud image (e.g. file:///var/lib/libvirt/images/ubuntu-22.04-minimal-cloudimg-amd64.img)"
   type        = string
 }
 
-variable "memory" {
+variable "disk_size" {
+  description = "Disk size in bytes"
+  type        = number
+}
+
+variable "memory_mib" {
   description = "Memory in MiB"
   type        = number
-  default     = 2048
 }
 
 variable "vcpus" {
   description = "Number of vCPUs"
   type        = number
-  default     = 2
 }
 
 variable "network_name" {
@@ -31,7 +34,7 @@ variable "network_name" {
 }
 
 variable "autostart" {
-  description = "Autostart VM with libvirtd"
+  description = "Start the domain automatically"
   type        = bool
   default     = true
 }

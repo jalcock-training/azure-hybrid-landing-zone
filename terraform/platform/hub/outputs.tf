@@ -34,3 +34,11 @@ output "nsg_ids" {
   value = module.hub_network_security.nsg_ids
 }
 
+output "relay_private_key" {
+  value     = tls_private_key.relay.private_key_pem
+  sensitive = true
+}
+
+output "relay_public_key" {
+  value = tls_private_key.relay.public_key_openssh
+}

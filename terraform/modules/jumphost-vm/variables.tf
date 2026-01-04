@@ -35,6 +35,13 @@ variable "ssh_private_key" {
   type        = string
 }
 
+# SSH public key for hybrid spoke connectivity
+variable "relay_private_key" {
+  type      = string
+  sensitive = true
+}
+
+
 # VM size (small and cheap by default)
 variable "jumphost_size" {
   description = "Size of the jumphost VM."

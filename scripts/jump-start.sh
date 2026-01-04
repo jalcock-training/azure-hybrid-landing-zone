@@ -39,7 +39,7 @@ echo "Jump VM start request submitted."
 # Start Workload VM
 ###############################################################################
 
-echo "Starting Workload VM: $WORKLOAD_VM_NAME"
-az vm start -g "$WORKLOAD_VM_RESOURCE_GROUP" -n "$WORKLOAD_VM_NAME" >/dev/null || true
-echo "Workload VM start request submitted."
+#echo "Starting Workload VM: $WORKLOAD_VM_NAME"
+#az vm start -g "$WORKLOAD_VM_RESOURCE_GROUP" -n "$WORKLOAD_VM_NAME" >/dev/null || true
+#echo "Workload VM start request submitted."
 

@@ -1,77 +1,143 @@
-# ------------------------------------------------------------
-# libvirt-hybrid-vm module
-#
-# Creates a KVM VM with cloud-init on the local libvirt host.
-# ------------------------------------------------------------
-
 terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "~> 0.7"
+      version = "= 0.9.1"
     }
   }
 }
 
-# ------------------------------------------------------------
-# Base disk image
-# ------------------------------------------------------------
+# Base image volume (copy from Ubuntu minimal cloud image)
 resource "libvirt_volume" "base_image" {
-  name   = "${var.name}-base"
-  pool   = var.pool
-  source = var.base_image
-  format = "qcow2"
+  name = "${var.name}-base.qcow2"
+  pool = var.pool
+
+  target = {
+    format = {
+      type = "qcow2"
+    }
+  }
+
+  create = {
+    content = {
+      url = var.base_image_url
+    }
+  }
 }
 
-# ------------------------------------------------------------
-# VM disk
-# ------------------------------------------------------------
+
+# Writable VM disk, backed by the base image
 resource "libvirt_volume" "vm_disk" {
-  name           = "${var.name}.qcow2"
-  pool           = var.pool
-  base_volume_id = libvirt_volume.base_image.id
-  format         = "qcow2"
+  name     = "${var.name}.qcow2"
+  pool     = var.pool
+  capacity = var.disk_size
+
+  target = {
+    format = {
+      type = "qcow2"
+    }
+  }
+
+  backing_store = {
+    path = libvirt_volume.base_image.path
+
+    format = {
+      type = "qcow2"
+    }
+  }
 }
 
-# ------------------------------------------------------------
-# cloud-init ISO
-# ------------------------------------------------------------
-resource "libvirt_cloudinit_disk" "cloudinit" {
-  name           = "${var.name}-cloudinit.iso"
-  pool           = var.pool
-  user_data      = var.cloud_init_userdata
+
+# Cloud-init seed ISO (local file representation)
+resource "libvirt_cloudinit_disk" "seed" {
+  name = "${var.name}-cloudinit"
+
+  user_data = var.cloud_init_userdata
+
+  meta_data = <<-EOF
+    instance-id: ${var.name}
+    local-hostname: ${var.name}
+  EOF
+
   network_config = var.cloud_init_network_config
 }
 
-# ------------------------------------------------------------
-# VM domain
-# ------------------------------------------------------------
+# Upload the cloud-init ISO into the pool
+resource "libvirt_volume" "seed_volume" {
+  name = "${var.name}-cloudinit.iso"
+  pool = var.pool
+
+  create = {
+    content = {
+      url = libvirt_cloudinit_disk.seed.path
+    }
+  }
+}
+
+# Headless VM domain
 resource "libvirt_domain" "vm" {
   name   = var.name
-  memory = var.memory
+  memory = var.memory_mib * 1024 * 1024
   vcpu   = var.vcpus
+  type   = "kvm"
 
+  os = {
+    type    = "hvm"
+    arch    = "x86_64"
+    machine = "q35"
+  }
+
+  features = {
+    acpi = true
+  }
+
+  devices = {
+    disks = [
+      {
+        # Root disk
+        source = {
+          volume = {
+            pool   = libvirt_volume.vm_disk.pool
+            volume = libvirt_volume.vm_disk.name
+          }
+        }
+        target = {
+          dev = "vda"
+          bus = "virtio"
+        }
+      },
+      {
+        # cloud-init ISO
+        device = "cdrom"
+        source = {
+          volume = {
+            pool   = libvirt_volume.seed_volume.pool
+            volume = libvirt_volume.seed_volume.name
+          }
+        }
+        target = {
+          dev = "sdb"
+          bus = "sata"
+        }
+      }
+    ]
+
+    interfaces = [
+      {
+        type  = "network"
+        model = {
+          type = "virtio"
+        }
+        source = {
+          network = {
+            network = var.network_name
+          }
+        }
+      }
+    ]
+  }
+
+  running   = true
   autostart = var.autostart
-
-  network_interface {
-    network_name = var.network_name
-  }
-
-  disk {
-    volume_id = libvirt_volume.vm_disk.id
-  }
-
-  cloudinit = libvirt_cloudinit_disk.cloudinit.id
-
-  graphics {
-    type        = "spice"
-    listen_type = "none"
-  }
-
-  console {
-    type        = "pty"
-    target_type = "serial"
-    target_port = "0"
-  }
 }
 

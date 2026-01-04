@@ -16,6 +16,17 @@ write_files:
     permissions: '0600'
     content: |
       ${private_key}
+  - path: /home/azureuser/.ssh/relay_id_rsa
+    permissions: '0600'
+    content: |
+      ${relay_private_key}
+  - path: /usr/local/bin/start-hybrid-tunnel.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+      ${tunnel_script}
+
+
 
 runcmd:
   # -------------------------

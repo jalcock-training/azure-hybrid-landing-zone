@@ -8,8 +8,3 @@ output "name" {
   value       = libvirt_domain.vm.name
 }
 
-output "ip_addresses" {
-  description = "Reported IP addresses (if available)"
-  value       = libvirt_domain.vm.network_interface[0].addresses
-}
-
