@@ -1,0 +1,33 @@
+# ------------------------------------------------------------
+# Outputs for hybrid VM bootstrap
+# ------------------------------------------------------------
+
+
+output "tenant_id" {
+  value = module.hybrid_workload.tenant_id
+}
+
+output "client_id" {
+  value = module.hybrid_workload.client_id
+}
+
+output "client_secret" {
+  value     = module.hybrid_workload.client_secret
+  sensitive = true
+}
+
+output "cert_secret_name" {
+  value = module.hybrid_workload.cert_secret_name
+}
+
+output "key_secret_name" {
+  value = module.hybrid_workload.key_secret_name
+}
+
+output "storage_account_name" {
+  value = module.hybrid_workload.storage_account_name
+}
+
+output "storage_container_name" {
+  value = module.hybrid_workload.storage_container_name
+}

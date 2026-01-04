@@ -1,0 +1,72 @@
+#cloud-config
+
+packages:
+  - nginx
+  - curl
+  - ca-certificates
+
+write_files:
+  - path: /usr/local/bin/hybrid-bootstrap.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+      #!/bin/bash
+      set -e
+
+      echo "Installing Azure CLI..."
+      curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+      echo "Authenticating to Azure..."
+      az login --service-principal \
+        --username "${AZ_CLIENT_ID}" \
+        --password "${AZ_CLIENT_SECRET}" \
+        --tenant "${AZ_TENANT_ID}" >/dev/null
+
+      mkdir -p /etc/hybrid /var/www/hybrid
+
+      echo "Downloading certificate..."
+      az keyvault secret download \
+        --vault-name "${KEY_VAULT_NAME}" \
+        --name "${CERT_SECRET_NAME}" \
+        --file /etc/hybrid/cert.pem \
+        --encoding base64
+
+      echo "Downloading key..."
+      az keyvault secret download \
+        --vault-name "${KEY_VAULT_NAME}" \
+        --name "${KEY_SECRET_NAME}" \
+        --file /etc/hybrid/key.pem \
+        --encoding base64
+
+      chmod 600 /etc/hybrid/key.pem
+
+      echo "Downloading index.html..."
+      az storage blob download \
+        --account-name "${STORAGE_ACCOUNT_NAME}" \
+        --container-name "${STORAGE_CONTAINER_NAME}" \
+        --name index.html \
+        --file /var/www/hybrid/index.html \
+        --auth-mode login >/dev/null
+
+      echo "Configuring nginx..."
+      cat >/etc/nginx/sites-available/hybrid.conf <<EOF
+      server {
+          listen 443 ssl;
+          server_name _;
+
+          ssl_certificate     /etc/hybrid/cert.pem;
+          ssl_certificate_key /etc/hybrid/key.pem;
+
+          root /var/www/hybrid;
+          index index.html;
+      }
+      EOF
+
+      ln -sf /etc/nginx/sites-available/hybrid.conf /etc/nginx/sites-enabled/hybrid.conf
+      rm -f /etc/nginx/sites-enabled/default
+
+      systemctl restart nginx
+
+runcmd:
+  - [ bash, /usr/local/bin/hybrid-bootstrap.sh ]
+
