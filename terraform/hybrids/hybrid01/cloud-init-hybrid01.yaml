@@ -1,0 +1,16 @@
+#cloud-config
+hostname: ahlz-hybrid01-endpoint
+
+users:
+  - name: relay
+    sudo: []
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${relay_public_key}
+
+disable_root: true
+ssh_pwauth: false
+
+package_update: true
+package_upgrade: true
+

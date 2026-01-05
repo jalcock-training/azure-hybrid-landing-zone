@@ -7,48 +7,10 @@ terraform {
   }
 }
 
-# Base image volume (copy from Ubuntu minimal cloud image)
-resource "libvirt_volume" "base_image" {
-  name = "${var.name}-base.qcow2"
-  pool = var.pool
+###############################################
+# Cloud-init seed ISO
+###############################################
 
-  target = {
-    format = {
-      type = "qcow2"
-    }
-  }
-
-  create = {
-    content = {
-      url = var.base_image_url
-    }
-  }
-}
-
-
-# Writable VM disk, backed by the base image
-resource "libvirt_volume" "vm_disk" {
-  name     = "${var.name}.qcow2"
-  pool     = var.pool
-  capacity = var.disk_size
-
-  target = {
-    format = {
-      type = "qcow2"
-    }
-  }
-
-  backing_store = {
-    path = libvirt_volume.base_image.path
-
-    format = {
-      type = "qcow2"
-    }
-  }
-}
-
-
-# Cloud-init seed ISO (local file representation)
 resource "libvirt_cloudinit_disk" "seed" {
   name = "${var.name}-cloudinit"
 
@@ -62,7 +24,7 @@ resource "libvirt_cloudinit_disk" "seed" {
   network_config = var.cloud_init_network_config
 }
 
-# Upload the cloud-init ISO into the pool
+# Upload cloud-init ISO into the pool
 resource "libvirt_volume" "seed_volume" {
   name = "${var.name}-cloudinit.iso"
   pool = var.pool
@@ -74,17 +36,19 @@ resource "libvirt_volume" "seed_volume" {
   }
 }
 
-# Headless VM domain
+###############################################
+# VM Domain (minimal, stable, boots reliably)
+###############################################
+
 resource "libvirt_domain" "vm" {
   name   = var.name
-  memory = var.memory_mib * 1024 * 1024
+  memory = var.memory_mib
   vcpu   = var.vcpus
   type   = "kvm"
 
   os = {
-    type    = "hvm"
-    arch    = "x86_64"
-    machine = "q35"
+    type = "hvm"
+    arch = "x86_64"
   }
 
   features = {
@@ -92,22 +56,27 @@ resource "libvirt_domain" "vm" {
   }
 
   devices = {
+
+    #########################################
+    # Root disk — direct file, no volumes
+    #########################################
     disks = [
       {
-        # Root disk
         source = {
-          volume = {
-            pool   = libvirt_volume.vm_disk.pool
-            volume = libvirt_volume.vm_disk.name
+          file = {
+            file = "/var/lib/libvirt/images/jammy-server-cloudimg-amd64.img"
           }
         }
         target = {
-          dev = "vda"
-          bus = "virtio"
+          dev = "sda"
+          bus = "sata"
         }
       },
+
+      #########################################
+      # Cloud-init ISO
+      #########################################
       {
-        # cloud-init ISO
         device = "cdrom"
         source = {
           volume = {
@@ -122,6 +91,9 @@ resource "libvirt_domain" "vm" {
       }
     ]
 
+    #########################################
+    # Network interface
+    #########################################
     interfaces = [
       {
         type  = "network"
