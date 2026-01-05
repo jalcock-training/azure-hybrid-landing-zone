@@ -8,6 +8,25 @@ users:
     ssh_authorized_keys:
       - ${relay_public_key}
 
+write_files:
+  - path: /home/relay/.ssh/id_rsa
+    permissions: '0600'
+    owner: relay:relay
+    content: |
+      ${relay_private_key}
+
+  - path: /etc/ssh/sshd_config.d/99-port-forwarding.conf
+    owner: root:root
+    permissions: '0644'
+    content: |
+      AllowTcpForwarding yes
+      AllowAgentForwarding yes
+      GatewayPorts no
+      X11Forwarding no
+
+runcmd:
+  - systemctl restart ssh
+
 disable_root: true
 ssh_pwauth: false
 

@@ -1,6 +1,7 @@
 locals {
-  relay_public_key = data.terraform_remote_state.hub.outputs.relay_public_key
-  base_image_url = "http://${var.libvirt_host}/cloud-images/jammy-server-cloudimg-amd64.img"
+  relay_public_key  = data.terraform_remote_state.hub.outputs.relay_public_key
+  relay_private_key = data.terraform_remote_state.hub.outputs.relay_private_key
+  base_image_url    = "http://${var.libvirt_host}/cloud-images/jammy-server-cloudimg-amd64.img"
 }
 
 
@@ -18,6 +19,7 @@ module "hybrid01" {
 
   cloud_init_userdata = templatefile("${path.module}/cloud-init-hybrid01.yaml", {
     relay_public_key = local.relay_public_key
+    relay_private_key = local.relay_private_key
   })
 
   cloud_init_network_config = ""

@@ -37,5 +37,9 @@ module "hybrid_vm" {
 
   cloud_init_userdata       = local.cloud_init_userdata
   cloud_init_network_config = "" # or your rendered net config if you add it later
+
+  cloud_init_userdata = templatefile("${path.module}/cloud-init-hybrid02.yaml", {
+    relay_public_key = local.relay_public_key
+  })
 }
 

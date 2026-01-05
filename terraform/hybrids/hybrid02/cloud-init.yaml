@@ -5,6 +5,13 @@ packages:
   - curl
   - ca-certificates
 
+users:
+  - name: relay
+    sudo: []
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${relay_public_key}
+
 write_files:
   - path: /usr/local/bin/hybrid-bootstrap.sh
     permissions: '0755'
