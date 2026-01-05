@@ -22,6 +22,6 @@ module "hybrid01" {
     relay_private_key = local.relay_private_key
   })
 
-  cloud_init_network_config = ""
+  cloud_init_network_config = templatefile("${path.module}/network-hybrid01.yaml", {})
 }
 

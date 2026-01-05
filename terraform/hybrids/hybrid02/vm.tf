@@ -2,17 +2,22 @@
 # Render cloud-init with hybrid workload values
 # ------------------------------------------------------------
 locals {
-  cloud_init_userdata = templatefile("${path.module}/cloud-init.yaml", {
-  relay_public_key  = data.terraform_remote_state.hub.outputs.relay_public_key
-    AZ_TENANT_ID           = data.azurerm_client_config.current.tenant_id
-    AZ_CLIENT_ID           = module.hybrid_workload.client_id
-    AZ_CLIENT_SECRET       = module.hybrid_workload.client_secret
-    KEY_VAULT_NAME         = data.azurerm_key_vault.shared.name
-    CERT_SECRET_NAME       = module.hybrid_workload.cert_secret_name
-    KEY_SECRET_NAME        = module.hybrid_workload.key_secret_name
-    STORAGE_ACCOUNT_NAME   = module.hybrid_workload.storage_account_name
-    STORAGE_CONTAINER_NAME = module.hybrid_workload.storage_container_name
+  cloud_init_userdata = templatefile("${path.module}/cloud-init-hybrid02.yaml", {
+    relay_public_key       = data.terraform_remote_state.hub.outputs.relay_public_key,
+    AZ_TENANT_ID           = data.terraform_remote_state.hub.outputs.relay_tenant_id
+    AZ_CLIENT_ID           = data.terraform_remote_state.hub.outputs.relay_client_id,
+    AZ_CLIENT_SECRET       = data.terraform_remote_state.hub.outputs.relay_client_secret,
+    KEY_VAULT_NAME         = data.azurerm_key_vault.shared.name,
+    CERT_SECRET_NAME       = "hybrid02-cert",
+    KEY_SECRET_NAME        = "hybrid02-key",
+    STORAGE_ACCOUNT_NAME   = data.azurerm_storage_account.shared.name,
+    STORAGE_CONTAINER_NAME = "workload-content",
   })
+
+  relay_public_key  = data.terraform_remote_state.hub.outputs.relay_public_key
+  relay_private_key = data.terraform_remote_state.hub.outputs.relay_private_key
+
+  base_image_url    = "http://${var.libvirt_host}/cloud-images/jammy-server-cloudimg-amd64.img"
 }
 
 # ------------------------------------------------------------
@@ -28,7 +33,7 @@ module "hybrid_vm" {
 
   name         = "ahlz-hybrid02-dev-workload"
   pool         = "default"
-  base_image_url = "file:///var/lib/libvirt/images/ubuntu-22.04-minimal-cloudimg-amd64.img"
+  base_image_url = local.base_image_url
 
   disk_size   = 20 * 1024 * 1024 * 1024  # 20 GiB in bytes
   memory_mib  = 2048
@@ -36,11 +41,8 @@ module "hybrid_vm" {
   network_name = "default"
   autostart    = true
 
-  cloud_init_userdata       = local.cloud_init_userdata
-  cloud_init_network_config = "" # or your rendered net config if you add it later
+  cloud_init_network_config = templatefile("${path.module}/network-hybrid02.yaml", {})
 
-  cloud_init_userdata = templatefile("${path.module}/cloud-init-hybrid02.yaml", {
-    relay_public_key = local.relay_public_key
-  })
+  cloud_init_userdata = local.cloud_init_userdata
 }
 

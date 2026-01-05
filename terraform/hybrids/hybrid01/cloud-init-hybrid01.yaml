@@ -6,14 +6,14 @@ users:
     sudo: []
     shell: /bin/bash
     ssh_authorized_keys:
-      - ${relay_public_key}
+      - ${indent(6, relay_public_key)}
 
 write_files:
   - path: /home/relay/.ssh/id_rsa
     permissions: '0600'
-    owner: relay:relay
+    owner: root:root
     content: |
-      ${relay_private_key}
+      ${indent(6,relay_private_key)}
 
   - path: /etc/ssh/sshd_config.d/99-port-forwarding.conf
     owner: root:root
@@ -25,6 +25,13 @@ write_files:
       X11Forwarding no
 
 runcmd:
+  # Ensure relay home exists 
+  - mkdir -p /home/relay/.ssh 
+
+  # Fix ownership after user is created 
+  - chown -R relay:relay /home/relay/.ssh 
+
+  # Restart SSH to apply forwarding settings 
   - systemctl restart ssh
 
 disable_root: true

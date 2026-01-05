@@ -29,8 +29,7 @@ nohup ssh -i "$SSH_KEY" \
     -o ServerAliveInterval=60 \
     -o ServerAliveCountMax=3 \
     -N \
-    -R 8443:ahlz-ss-dev-keyvault01.vaultcore.azure.net:443 \
-    -R 8444:ahlzssdevstorage.blob.core.windows.net:443 \
+    -R 443:ahlz-ss-dev-keyvault01.vaultcore.azure.net:443 \
     relay@"$HYBRID_IP" -p "$HYBRID_PORT" \
     >/var/log/$TUNNEL_NAME.log 2>&1 &
 

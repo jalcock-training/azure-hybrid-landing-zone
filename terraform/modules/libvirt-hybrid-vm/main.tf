@@ -24,7 +24,6 @@ resource "libvirt_cloudinit_disk" "seed" {
   network_config = var.cloud_init_network_config
 }
 
-# Upload cloud-init ISO into the pool
 resource "libvirt_volume" "seed_volume" {
   name = "${var.name}-cloudinit.iso"
   pool = var.pool
@@ -37,20 +36,19 @@ resource "libvirt_volume" "seed_volume" {
 }
 
 # ------------------------------------------------------------
-# Pull the base image
+# Base image (imported fresh each time)
 # ------------------------------------------------------------
 
 resource "libvirt_volume" "base_image" {
-  name   = "${var.name}-base.qcow2"
-  pool   = var.pool
+  name = "${var.name}-base.qcow2"
+  pool = var.pool
 
   create = {
     content = {
-      url = var.base_image_url
+      url = "http://10.1.1.5/cloud-images/jammy-base.qcow2"
     }
   }
 }
-
 
 # ------------------------------------------------------------
 # VM domain
@@ -72,9 +70,6 @@ resource "libvirt_domain" "vm" {
   }
 
   devices = {
-    # --------------------------------------------------------
-    # Root disk — direct file, virtio bus
-    # --------------------------------------------------------
     disks = [
       {
         source = {
@@ -92,10 +87,6 @@ resource "libvirt_domain" "vm" {
           bus = "virtio"
         }
       },
-
-      # ------------------------------------------------------
-      # Cloud-init ISO
-      # ------------------------------------------------------
       {
         device = "cdrom"
         source = {
@@ -111,9 +102,6 @@ resource "libvirt_domain" "vm" {
       }
     ]
 
-    # --------------------------------------------------------
-    # Network interface
-    # --------------------------------------------------------
     interfaces = [
       {
         type  = "network"
@@ -129,7 +117,7 @@ resource "libvirt_domain" "vm" {
     ]
   }
 
-  running   = false
+  running   = true
   autostart = var.autostart
 }
 

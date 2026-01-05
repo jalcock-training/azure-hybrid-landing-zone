@@ -10,9 +10,34 @@ users:
     sudo: []
     shell: /bin/bash
     ssh_authorized_keys:
-      - ${relay_public_key}
+      - ${indent(6, relay_public_key)}
 
 write_files:
+  # Map Vault private endpoint → hybrid01 static IP
+  - path: /etc/hosts
+    append: true
+    owner: root:root
+    permissions: '0644'
+    content: |
+      192.168.122.101  vault-priv.privatelink.vault.azure.net
+
+  # Static index.html served by nginx
+  - path: /var/www/html/index.html
+    owner: root:root
+    permissions: '0644'
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Hybrid Endpoint</title>
+      </head>
+      <body>
+        <h1>Hybrid Endpoint Online</h1>
+        <p>This page was generated during VM provisioning.</p>
+      </body>
+      </html>
+
+  # Bootstrap script to fetch cert + key and configure nginx
   - path: /usr/local/bin/hybrid-bootstrap.sh
     permissions: '0755'
     owner: root:root
@@ -29,31 +54,24 @@ write_files:
         --password "${AZ_CLIENT_SECRET}" \
         --tenant "${AZ_TENANT_ID}" >/dev/null
 
-      mkdir -p /etc/hybrid /var/www/hybrid
+      echo "Preparing directories..."
+      mkdir -p /etc/nginx/ssl /var/www/html
 
       echo "Downloading certificate..."
       az keyvault secret download \
         --vault-name "${KEY_VAULT_NAME}" \
         --name "${CERT_SECRET_NAME}" \
-        --file /etc/hybrid/cert.pem \
+        --file /etc/nginx/ssl/cert.pem \
         --encoding base64
 
       echo "Downloading key..."
       az keyvault secret download \
         --vault-name "${KEY_VAULT_NAME}" \
         --name "${KEY_SECRET_NAME}" \
-        --file /etc/hybrid/key.pem \
+        --file /etc/nginx/ssl/key.pem \
         --encoding base64
 
-      chmod 600 /etc/hybrid/key.pem
-
-      echo "Downloading index.html..."
-      az storage blob download \
-        --account-name "${STORAGE_ACCOUNT_NAME}" \
-        --container-name "${STORAGE_CONTAINER_NAME}" \
-        --name index.html \
-        --file /var/www/hybrid/index.html \
-        --auth-mode login >/dev/null
+      chmod 600 /etc/nginx/ssl/key.pem
 
       echo "Configuring nginx..."
       cat >/etc/nginx/sites-available/hybrid.conf <<EOF
@@ -61,10 +79,10 @@ write_files:
           listen 443 ssl;
           server_name _;
 
-          ssl_certificate     /etc/hybrid/cert.pem;
-          ssl_certificate_key /etc/hybrid/key.pem;
+          ssl_certificate     /etc/nginx/ssl/cert.pem;
+          ssl_certificate_key /etc/nginx/ssl/key.pem;
 
-          root /var/www/hybrid;
+          root /var/www/html;
           index index.html;
       }
       EOF
@@ -72,6 +90,7 @@ write_files:
       ln -sf /etc/nginx/sites-available/hybrid.conf /etc/nginx/sites-enabled/hybrid.conf
       rm -f /etc/nginx/sites-enabled/default
 
+      echo "Restarting nginx..."
       systemctl restart nginx
 
 runcmd:
