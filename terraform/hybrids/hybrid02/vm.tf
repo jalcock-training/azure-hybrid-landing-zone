@@ -3,6 +3,7 @@
 # ------------------------------------------------------------
 locals {
   cloud_init_userdata = templatefile("${path.module}/cloud-init.yaml", {
+  relay_public_key  = data.terraform_remote_state.hub.outputs.relay_public_key
     AZ_TENANT_ID           = data.azurerm_client_config.current.tenant_id
     AZ_CLIENT_ID           = module.hybrid_workload.client_id
     AZ_CLIENT_SECRET       = module.hybrid_workload.client_secret
