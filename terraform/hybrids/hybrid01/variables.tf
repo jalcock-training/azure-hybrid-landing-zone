@@ -15,7 +15,7 @@ variable "pool" {
 
 variable "base_image_url" {
   type    = string
-  default = "http://localhost/cloud-images/ubuntu-22.04-minimal-cloudimg-amd64.img"
+  default = ""
 }
 
 variable "disk_size" {
@@ -40,5 +40,15 @@ variable "network_name" {
 
 variable "subscription_id" {
   type = string
+}
+
+variable "libvirt_host" {
+  type        = string
+  description = "Hostname or IP of the libvirt/KVM server"
+}
+
+variable "libvirt_user" {
+  type        = string
+  description = "SSH user for libvirt"
 }
 

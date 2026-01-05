@@ -37,7 +37,23 @@ resource "libvirt_volume" "seed_volume" {
 }
 
 ###############################################
-# VM Domain (minimal, stable, boots reliably)
+# Pull the base image
+###############################################
+
+resource "libvirt_volume" "base_image" {
+  name   = "${var.name}-base.qcow2"
+  pool   = var.pool
+
+  create = {
+    content = {
+      url = var.base_image_url
+    }
+  }
+}
+
+
+###############################################
+# VM domain
 ###############################################
 
 resource "libvirt_domain" "vm" {
@@ -58,18 +74,23 @@ resource "libvirt_domain" "vm" {
   devices = {
 
     #########################################
-    # Root disk — direct file, no volumes
+    # Root disk — direct file, virtio bus
     #########################################
     disks = [
       {
         source = {
-          file = {
-            file = "/var/lib/libvirt/images/jammy-server-cloudimg-amd64.img"
+          volume = {
+            pool   = libvirt_volume.base_image.pool
+            volume = libvirt_volume.base_image.name
           }
         }
+        driver = {
+          name = "qemu"
+          type = "qcow2"
+        }
         target = {
-          dev = "sda"
-          bus = "sata"
+          dev = "vda"
+          bus = "virtio"
         }
       },
 
@@ -109,7 +130,7 @@ resource "libvirt_domain" "vm" {
     ]
   }
 
-  running   = true
+  running   = false
   autostart = var.autostart
 }
 

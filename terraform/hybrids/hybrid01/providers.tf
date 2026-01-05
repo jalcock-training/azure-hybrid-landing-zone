@@ -17,6 +17,6 @@ provider "azurerm" {
 }
 
 provider "libvirt" {
-  uri = "qemu:///system"
+  uri = "qemu+ssh://${var.libvirt_user}@${var.libvirt_host}/system"
 }
 
