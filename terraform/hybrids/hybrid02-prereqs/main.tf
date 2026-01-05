@@ -2,6 +2,14 @@
 # Create the pre-requisite keys for hybrid02
 # -------------------------------------------------------------------
 
+# Assign RBAC to allow the jumphost to add to the key vault
+resource "azurerm_role_assignment" "jumphost_kv_access" {
+  scope                = data.azurerm_key_vault.shared.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.terraform_remote_state.hub.outputs.jumphost_identity_principal_id
+}
+
+
 # Generate the key
 resource "tls_private_key" "hybrid02_key" {
   algorithm = "RSA"
@@ -38,4 +46,5 @@ resource "azurerm_key_vault_secret" "key" {
   value        = tls_private_key.hybrid02_key.private_key_pem
   key_vault_id = data.azurerm_key_vault.shared.id
 }
+
 
