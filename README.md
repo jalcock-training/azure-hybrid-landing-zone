@@ -1,8 +1,3 @@
-
-This structure mirrors real enterprise engineering repositories and keeps architecture, planning, and implementation cleanly separated.
-
----
-
 ## Key Features
 
 ### Hybrid Connectivity (libvirt/KVM)
