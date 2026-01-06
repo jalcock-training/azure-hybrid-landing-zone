@@ -1,13 +1,5 @@
 ## Key Features
 
-### Hybrid Connectivity (libvirt/KVM)
-A realistic hybrid pattern using:
-
-- Hybrid01 for network bridging
-- Hybrid02 for workload execution
-- Hybrid identity for secure bootstrap
-- Private‑endpoint‑only access to Azure services
-
 ### Landing Zone Architecture
 A minimal but realistic landing zone with:
 
@@ -36,6 +28,14 @@ Two workload patterns are demonstrated:
 
 - **Azure workload** deployed into the spoke using the workload‑vm module
 - **Hybrid workload** (Hybrid02) running on libvirt and bootstrapped via cloud‑init
+
+### Hybrid Connectivity (libvirt/KVM)
+A realistic hybrid pattern using:
+
+- Hybrid01 for network bridging
+- Hybrid02 for workload execution
+- Hybrid identity for secure bootstrap
+- Private‑endpoint‑only access to Azure services
 
 ### Terraform IaC
 - Modular Terraform structure aligned with the architecture
