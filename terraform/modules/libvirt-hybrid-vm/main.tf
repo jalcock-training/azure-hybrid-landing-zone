@@ -45,7 +45,7 @@ resource "libvirt_volume" "base_image" {
 
   create = {
     content = {
-      url = "http://10.1.1.5/cloud-images/jammy-base.qcow2"
+      url = var.base_image_url
     }
   }
 }

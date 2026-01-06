@@ -7,19 +7,19 @@ This document splits the Azure Hybrid Landing Zone into:
 - **Phase 1 – Free Tier / Basic Architecture (Current Project)**
 - **Phase 2 – Paid Tier / Advanced Architecture (Future Roadmap)**
 
-Phase 1 includes the basic structure and free tier enhancements.  
-Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper engineering.
+Phase 1 contains only the implemented MVP and a few essential free‑tier items.  
+Phase 2 contains all advanced, enterprise‑grade, or paid‑tier enhancements.
 
 ---
 
-# 🟦 PHASE 1 — FREE TIER / BASIC 
+# 🟦 PHASE 1 — FREE TIER / BASIC (MVP)
 
 ## 🧱 Core Platform
 - [x] Platform resource group
 - [x] Naming conventions + tagging standards
 - [x] Subscription‑level tags
 - [x] Location restrictions
-- [ ] Add environment prefixes (dev/test/prod) 
+- [ ] Add environment prefixes (dev/test/prod)
 
 ---
 
@@ -29,8 +29,7 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] Least‑privilege RBAC everywhere
 - [x] No classic administrators
 - [x] Terraform uses least‑privilege roles
-- [ ] Remove unused service principals 
-- [ ] Disable legacy auth (POP/IMAP/SMTP Basic) 
+- [ ] Disable legacy auth (POP/IMAP/SMTP Basic)
 
 ---
 
@@ -43,7 +42,6 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] Deny‑all inbound rules
 - [x] VNet peering (hub ↔ spoke)
 - [x] Private endpoints for Key Vault + Storage
-- [ ] Add outbound UDRs (deny‑all + allowlist) 
 
 ---
 
@@ -61,7 +59,6 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] Storage Account (private endpoints)
 - [x] Public network access disabled
 - [x] TLS 1.2+ enforced
-- [ ] Add Log Analytics workspace 
 
 ---
 
@@ -70,16 +67,12 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] SSH keys only
 - [x] Hybrid01 relay VM (no public IP)
 - [x] Hybrid02 workload VM (TLS bootstrap)
-- [ ] Harden hybrid01 package footprint 
 
 ---
 
 ## 📊 Diagnostics & Monitoring
 - [x] Activity Log export
 - [x] Metrics‑only diagnostics for VNets + Storage
-- [ ] Diagnostic settings for Key Vault 
-- [ ] Diagnostic settings for VMs 
-- [ ] Basic alert rules (CPU, disk, network) 
 
 ---
 
@@ -88,8 +81,6 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] Required tags policy
 - [x] Secure‑by‑default resource configuration
 - [x] Governance module separated from resource modules
-- [ ] Assign allowed SKUs policies 
-- [ ] Assign diagnostic settings enforcement 
 
 ---
 
@@ -98,7 +89,6 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] Clean variable structure
 - [x] Feature toggles (governance, diagnostics, private endpoints)
 - [x] Clean state + repo hygiene
-- [ ] GitHub Actions pipeline with OIDC 
 
 ---
 
@@ -107,73 +97,110 @@ Phase 2 contains enterprise‑grade enhancements requiring paid SKUs or deeper e
 - [x] Module‑level READMEs
 - [x] Security Hardening Checklist
 - [x] Architecture Implementation Checklist
-- [ ] End‑to‑end deployment guide *(low effort)*
-- [ ] Troubleshooting guide *(low effort)*
+- [ ] End‑to‑end deployment guide 
+- [ ] Troubleshooting guide
 
 ---
 
 # 🟩 PHASE 1 SUMMARY
-Phase 1 is **fully deployable today**, secure, private‑endpoint‑first, and entirely free‑tier.  
-It demonstrates:
+Phase 1 is a **fully deployable, secure, free‑tier landing zone** featuring:
 
-- hybrid connectivity  
-- secure workload bootstrap  
-- private endpoints  
+- private‑endpoint‑first architecture  
+- hybrid workload bootstrap  
+- hardened networking  
 - identity‑driven access  
-- clean Terraform architecture  
-- strong governance  
+- secure Terraform state  
+- foundational governance  
+
+This is the MVP and the core of the project.
 
 ---
 
 # 🟥 PHASE 2 — PAID TIER / ADVANCED (ENTERPRISE ROADMAP)
 
-## 🔐 Identity (Paid)
+## 🔐 Identity (Paid + Advanced Free Tier)
 - [ ] Azure AD Privileged Identity Management (PIM)
+- [ ] Remove unused service principals
+- [ ] Remove stale accounts
+- [ ] Review/remove unused service principals
+- [ ] Document hybrid identity rotation
+- [ ] Replace jumphost generic SSH key with ephemeral ACI keypair
 
 ---
 
-## 🌐 Networking (Paid)
+## 🌐 Networking (Paid + Advanced Free Tier)
 - [ ] Azure Firewall (Standard/Premium)
 - [ ] Just‑In‑Time VM Access (JIT)
+- [ ] Add outbound UDRs (deny‑all + allowlist)
+- [ ] DNS forwarding ruleset (Private Resolver)
+- [ ] Validate DNS resolution paths end‑to‑end
+- [ ] Document SSH relay lateral movement boundaries
 
 ---
 
-## 🔒 Data Protection 
+## 🔒 Data Protection (Paid + Advanced Free Tier)
 - [ ] Defender for Storage malware scanning
+- [ ] Enable soft delete on all Storage Accounts
+- [ ] Disable public access on all Storage Accounts
+- [ ] Infrastructure encryption
+- [ ] Key Vault RBAC‑only mode
+- [ ] Backup/restore strategy for KV + Storage
 
 ---
 
-## 🧱 Compute 
+## 🧱 Compute (Paid + Advanced Free Tier)
 - [ ] Defender for Servers
 - [ ] Vulnerability Assessment for VMs
+- [ ] VM extension minimisation
+- [ ] VM diagnostic logs
+- [ ] Harden hybrid01 package footprint
+- [ ] Cloud‑init secret‑logging audit
 
 ---
 
-## 📊 Monitoring 
+## 📊 Monitoring (Paid + Advanced Free Tier)
 - [ ] NSG Flow Logs v2
 - [ ] Defender for Cloud advanced threat detection
 - [ ] Microsoft Sentinel
+- [ ] Diagnostic settings for Key Vault
+- [ ] Diagnostic settings for Storage
+- [ ] Diagnostic settings for VMs
+- [ ] Diagnostic settings for NSGs, VNets, private endpoints
+- [ ] Log Analytics workspace
+- [ ] Alerts for KV/Storage access anomalies
+- [ ] Basic metrics alerts (CPU, disk, network)
 
 ---
 
-## 🤖 Automation & CI/CD
-- [ ] GitHub Actions pipeline with OIDC 
+## 🛡 Governance (Paid + Advanced Free Tier)
+- [ ] Microsoft Cloud Security Benchmark (MCSB)
+- [ ] Allowed SKUs policies
+- [ ] Diagnostic settings enforcement
+- [ ] Private endpoint enforcement
+- [ ] Tag enforcement (owner, environment, costcenter)
+- [ ] Remediation tasks
+- [ ] Regulatory compliance dashboards
 
-## 🛡 Governance 
-- [ ] Regulatory compliance dashboards beyond MCSB
+---
+
+## 🤖 Automation & CI/CD (Paid + Advanced Free Tier)
+- [ ] GitHub Actions pipeline with OIDC
+- [ ] Automated policy compliance checks
+- [ ] Drift detection
 
 ---
 
 # 🟥 PHASE 2 SUMMARY
-Phase 2 adds enterprise‑grade capabilities:
+Phase 2 introduces enterprise‑grade capabilities:
 
 - advanced threat detection  
-- firewalling  
-- JIT access  
-- regulatory dashboards  
+- firewalling and JIT access  
 - full Defender suite  
+- deep diagnostics and monitoring  
+- compliance automation  
+- operational hardening  
 
-These are optional and require paid SKUs.
+These enhancements require paid SKUs or additional engineering effort.
 
----
+============================================================
 
