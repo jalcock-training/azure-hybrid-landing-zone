@@ -1,3 +1,7 @@
+# Azure Hybrid Landing Zone
+
+A full Azure landing zone engineered from scratch using 100% Terraform. Includes modular IaC design, hub/spoke topology, Azure AD/RBAC integration, policy automation, diagnostics, and secure baseline governance. This project reflects the same patterns used in enterprise landing zones, implemented independently to deepen my cloud engineering capability
+
 ## Key Features
 
 ### Landing Zone Architecture
