@@ -1,94 +1,3 @@
-# Azure Hybrid Landing Zone (Portfolio Project)
-
-This repository contains a complete, minimal, and cost‑efficient Azure Hybrid Landing Zone designed as a portfolio project to demonstrate cloud architecture, governance, automation, and hybrid integration using Azure Arc. The environment follows Azure landing zone principles while remaining lightweight enough for personal use.
-
-The project showcases practical, real‑world engineering skills across architecture, Terraform, CI/CD, governance, and hybrid cloud operations.
-
-It also demonstrates a security‑by‑design approach using private endpoints, NSGs, least‑privilege identity, and policy‑driven governance.
-
----
-
-## Project Overview
-
-This project implements a fully documented hybrid cloud environment that includes:
-
-- A lightweight Azure landing zone with subscription‑scoped governance (Azure Policy, RBAC, naming/tagging)
-- Hub‑and‑spoke network architecture
-- Shared services such as Key Vault and optional Log Analytics
-- A simple application workload deployed into the spoke
-- Hybrid integration using Azure Arc for an on‑premises Linux VM
-- Terraform‑based infrastructure‑as‑code
-- GitHub Actions CI/CD pipeline using secure OIDC authentication
-- Clear, professional documentation suitable for portfolio presentation
-- Security controls such as private endpoints, deny‑all inbound NSGs, no public IPs, and diagnostic logging
-
-The design emphasises clarity, governance, and automation over complexity.
-
----
-
-## Repository Structure
-
-.
-├── diagrams
-│   ├── access-pattern.png
-│   ├── architecture-overview-future-enterprise.png
-│   └── architecture-overview.png
-├── docs
-│   ├── access
-│   │   └── README.md
-│   ├── architecture
-│   │   ├── application-workload.md
-│   │   ├── architectural-overview.md
-│   │   ├── automation-and-ci-cd.md
-│   │   ├── governance-and-policy.md
-│   │   ├── hub-and-spoke-network.md
-│   │   ├── hybrid-architecture.md
-│   │   ├── landing-zone-design.md
-│   │   └── shared-services.md
-│   ├── planning
-│   │   └── project-plan.md
-│   └── reference
-│       ├── naming-and-tagging-standards.md
-│       └── terraform-structure.md
-├── LICENSE
-├── README.md
-├── scripts
-│   ├── jump-start.sh
-│   ├── jump-status.sh
-│   ├── jump-stop.sh
-│   └── README.md
-└── terraform
-    ├── main.tf
-    ├── modules
-    │   ├── governance
-    │   │   ├── main.tf
-    │   │   ├── outputs.tf
-    │   │   └── variables.tf
-    │   ├── hub-network
-    │   │   ├── main.tf
-    │   │   ├── output.tf
-    │   │   └── variables.tf
-    │   ├── jump-aci
-    │   │   ├── entrypoint.sh
-    │   │   ├── main.tf
-    │   │   ├── outputs.tf
-    │   │   ├── README.md
-    │   │   └── variables.tf
-    │   ├── jumphost-vm
-    │   │   ├── main.tf
-    │   │   ├── outputs.tf
-    │   │   └── variables.tf
-    │   ├── network-security
-    │   │   ├── main.tf
-    │   │   ├── output.tf
-    │   │   └── variables.tf
-    │   └── spoke-network
-    │       ├── main.tf
-    │       ├── output.tf
-    │       └── variables.tf
-    ├── outputs.tf
-    ├── providers.tf
-    └── variables.tf
 
 This structure mirrors real enterprise engineering repositories and keeps architecture, planning, and implementation cleanly separated.
 
@@ -96,52 +5,70 @@ This structure mirrors real enterprise engineering repositories and keeps archit
 
 ## Key Features
 
-### Hybrid Cloud Integration
-A local Linux VM is onboarded into Azure using Azure Arc, demonstrating governance, monitoring, and configuration management for non‑Azure resources.
+### Hybrid Connectivity (libvirt/KVM)
+A realistic hybrid pattern using:
+
+- Hybrid01 for network bridging
+- Hybrid02 for workload execution
+- Hybrid identity for secure bootstrap
+- Private‑endpoint‑only access to Azure services
 
 ### Landing Zone Architecture
-A minimal but realistic landing zone with subscription‑scoped governance (policy, RBAC, naming/tagging) implemented within a single Azure subscription.
+A minimal but realistic landing zone with:
+
+- Subscription‑scoped governance (policy, RBAC, naming/tagging)
+- Hub‑and‑spoke networking
+- Shared services (Key Vault, Storage)
+- Private DNS
+- Diagnostics and logging
 
 ### Hub‑and‑Spoke Networking
-A clean network topology with a platform hub and workload spoke, connected via VNet peering.
-All traffic remains private; no public ingress is required for platform or workload resources.
+A clean network topology with:
+
+- Hub VNet (platform)
+- Spoke VNet (workload)
+- VNet peering
+- NSGs with deny‑all inbound
+- No public IPs
 
 ### Shared Services
-Key Vault and optional Log Analytics workspace, with diagnostic settings enabled when monitoring is configured.
-Key Vault is secured with private endpoints, firewall rules, soft delete, and purge protection.
+- Key Vault (private endpoint, RBAC‑only, soft delete, purge protection)
+- Storage Account (private endpoint, TLS 1.2+, no public access)
+- Optional Log Analytics workspace
 
-### Application Workload
-A simple App Service + Storage workload deployed into the spoke network.
-Storage accounts enforce TLS 1.2, disable public access, and support private endpoints.
+### Application Workloads
+Two workload patterns are demonstrated:
+
+- **Azure workload** deployed into the spoke using the workload‑vm module
+- **Hybrid workload** (Hybrid02) running on libvirt and bootstrapped via cloud‑init
 
 ### Terraform IaC
-Modular Terraform structure aligned with the architecture documents.
-Modules embed secure defaults such as no public IPs, diagnostic settings, and policy‑driven configuration.
+- Modular Terraform structure aligned with the architecture
+- Clear separation of platform, spokes, and hybrid layers
+- Remote state
+- Feature toggles for diagnostics, governance, and private endpoints
 
-### GitHub Actions CI/CD
-Secure, automated deployment pipeline using OIDC authentication and manual approvals.
-No long‑lived credentials are stored; all automation uses short‑lived identity tokens.
+### Optional GitHub Actions CI/CD
+- Secure OIDC authentication
+- No long‑lived credentials
+- Plan → approval → apply workflow
 
 ---
 
 ## Jump Environment Workflow
 
-This landing zone includes an ephemeral jump environment built using Azure
-Container Instances (ACI). The jump‑ACI provides a lightweight, cost‑efficient
-way to access the jumphost VM without keeping long‑running infrastructure online.
+The landing zone includes an ephemeral jump environment built using Azure Container Instances (ACI). This provides a lightweight, cost‑efficient way to access the jumphost VM.
 
-The workflow is:
+Workflow:
 
-1. Start the jump‑ACI using `./scripts/jump-start.sh`.
-2. Exec into the container and SSH to the jumphost VM.
-3. While an SSH session is active, the container remains running.
-4. When SSH exits, the container becomes idle.
-5. After the configured idle timeout, the container exits.
-6. The container’s `entrypoint.sh` cleanup trap automatically deallocates the VM.
+1. Start the jump‑ACI using `./scripts/jump-start.sh`
+2. Exec into the container and SSH to the jumphost VM
+3. While SSH is active, the container remains running
+4. When SSH exits, the container becomes idle
+5. After the idle timeout, the container exits
+6. Cleanup logic deallocates the jumphost VM
 
-This pattern ensures the jumphost VM only runs when needed and shuts down
-automatically when not in use, keeping the environment predictable and
-cost‑efficient.
+This ensures the environment remains cost‑efficient and predictable.
 
 ---
 
@@ -149,17 +76,18 @@ cost‑efficient.
 
 All documentation is located in the `docs/` folder and is grouped into:
 
-- Architecture — design documents explaining the environment
-- Planning — project plan and delivery structure
-- Reference — implementation details such as naming standards and Terraform layout
+- **Architecture** — design documents explaining the environment  
+- **Planning** — project plan and delivery structure  
+- **Reference** — naming standards, Terraform layout, and module structure  
+- **Access** — operator access patterns and hybrid connectivity  
 
 Start with:
 
-`docs/architecture/architectural-overview.md`
+`docs/ARCHITECTURE.md`
 
-For security details, see: 
+For security details, see:
 
-`docs/SECURITY.md`
+`docs/security/security-overview.md`
 
 ---
 
@@ -170,8 +98,8 @@ To deploy or work with this project, you will need:
 - Azure subscription
 - Azure CLI
 - Terraform
-- GitHub account (for CI/CD)
-- Local virtualisation platform (e.g., KVM) for the Azure Arc demo VM
+- GitHub account (optional, for CI/CD)
+- Local virtualisation platform (KVM/libvirt) for hybrid workloads
 
 ---
 
@@ -180,7 +108,7 @@ To deploy or work with this project, you will need:
 Deployment is performed through:
 
 - Terraform (root module)
-- GitHub Actions CI/CD pipeline
+- Optional GitHub Actions CI/CD pipeline
 
 The pipeline handles:
 
@@ -200,12 +128,12 @@ Potential future improvements include:
 - Full management group hierarchy and subscription vending
 - Azure Security Benchmark (ASB) and enterprise policy initiatives
 - Additional spokes (dev/test/prod)
-- Private DNS zones
+- Private DNS resolver
 - Defender for Cloud integration
 - Azure Firewall or third‑party NVAs
-- Arc‑enabled Kubernetes or SQL Server
 - Multi‑region expansion
-- Enterprise security baselines and policy‑as‑code modules
+- Policy‑as‑code modules
+- Additional hybrid workloads
 
 ---
 
@@ -214,7 +142,7 @@ Potential future improvements include:
 This project is designed as a portfolio‑ready demonstration of:
 
 - Cloud architecture
-- Hybrid cloud integration
+- Hybrid connectivity
 - Infrastructure‑as‑code
 - DevOps automation
 - Governance and policy
@@ -226,4 +154,5 @@ It reflects real‑world engineering patterns while remaining accessible and cos
 
 ## License
 
-See the LICENSE file in the root of this project
+See the LICENSE file in the root of this project.
+

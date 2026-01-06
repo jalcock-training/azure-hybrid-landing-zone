@@ -38,7 +38,7 @@ module "hybrid_vm" {
   base_image_url = local.base_image_url
 
   disk_size   = 20 * 1024 * 1024 * 1024  # 20 GiB in bytes
-  memory_mib  = 2048
+  memory_mib  = 1024 * 1024
   vcpus       = 2
   network_name = "default"
   autostart    = true
