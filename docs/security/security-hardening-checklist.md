@@ -1,144 +1,175 @@
 ============================================================
-        AZURE SECURITY HARDENING CHECKLIST (FINAL)
+              AZURE SECURITY HARDENING CHECKLIST
 ============================================================
 
-🔐 IDENTITY & ACCESS MANAGEMENT (IAM)
-------------------------------------
-Completed
-[x] MFA enforced for operators (identity provider level)
-[x] Use least‑privilege RBAC everywhere
-[x] Ensure no classic administrators are present
-[x] Use service principals or managed identities instead of shared secrets
+This checklist reflects the current security posture of the Azure Hybrid Landing Zone, including platform, shared services, and hybrid workloads. Items are grouped into **Completed**, **Pending/Future**, and **Paid Tier (Out of Scope)** to clearly communicate maturity and roadmap.
 
-Pending / Future
-[ ] Remove “Owner” role from individual users [Tenant]
-[ ] Remove unused or stale accounts [Tenant]
-[ ] Disable legacy authentication (POP/IMAP/SMTP Basic) [Tenant]
-[ ] Rotate credentials regularly (jumphost generic account still uses shared keys)
+---
 
-Paid tier (out of scope)
-[ ] ❌ Azure AD Privileged Identity Management (PIM)
+# 🔐 IDENTITY & ACCESS MANAGEMENT (IAM)
 
+## ✅ Completed
+- [x] MFA enforced for all operators (IdP-level)
+- [x] Least‑privilege RBAC applied across all scopes
+- [x] No classic administrators present
+- [x] Managed identities used for platform and spokes
+- [x] Hybrid workloads use dedicated hybrid identity (AAD App + SP)
+- [x] No shared secrets except hybrid identity (documented and controlled)
 
-🌐 NETWORK SECURITY
--------------------
-Completed
-[x] Apply NSGs to all subnets
-[x] Deny‑all inbound rules by default
-[x] No public IPs on VMs
-[x] Use jump‑ACI pattern instead of public SSH/RDP
-[x] Ensure VNet peering is configured securely
-[x] Create dedicated private-endpoints subnet
-[x] Harden NSG rules for private-endpoints subnet
-[x] Move Key Vault private endpoint into private-endpoints subnet
-[x] Move Storage private endpoints into private-endpoints subnet
-[x] Ensure NSG + UDR associations are correct and isolated
-[x] Disable public network access on Key Vault
-[x] Disable public network access on Storage
+## ⏳ Pending / Future
+- [ ] Remove “Owner” role from individual users (tenant hardening)
+- [ ] Remove unused or stale accounts (AAD hygiene)
+- [ ] Disable legacy authentication (POP/IMAP/SMTP Basic)
+- [ ] Replace jumphost generic SSH key with ephemeral ACI‑delivered keypair
+- [ ] Document hybrid identity secret rotation procedure
+- [ ] Review and remove unused service principals
 
-Pending / Future
-[ ] Disable public network access on App Service
-[ ] Restrict outbound traffic where possible (UDR strategy)
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Azure AD Privileged Identity Management (PIM)
 
-Paid tier (out of scope)
-[ ] ❌ Azure Firewall (Standard/Premium)
-[ ] ❌ Just‑In‑Time VM Access (JIT)
-[ ] ❌ Azure Firewall Premium
+---
 
+# 🌐 NETWORK SECURITY
 
-🔒 DATA PROTECTION & STORAGE SECURITY
-------------------------------------
-Completed
-[x] Enable soft delete + purge protection on Key Vault
-[x] Enforce TLS 1.2+
-[x] Use private endpoints for Key Vault
-[x] Use private endpoints for Storage (Blob + File)
-[x] Ensure encryption at rest is enabled (default)
+## ✅ Completed
+- [x] NSGs applied to all subnets
+- [x] Deny‑all inbound rules by default
+- [x] No public IPs on any VMs
+- [x] Jump‑ACI pattern used instead of public SSH/RDP
+- [x] Secure VNet peering (no transitive routing)
+- [x] Dedicated private-endpoints subnet
+- [x] Hardened NSG rules for private-endpoints subnet
+- [x] Key Vault private endpoint isolated in private-endpoints subnet
+- [x] Storage private endpoints isolated in private-endpoints subnet
+- [x] NSG + UDR associations validated
+- [x] Public network access disabled on Key Vault
+- [x] Public network access disabled on Storage
 
-Pending / Future
-[ ] Enable soft delete on all Storage Accounts (verify per SA)
-[ ] Disable public access on all Storage Accounts (verify all)
-[ ] Enable infrastructure encryption (optional)
+## ⏳ Pending / Future
+- [ ] Disable public network access on App Service (if introduced)
+- [ ] Restrict outbound traffic using UDRs (deny-all + allowlist)
+- [ ] Validate DNS resolution paths for private endpoints (hub → hybrid01 → hybrid02)
+- [ ] Document SSH relay architecture and lateral movement boundaries
 
-Paid tier (out of scope)
-[ ] ❌ Defender for Storage malware scanning
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Azure Firewall (Standard/Premium)
+- [ ] ❌ Just‑In‑Time VM Access (JIT)
+- [ ] ❌ Azure Firewall Premium
 
+---
 
-🧱 COMPUTE & VM SECURITY
-------------------------
-Completed
-[x] Disable password authentication on Linux VMs
-[x] Use SSH keys only
-[x] Remove public IPs from VMs
-[x] Use managed identities instead of local secrets
-[x] Ensure VM disks are encrypted (default; verified)
+# 🔒 DATA PROTECTION & STORAGE SECURITY
 
-Pending / Future
-[ ] Ensure VM extensions are minimal and necessary
-[ ] Ensure diagnostic logs are enabled
+## ✅ Completed
+- [x] Soft delete + purge protection enabled on Key Vault
+- [x] TLS 1.2+ enforced
+- [x] Private endpoints for Key Vault
+- [x] Private endpoints for Storage (Blob + File)
+- [x] Encryption at rest enabled (default)
 
-Paid tier (out of scope)
-[ ] ❌ Defender for Servers
-[ ] ❌ Vulnerability Assessment for VMs
+## ⏳ Pending / Future
+- [ ] Enable soft delete on all Storage Accounts (verify)
+- [ ] Disable public access on all Storage Accounts (verify)
+- [ ] Enable infrastructure encryption (optional)
+- [ ] Enable Key Vault RBAC‑only mode (if not already)
+- [ ] Document backup/restore strategy for Key Vault + Storage
 
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Defender for Storage malware scanning
 
-📊 LOGGING, MONITORING & DIAGNOSTICS
-------------------------------------
-Completed
-[x] Enable Activity Log export
+---
 
-Pending / Future
-[ ] Enable diagnostic settings for Key Vault
-[ ] Enable diagnostic settings for Storage Accounts
-[ ] Enable diagnostic settings for VMs
-[ ] Send logs to Log Analytics workspace
-[ ] Enable Azure Monitor alerts for critical events
-[ ] Configure basic metrics alerts (CPU, disk, network)
+# 🧱 COMPUTE & VM SECURITY
 
-Paid tier (out of scope)
-[ ] ❌ NSG Flow Logs v2
-[ ] ❌ Defender for Cloud advanced threat detection
-[ ] ❌ Microsoft Sentinel
+## ✅ Completed
+- [x] Password authentication disabled on Linux VMs
+- [x] SSH keys only
+- [x] No public IPs on any VMs
+- [x] Managed identities used for platform workloads
+- [x] VM disks encrypted (default)
+- [x] Hybrid02 TLS key permissions hardened (600)
 
+## ⏳ Pending / Future
+- [ ] Ensure VM extensions are minimal and necessary
+- [ ] Enable diagnostic logs for VMs
+- [ ] Validate cloud-init scripts do not log secrets
+- [ ] Harden hybrid01 (relay) package footprint
 
-🛡 GOVERNANCE & POLICY
-----------------------
-Completed
-[x] Assign naming and tagging policies
-[x] Assign resource location restrictions
-[x] Deny Key Vault public access
-[x] Deny Storage public access
-[x] Enforce TLS 1.2 on Storage
-[x] Audit policy for diagnostic settings
-[x] Enforce private endpoints on Key Vault + Storage (via architecture)
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Defender for Servers
+- [ ] ❌ Vulnerability Assessment for VMs
 
-Pending / Future
-[ ] Assign Microsoft Cloud Security Benchmark (MCSB)
-[ ] Assign allowed SKUs policies
-[ ] Enforce diagnostic settings (mandatory)
-[ ] Remediate non‑compliant resources
+---
 
-Paid tier (out of scope)
-[ ] ❌ Regulatory compliance dashboards beyond MCSB
+# 📊 LOGGING, MONITORING & DIAGNOSTICS
 
+## ✅ Completed
+- [x] Activity Log export enabled
 
-🧩 PLATFORM HARDENING
----------------------
-Completed
-[x] Use managed identities for automation
-[x] Ensure Terraform state is stored securely
-[x] Use GitHub OIDC for CI/CD
-[x] Implement dedicated private-endpoints subnet
-[x] Harden NSGs and route tables for isolation
+## ⏳ Pending / Future
+- [ ] Enable diagnostic settings for Key Vault (AuditEvent)
+- [ ] Enable diagnostic settings for Storage Accounts (BlobRead/Write/Delete)
+- [ ] Enable diagnostic settings for VMs
+- [ ] Enable diagnostic settings for NSGs, VNets, and private endpoints
+- [ ] Create Log Analytics workspace (free tier acceptable)
+- [ ] Route all diagnostic logs to workspace
+- [ ] Add alert for Key Vault secret access from unexpected identity
+- [ ] Add alert for Storage access from unexpected identity
+- [ ] Add basic metrics alerts (CPU, disk, network)
 
-Pending / Future
-[ ] Enable Key Vault firewall (beyond private endpoint)
-[ ] Enable Storage firewall (beyond private endpoint)
-[ ] Disable public access on App Service
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ NSG Flow Logs v2
+- [ ] ❌ Defender for Cloud advanced threat detection
+- [ ] ❌ Microsoft Sentinel
 
-Paid tier (out of scope)
-[ ] ❌ Defender for Key Vault
-[ ] ❌ Defender for App Service
+---
+
+# 🛡 GOVERNANCE & POLICY
+
+## ✅ Completed
+- [x] Naming and tagging policies assigned
+- [x] Resource location restrictions applied
+- [x] Deny Key Vault public access policy
+- [x] Deny Storage public access policy
+- [x] Enforce TLS 1.2 on Storage
+- [x] Audit policy for diagnostic settings
+- [x] Enforce private endpoints for Key Vault + Storage (architecture)
+
+## ⏳ Pending / Future
+- [ ] Assign Microsoft Cloud Security Benchmark (MCSB)
+- [ ] Assign allowed SKUs policies
+- [ ] Enforce diagnostic settings (mandatory)
+- [ ] Remediate non‑compliant resources
+- [ ] Enforce “Deny public IP” policy for compute
+- [ ] Enforce “Require private endpoints” for PaaS services
+- [ ] Enforce tag requirements (owner, environment, costcenter)
+
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Regulatory compliance dashboards beyond MCSB
+
+---
+
+# 🧩 PLATFORM HARDENING
+
+## ✅ Completed
+- [x] Managed identities used for automation
+- [x] Terraform state stored securely (Storage + RBAC)
+- [x] GitHub OIDC used for CI/CD
+- [x] Dedicated private-endpoints subnet
+- [x] Hardened NSGs and route tables for isolation
+
+## ⏳ Pending / Future
+- [ ] Enable Key Vault firewall (beyond private endpoint)
+- [ ] Enable Storage firewall (beyond private endpoint)
+- [ ] Disable public access on App Service (if introduced)
+- [ ] Document hybrid identity lifecycle (creation, rotation, deletion)
+- [ ] Document SSH relay lifecycle (keys, rotation, access)
+- [ ] Document Terraform state recovery procedure
+- [ ] Validate hub → hybrid01 → hybrid02 trust boundaries
+
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Defender for Key Vault
+- [ ] ❌ Defender for App Service
 
 ============================================================
 

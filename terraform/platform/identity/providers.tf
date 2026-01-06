@@ -2,22 +2,24 @@ terraform {
   required_version = ">= 1.6.0"
 
   required_providers {
-    libvirt = {
-      source  = "dmacvicar/libvirt"
-      version = "~> 0.9.1"
-    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.47.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
-}
-
-provider "libvirt" {
-  uri = "qemu+ssh://${var.libvirt_user}@${var.libvirt_host}/system"
 }
 
 provider "azurerm" {
   features {}
 }
+
+provider "azuread" {}
 

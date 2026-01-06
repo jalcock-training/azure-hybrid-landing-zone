@@ -2,156 +2,109 @@
  🏗️ AZURE LANDING ZONE ARCHITECTURE IMPLEMENTATION CHECKLIST
 ============================================================
 
-🧱 Core Platform Setup
-----------------------
-Completed
-[x] Create platform resource group
-[x] Configure subscription‑level tags
-[x] Configure naming conventions
-[x] Configure tagging standards
-[x] Implement location restrictions
-[x] Implement resource naming prefix (e.g., ahlz-dev-*)
+This checklist tracks the implementation status of the Azure Hybrid Landing Zone architecture, covering platform, shared services, networking, governance, compute, diagnostics, automation, and documentation.
 
-Pending / Future
-[ ] Add environment‑specific prefixes (dev/test/prod)
-[ ] Add subscription separation for production workloads
+---
 
+# 🧱 Core Platform Setup
 
-🔐 Identity & Access Architecture
----------------------------------
-Completed
-[x] Configure tenant ID and subscription ID variables
-[x] Use managed identities for automation
-[x] Use RBAC instead of access keys
-[x] Assign least‑privilege roles to Terraform
+## ✅ Completed
+- [x] Create platform resource group
+- [x] Configure subscription‑level tags
+- [x] Configure naming conventions
+- [x] Configure tagging standards
+- [x] Implement location restrictions
+- [x] Implement resource naming prefix (e.g., ahlz-dev-*)
 
-Pending / Future
-[ ] Implement workload identities for applications
-[ ] Add GitHub OIDC federation for CI/CD
+## ⏳ Pending / Future
+- [ ] Add environment‑specific prefixes (dev/test/prod)
+- [ ] Add subscription separation for production workloads
 
+---
 
-🌐 Networking Architecture
---------------------------
-Completed
-[x] Deploy hub virtual network
-[x] Deploy shared‑services subnet
-[x] Deploy ACI jumpbox subnet
-[x] Deploy private-endpoints subnet
-[x] Configure NSGs for all subnets
-[x] Configure deny‑all inbound rules
-[x] Configure VNet peering (hub <-> spoke)
-[x] Implement private endpoints (replaces service endpoints)
+# 🔐 Identity & Access Architecture
 
-Pending / Future
-[ ] Add additional spoke VNets for workload/environment separation
-[ ] Add UDRs for outbound control
+## ✅ Completed
+- [x] Configure tenant ID and subscription ID variables
+- [x] Use managed identities for automation
+- [x] Use RBAC instead of access keys
+- [x] Assign least‑privilege roles to Terraform
 
-Paid tier (out of scope)
-[ ] ❌ Add Azure Firewall (Standard/Premium)
+## ⏳ Pending / Future
+- [ ] Implement workload identities for applications
+- [ ] Add GitHub OIDC federation for CI/CD
 
+## 💰 Paid Tier (Out of Scope)
+- *(none)*
 
-🧭 Private DNS Architecture
----------------------------
-Completed
-[x] Create private DNS zone for Key Vault
-[x] Create private DNS zone for Storage (Blob)
-[x] Create private DNS zone for Storage (File)
-[x] Link DNS zones to hub VNet
-[x] Add dependency chains to avoid race conditions
+---
 
-Pending / Future
-[ ] Add private DNS zones for SQL, Web Apps, etc.
-[ ] Add DNS forwarding ruleset (Azure DNS Private Resolver)
+# 🌐 Networking Architecture
 
+## ✅ Completed
+- [x] Deploy hub virtual network
+- [x] Deploy shared‑services subnet
+- [x] Deploy ACI jumpbox subnet
+- [x] Deploy private-endpoints subnet
+- [x] Configure NSGs for all subnets
+- [x] Configure deny‑all inbound rules
+- [x] Configure VNet peering (hub <-> spoke)
+- [x] Implement private endpoints (replaces service endpoints)
 
-🛠️ Shared Services Architecture
--------------------------------
-Completed
-[x] Deploy Key Vault
-[x] Enable soft delete and purge protection
-[x] Disable public network access
-[x] Deploy private endpoint for Key Vault
-[x] Deploy Storage Account
-[x] Disable public network access
-[x] Deploy private endpoints for Blob and File
-[x] Configure secure defaults (TLS 1.2+, encryption)
+## ⏳ Pending / Future
+- [ ] Add additional spoke VNets for workload/environment separation
+- [ ] Add UDRs for outbound control
 
-Pending / Future
-[ ] Add Log Analytics workspace
-[ ] Add Automation Account (optional)
-[ ] Add Container Registry (private endpoint)
+## 💰 Paid Tier (Out of Scope)
+- [ ] ❌ Azure Firewall (Standard/Premium)
 
+---
 
-🛡 Governance & Policy Architecture
------------------------------------
-Completed
-[x] Assign allowed locations policy
-[x] Assign required tags policy
-[x] Add feature toggle for subscription‑level policies
-[x] Implement secure‑by‑default resource configuration
-[x] Separate governance module from resource modules
+# 🧭 Private DNS Architecture
 
-Pending / Future
-[ ] Assign Microsoft Cloud Security Benchmark (MCSB)
-[ ] Assign allowed SKUs policies
-[ ] Assign private endpoint enforcement policies
-[ ] Assign diagnostic settings enforcement policies
-[ ] Add remediation tasks
+## ✅ Completed
+- [x] Create private DNS zone for Key Vault
+- [x] Create private DNS zone for Storage (Blob)
+- [x] Create private DNS zone for Storage (File)
+- [x] Link DNS zones to hub VNet
+- [x] Add dependency chains to avoid race conditions
 
+## ⏳ Pending / Future
+- [ ] Add private DNS zones for SQL, Web Apps, etc.
+- [ ] Add DNS forwarding ruleset (Azure DNS Private Resolver)
 
-🖥️ Compute Architecture
-------------------------
-Completed
-[x] Deploy ACI jumpbox container
-[x] Disable public access to compute resources
-[x] Use managed identity for ACI
-[x] Use SSH keys only
+## 💰 Paid Tier (Out of Scope)
+- *(none)*
 
-Pending / Future
-[ ] Add VM workloads (if needed)
-[ ] Add VMSS or AKS (future expansion)
-[ ] Add workload subnets
+---
 
+# 🛠️ Shared Services Architecture
 
-📊 Diagnostics & Monitoring Architecture
-----------------------------------------
-Completed
-[x] Create diagnostics module
-[x] Configure metrics‑only diagnostics for Storage
-[x] Configure metrics‑only diagnostics for VNets
-[x] Add Activity Log export
+## ✅ Completed
+- [x] Deploy Key Vault
+- [x] Enable soft delete and purge protection
+- [x] Disable public network access
+- [x] Deploy private endpoint for Key Vault
+- [x] Deploy Storage Account
+- [x] Disable public network access
+- [x] Deploy private endpoints for Blob and File
+- [x] Configure secure defaults (TLS 1.2+, encryption)
 
-Pending / Future
-[ ] Add diagnostic settings for Key Vault
-[ ] Add diagnostic settings for VMs
-[ ] Add Log Analytics workspace
-[ ] Add alert rules (CPU, disk, network, failures)
+## ⏳ Pending / Future
+- [ ] Add Log Analytics workspace
+- [ ] Add Automation Account (optional)
+- [ ] Add Container Registry (private endpoint)
 
-Paid tier (out of scope)
-[ ] ❌ Add NSG Flow Logs v2
+## 💰 Paid Tier (Out of Scope)
+- *(none)*
 
+---
 
-🤖 Automation & CI/CD Architecture
-----------------------------------
-Completed
-[x] Use Terraform modules for all platform components
-[x] Implement clean variable structure
-[x] Implement feature toggles (governance, diagnostics, private endpoints)
-[x] Maintain clean state and repo hygiene
+# 🛡 Governance & Policy Architecture
 
-Pending / Future
-[ ] Add GitHub Actions pipeline with OIDC
-[ ] Add automated policy compliance checks
-[ ] Add drift detection
-
-
-📚 Documentation Architecture
------------------------------
-Completed
-[x] Architecture diagrams
-[x] Module‑level READMEs
-[x] Security Hardening Checklist
-[x] Architecture Implementation Checklist (this document)
-
-Pending / Future
-[ ] Add end‑to‑
+## ✅ Completed
+- [x] Assign allowed locations policy
+- [x] Assign required tags policy
+- [x] Add feature toggle for subscription‑level policies
+- [x] Implement secure‑by‑default resource configuration
+- [x] Separate governance

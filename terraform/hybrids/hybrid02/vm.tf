@@ -4,12 +4,14 @@
 locals {
   cloud_init_userdata = templatefile("${path.module}/cloud-init-hybrid02.yaml", {
     relay_public_key       = data.terraform_remote_state.hub.outputs.relay_public_key,
-    AZ_TENANT_ID           = data.terraform_remote_state.hub.outputs.relay_tenant_id
-    AZ_CLIENT_ID           = data.terraform_remote_state.hub.outputs.relay_client_id,
-    AZ_CLIENT_SECRET       = data.terraform_remote_state.hub.outputs.relay_client_secret,
+
+    AZ_TENANT_ID           = data.terraform_remote_state.identity.outputs.hybrid_identity_tenant_id,
+    AZ_CLIENT_ID           = data.terraform_remote_state.identity.outputs.hybrid_identity_client_id,
+    AZ_CLIENT_SECRET       = data.terraform_remote_state.identity.outputs.hybrid_identity_client_secret,
+
     KEY_VAULT_NAME         = data.azurerm_key_vault.shared.name,
-    CERT_SECRET_NAME       = "hybrid02-cert",
-    KEY_SECRET_NAME        = "hybrid02-key",
+    CERT_SECRET_NAME       = data.terraform_remote_state.hybrid02_prereqs.outputs.cert_secret_name,
+    KEY_SECRET_NAME        = data.terraform_remote_state.hybrid02_prereqs.outputs.key_secret_name,
     STORAGE_ACCOUNT_NAME   = data.azurerm_storage_account.shared.name,
     STORAGE_CONTAINER_NAME = "workload-content",
   })

@@ -78,6 +78,15 @@ resource "azurerm_role_assignment" "aci_vm_control" {
 }
 
 # ------------------------------------------------------------
+# RBAC: Allow jumphost identity to assign access rights
+# ------------------------------------------------------------
+resource "azurerm_role_assignment" "jumphost_user_access_admin" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "User Access Administrator"
+  principal_id         = module.jumphost_vm.identity_principal_id
+}
+
+# ------------------------------------------------------------
 # Generate SSH keypair for jumphost → hybrid relay access
 # ------------------------------------------------------------
 resource "tls_private_key" "relay" {
